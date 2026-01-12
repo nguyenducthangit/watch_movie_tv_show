@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/video_repository.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
@@ -29,7 +29,7 @@ class SplashController extends GetxController {
       // Step 2: Load manifest (preload data)
       statusMessage.value = 'Loading content...';
       progress.value = 0.5;
-      final repo = VideoRepository();
+      final repo = ManifestRepository();
       await repo.getManifest();
       await Future.delayed(const Duration(milliseconds: 300));
 

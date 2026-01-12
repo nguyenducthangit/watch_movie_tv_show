@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/app_config.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/video_repository.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
@@ -29,7 +29,7 @@ class SettingsController extends GetxController {
   /// Clear manifest cache
   Future<void> clearManifestCache() async {
     try {
-      final repo = VideoRepository();
+      final repo = ManifestRepository();
       await repo.clearCache();
     } catch (e) {
       logger.e('Failed to clear manifest cache: $e');

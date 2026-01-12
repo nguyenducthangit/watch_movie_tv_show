@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_theme.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/services/network_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +27,7 @@ void main() async {
   );
 
   // Register services
+  Get.put(NetworkService(), permanent: true);
   Get.put(DownloadService(), permanent: true);
 
   runApp(const VideoApp());

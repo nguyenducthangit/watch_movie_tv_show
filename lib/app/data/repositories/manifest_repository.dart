@@ -11,7 +11,7 @@ import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Video Repository
 /// Handles fetching and caching of video catalog
-class VideoRepository {
+class ManifestRepository {
   final _dio = DioClient.instance;
   final _storage = StorageService.instance;
 

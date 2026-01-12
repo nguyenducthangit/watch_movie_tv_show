@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
+import 'package:watch_movie_tv_show/app/widgets/shimmer_loading.dart';
 
 /// Cached Image Widget
 /// Wrapper for cached_network_image with default placeholder and error handling
@@ -34,13 +35,15 @@ class CachedImageWidget extends StatelessWidget {
         fit: fit,
         placeholder: (context, url) =>
             placeholder ??
-            Container(
+            placeholder ??
+            ShimmerBox(
               width: width,
               height: height,
-              color: AppColors.shimmerBase,
-              child: const Center(
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-              ),
+              borderRadius: borderRadius != null
+                  ? borderRadius!
+                        .topLeft
+                        .x // Approximation or just 0 if complex
+                  : 0,
             ),
         errorWidget: (context, url, error) =>
             errorWidget ??

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/watch_progress.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
@@ -34,12 +35,6 @@ class PlayerController extends GetxController {
     final args = Get.arguments as Map<String, dynamic>;
     video = args['video'] as VideoItem;
     localPath = args['localPath'] as String?;
-
-    // Lock orientation to landscape for fullscreen
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
 
     // Hide system UI
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -74,14 +69,33 @@ class PlayerController extends GetxController {
         aspectRatio: 16 / 9,
         startAt: startAt,
         allowFullScreen: true,
-        fullScreenByDefault: true,
+        fullScreenByDefault: false, // Let user choose
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ],
         allowMuting: true,
         allowPlaybackSpeedChanging: true,
         showControls: true,
         showControlsOnInitialize: true,
+        // Cinematic Theme Customization
+        materialProgressColors: ChewieProgressColors(
+          playedColor: const Color(0xFFD4AF37), // Cinematic Gold
+          handleColor: const Color(0xFFD4AF37),
+          backgroundColor: Colors.white.withValues(alpha: 0.2),
+          bufferedColor: Colors.white.withValues(alpha: 0.5),
+        ),
+        cupertinoProgressColors: ChewieProgressColors(
+          playedColor: const Color(0xFFD4AF37),
+          handleColor: const Color(0xFFD4AF37),
+          backgroundColor: Colors.white.withValues(alpha: 0.2),
+          bufferedColor: Colors.white.withValues(alpha: 0.5),
+        ),
         placeholder: Container(
           color: Colors.black,
-          child: const Center(child: CircularProgressIndicator(color: Colors.white)),
+          child: const Center(child: CircularProgressIndicator(color: Color(0xFFD4AF37))),
         ),
         errorBuilder: (context, errorMessage) {
           return Center(
@@ -96,7 +110,11 @@ class PlayerController extends GetxController {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(onPressed: retry, child: const Text('Retry')),
+                ElevatedButton(
+                  onPressed: retry,
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD4AF37)),
+                  child: const Text('Retry', style: TextStyle(color: Colors.black)),
+                ),
               ],
             ),
           );
@@ -108,6 +126,10 @@ class PlayerController extends GetxController {
 
       isInitialized.value = true;
       totalDuration.value = videoPlayerController!.value.duration;
+
+      // Enable Wakelock to keep screen on
+      WakelockPlus.enable();
+
       logger.i('Player initialized for: ${video.title}');
     } catch (e) {
       logger.e('Failed to initialize player: $e');
@@ -195,14 +217,11 @@ class PlayerController extends GetxController {
     // Dispose player
     _disposePlayer();
 
-    // Restore orientation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
     // Restore system UI
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+    // Disable Wakelock
+    WakelockPlus.disable();
 
     super.onClose();
   }

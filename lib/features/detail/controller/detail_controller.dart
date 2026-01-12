@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
@@ -13,7 +14,9 @@ class DetailController extends GetxController {
   final RxBool isDownloading = false.obs;
   final RxBool isDownloaded = false.obs;
   final RxDouble downloadProgress = 0.0.obs;
+
   final Rx<VideoQuality?> selectedQuality = Rx<VideoQuality?>(null);
+  final RxBool isInWatchlist = false.obs;
 
   @override
   void onInit() {
@@ -39,6 +42,28 @@ class DetailController extends GetxController {
     ever(downloadService.completedDownloads, (_) {
       isDownloaded.value = downloadService.isDownloaded(video.id);
     });
+
+    // Check watchlist
+    isInWatchlist.value = StorageService.instance.isInWatchlist(video.id);
+  }
+
+  /// Toggle watchlist
+  Future<void> toggleWatchlist() async {
+    final result = await StorageService.instance.toggleWatchlist(video.id);
+    isInWatchlist.value = result;
+    Get.snackbar(
+      result ? 'Added to List' : 'Removed from List',
+      result
+          ? '${video.title} added to your watchlist'
+          : '${video.title} removed from your watchlist',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  /// Share video
+  void shareVideo() {
+    Share.share('Check out this video: ${video.title}\n${video.streamUrl}');
   }
 
   /// Play video

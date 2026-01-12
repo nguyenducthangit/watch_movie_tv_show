@@ -38,7 +38,10 @@ class HomeVideoCard extends StatelessWidget {
               children: [
                 AspectRatio(
                   aspectRatio: 16 / 10,
-                  child: CachedImageWidget(imageUrl: video.thumbnailUrl, fit: BoxFit.cover),
+                  child: Hero(
+                    tag: 'video_thumb_${video.id}',
+                    child: CachedImageWidget(imageUrl: video.thumbnailUrl, fit: BoxFit.cover),
+                  ),
                 ),
                 // Gradient overlay
                 Positioned.fill(

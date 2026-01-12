@@ -1,20 +1,22 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/video_repository.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Home Controller
 /// Manages video catalog display and search
 class HomeController extends GetxController {
-  final VideoRepository _repo = VideoRepository();
+  final ManifestRepository _repo = ManifestRepository();
 
   // State
   final RxBool isLoading = true.obs;
   final RxBool isRefreshing = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool showWatchlistOnly = false.obs;
 
   // Data
   final RxList<VideoItem> videos = <VideoItem>[].obs;
@@ -90,7 +92,28 @@ class HomeController extends GetxController {
       result = result.where((v) => v.title.toLowerCase().contains(query)).toList();
     }
 
+    // Apply search filter
+    if (searchQuery.value.isNotEmpty) {
+      final query = searchQuery.value.toLowerCase();
+      result = result.where((v) => v.title.toLowerCase().contains(query)).toList();
+    }
+
+    // Apply watchlist filter
+    if (showWatchlistOnly.value) {
+      final watchlistIds = StorageService.instance.getWatchlistIds();
+      result = result.where((v) => watchlistIds.contains(v.id)).toList();
+    }
+
     filteredVideos.value = result;
+  }
+
+  /// Toggle watchlist filter
+  void toggleWatchlistFilter() {
+    showWatchlistOnly.value = !showWatchlistOnly.value;
+    if (showWatchlistOnly.value) {
+      selectedTag.value = ''; // Clear tags if showing watchlist
+    }
+    _applyFilters();
   }
 
   /// Set search query

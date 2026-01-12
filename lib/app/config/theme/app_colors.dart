@@ -5,42 +5,42 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Colors
-  static const Color primary = Color(0xFF6366F1);
-  static const Color primaryLight = Color(0xFF818CF8);
-  static const Color primaryDark = Color(0xFF4F46E5);
+  // Primary Colors (Gold/Amber for cinematic feel)
+  static const Color primary = Color(0xFFD4AF37); // Metallic Gold
+  static const Color primaryLight = Color(0xFFF4C430);
+  static const Color primaryDark = Color(0xFFA67D3D);
 
   // Accent/Secondary
-  static const Color secondary = Color(0xFFF472B6);
-  static const Color accent = Color(0xFF22D3EE);
+  static const Color secondary = Color(0xFFE5E7EB); // Silver/White
+  static const Color accent = Color(0xFF6366F1); // Indigo for accents
 
-  // Background Colors
-  static const Color background = Color(0xFF0F0F23);
-  static const Color surface = Color(0xFF1A1A2E);
-  static const Color surfaceVariant = Color(0xFF252542);
-  static const Color card = Color(0xFF16213E);
+  // Background Colors (Deep Black/Grey)
+  static const Color background = Color(0xFF000000); // Pure Black
+  static const Color surface = Color(0xFF141414); // Very Dark Grey
+  static const Color surfaceVariant = Color(0xFF262626);
+  static const Color card = Color(0xFF1C1C1C);
 
   // Text Colors
   static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFB4B4C7);
-  static const Color textTertiary = Color(0xFF6B7280);
-  static const Color textBody = Color(0xFFE5E7EB);
+  static const Color textSecondary = Color(0xFFA1A1AA); // Zinc-400
+  static const Color textTertiary = Color(0xFF71717A); // Zinc-500
+  static const Color textBody = Color(0xFFD4D4D8); // Zinc-300
 
   // Gradient
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primary, secondary],
+    colors: [primary, primaryLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
+    colors: [Color(0xFF1C1C1C), Color(0xFF181818)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
   static const LinearGradient overlayGradient = LinearGradient(
-    colors: [Colors.transparent, Color(0xCC000000)],
+    colors: [Colors.transparent, Color(0xE6000000)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
@@ -52,20 +52,20 @@ class AppColors {
   static const Color info = Color(0xFF3B82F6);
 
   // Shimmer Colors
-  static const Color shimmerBase = Color(0xFF252542);
-  static const Color shimmerHighlight = Color(0xFF3D3D5C);
+  static const Color shimmerBase = Color(0xFF262626);
+  static const Color shimmerHighlight = Color(0xFF404040);
 
   // Divider & Border
-  static const Color divider = Color(0xFF2D2D4A);
-  static const Color border = Color(0xFF3D3D5C);
+  static const Color divider = Color(0xFF27272A);
+  static const Color border = Color(0xFF3F3F46);
 
   // Overlay
-  static const Color overlay = Color(0x99000000);
-  static const Color modalBarrier = Color(0xCC000000);
+  static const Color overlay = Color(0xAA000000);
+  static const Color modalBarrier = Color(0xD9000000);
 
   // Download Status
   static const Color downloadQueued = textTertiary;
-  static const Color downloadActive = accent;
+  static const Color downloadActive = primary;
   static const Color downloadPaused = warning;
   static const Color downloadCompleted = success;
   static const Color downloadFailed = error;

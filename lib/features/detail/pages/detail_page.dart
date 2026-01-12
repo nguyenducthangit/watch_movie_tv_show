@@ -8,7 +8,7 @@ import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/features/detail/binding/detail_binding.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
-import 'package:watch_movie_tv_show/features/detail/widgets/detail_quality_sheet.dart';
+import 'package:watch_movie_tv_show/features/downloads/widgets/download_button.dart';
 
 /// Detail Page
 class DetailPage extends GetView<DetailController> {
@@ -50,7 +50,13 @@ class DetailPage extends GetView<DetailController> {
                 fit: StackFit.expand,
                 children: [
                   // Thumbnail
-                  CachedImageWidget(imageUrl: controller.video.thumbnailUrl, fit: BoxFit.cover),
+                  Hero(
+                    tag: 'video_thumb_${controller.video.id}',
+                    child: CachedImageWidget(
+                      imageUrl: controller.video.thumbnailUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                   // Gradient overlay
                   Container(
                     decoration: BoxDecoration(
@@ -145,16 +151,36 @@ class DetailPage extends GetView<DetailController> {
                       ),
                       const SizedBox(width: 12),
                       // Download button
-                      Expanded(
-                        child: Obx(
-                          () => _DownloadButton(
-                            isDownloaded: controller.isDownloaded.value,
-                            isDownloading: controller.isDownloading.value,
-                            progress: controller.downloadProgress.value,
-                            onPressed: () => _showQualitySheet(context),
-                            onCancel: controller.cancelDownload,
-                            onDelete: controller.deleteDownload,
+                      DownloadButton(video: controller.video),
+                      const SizedBox(width: 12),
+                      // Watchlist button
+                      Obx(
+                        () => IconButton(
+                          onPressed: controller.toggleWatchlist,
+                          icon: Icon(
+                            controller.isInWatchlist.value
+                                ? Icons.bookmark_rounded
+                                : Icons.bookmark_border_rounded,
+                            color: controller.isInWatchlist.value
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
                           ),
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.surfaceVariant,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.all(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Share button
+                      IconButton(
+                        onPressed: controller.shareVideo,
+                        icon: const Icon(Icons.share_rounded, color: AppColors.textSecondary),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.surfaceVariant,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.all(12),
                         ),
                       ),
                     ],
@@ -181,25 +207,6 @@ class DetailPage extends GetView<DetailController> {
       ),
     );
   }
-
-  void _showQualitySheet(BuildContext context) {
-    if (controller.isDownloaded.value || controller.isDownloading.value) {
-      return;
-    }
-
-    if (controller.video.hasDownloadOptions) {
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder: (_) => DetailQualitySheet(
-          qualities: controller.video.downloadQualities!,
-          onSelect: controller.startDownload,
-        ),
-      );
-    } else {
-      Get.snackbar('No Download', 'Download not available for this video');
-    }
-  }
 }
 
 /// Play Button Widget
@@ -217,81 +224,6 @@ class _PlayButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-}
-
-/// Download Button Widget
-class _DownloadButton extends StatelessWidget {
-  const _DownloadButton({
-    required this.isDownloaded,
-    required this.isDownloading,
-    required this.progress,
-    required this.onPressed,
-    required this.onCancel,
-    required this.onDelete,
-  });
-  final bool isDownloaded;
-  final bool isDownloading;
-  final double progress;
-  final VoidCallback onPressed;
-  final VoidCallback onCancel;
-  final VoidCallback onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isDownloaded) {
-      return OutlinedButton.icon(
-        onPressed: onDelete,
-        icon: const Icon(Icons.download_done_rounded),
-        label: const Text('Done'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.success,
-          side: const BorderSide(color: AppColors.success),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-    }
-
-    if (isDownloading) {
-      return OutlinedButton(
-        onPressed: onCancel,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
-          side: const BorderSide(color: AppColors.border),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                value: progress,
-                strokeWidth: 2,
-                color: AppColors.primary,
-                backgroundColor: AppColors.surfaceVariant,
-              ),
-            ),
-            const Icon(Icons.close, size: 12, color: AppColors.textSecondary),
-          ],
-        ),
-      );
-    }
-
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: const Icon(Icons.download_rounded),
-      label: const Text('Save'),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textSecondary,
-        side: const BorderSide(color: AppColors.border),
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

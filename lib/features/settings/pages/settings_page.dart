@@ -85,7 +85,8 @@ class SettingsContent extends GetView<SettingsController> {
                     icon: Icons.info_outline_rounded,
                     title: AppStrings.version,
                     subtitle: controller.appVersion,
-                    showChevron: false,
+                    showChevron: true,
+                    onTap: () => Get.toNamed(MRoutes.about),
                   ),
 
                   const _SettingsItem(

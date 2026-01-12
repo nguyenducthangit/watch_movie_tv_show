@@ -6,10 +6,11 @@ import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 
 /// Quality Selection Bottom Sheet
-class DetailQualitySheet extends StatelessWidget {
-  const DetailQualitySheet({super.key, required this.qualities, required this.onSelect});
+
+class QualitySheet extends StatelessWidget {
+  const QualitySheet({super.key, required this.qualities, required this.onSelected});
   final List<VideoQuality> qualities;
-  final ValueChanged<VideoQuality> onSelect;
+  final ValueChanged<VideoQuality> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +53,7 @@ class DetailQualitySheet extends StatelessWidget {
             separatorBuilder: (_, __) => const Divider(color: AppColors.divider, height: 1),
             itemBuilder: (context, index) {
               final quality = qualities[index];
-              return _QualityItem(quality: quality, onTap: () => onSelect(quality));
+              return _QualityItem(quality: quality, onTap: () => onSelected(quality));
             },
           ),
           const SizedBox(height: 32),

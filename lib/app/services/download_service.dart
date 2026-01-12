@@ -310,12 +310,18 @@ class DownloadService extends GetxService {
 
   /// Check if video is downloaded
   bool isDownloaded(String videoId) {
-    return _storage.isVideoDownloaded(videoId);
+    return completedDownloads.any((t) => t.videoId == videoId);
   }
 
   /// Get download task
   DownloadTask? getTask(String videoId) {
-    return _storage.getDownloadTask(videoId);
+    for (final task in activeDownloads) {
+      if (task.videoId == videoId) return task;
+    }
+    for (final task in completedDownloads) {
+      if (task.videoId == videoId) return task;
+    }
+    return null;
   }
 
   /// Get download progress

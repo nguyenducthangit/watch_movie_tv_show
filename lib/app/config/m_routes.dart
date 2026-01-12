@@ -5,6 +5,7 @@ import 'package:watch_movie_tv_show/features/downloads/pages/downloads_page.dart
 import 'package:watch_movie_tv_show/features/home/pages/home_page.dart';
 import 'package:watch_movie_tv_show/features/main_nav/pages/main_nav_page.dart';
 import 'package:watch_movie_tv_show/features/player/pages/player_page.dart';
+import 'package:watch_movie_tv_show/features/settings/pages/about_page.dart';
 import 'package:watch_movie_tv_show/features/settings/pages/settings_page.dart';
 // Feature imports
 import 'package:watch_movie_tv_show/features/splash/pages/splash_page.dart';
@@ -21,6 +22,7 @@ class MRoutes {
   static const String player = '/player';
   static const String downloads = '/downloads';
   static const String settings = '/settings';
+  static const String about = '/about';
 
   /// Initial route
   static const String initial = splash;
@@ -42,6 +44,8 @@ class MRoutes {
         return DownloadsPage.getPageRoute(settings);
       case MRoutes.settings:
         return SettingsPage.getPageRoute(settings);
+      case MRoutes.about:
+        return AboutPage.getPageRoute(settings);
       default:
         return _errorRoute(settings);
     }

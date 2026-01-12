@@ -80,40 +80,82 @@ class HomeContent extends GetView<HomeController> {
             ),
             const SizedBox(height: 16),
 
-            // Tags filter
             Obx(
-              () => controller.tags.isNotEmpty
-                  ? SizedBox(
-                      height: 36,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: controller.tags.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          final tag = controller.tags[index];
-                          final isSelected = controller.selectedTag.value == tag;
-                          return GestureDetector(
-                            onTap: () => controller.setTag(tag),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                tag,
-                                style: MTextTheme.captionMedium.copyWith(
-                                  color: isSelected ? Colors.white : AppColors.textSecondary,
-                                ),
+              () => SizedBox(
+                height: 36,
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    // My List Filter
+                    GestureDetector(
+                      onTap: controller.toggleWatchlistFilter,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: controller.showWatchlistOnly.value
+                              ? AppColors.primary
+                              : AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: controller.showWatchlistOnly.value
+                                ? AppColors.primary
+                                : AppColors.surfaceVariant,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              controller.showWatchlistOnly.value
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_border_rounded,
+                              size: 16,
+                              color: controller.showWatchlistOnly.value
+                                  ? Colors.white
+                                  : AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'My List',
+                              style: MTextTheme.captionMedium.copyWith(
+                                color: controller.showWatchlistOnly.value
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
                               ),
                             ),
-                          );
-                        },
+                          ],
+                        ),
                       ),
-                    )
-                  : const SizedBox(),
+                    ),
+                    const SizedBox(width: 8),
+                    // Tags
+                    ...controller.tags.map((tag) {
+                      final isSelected = controller.selectedTag.value == tag;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onTap: () => controller.setTag(tag),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              tag,
+                              style: MTextTheme.captionMedium.copyWith(
+                                color: isSelected ? Colors.white : AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -122,7 +164,7 @@ class HomeContent extends GetView<HomeController> {
               child: Obx(() {
                 // Loading state
                 if (controller.isLoading.value) {
-                  return const GridSkeleton();
+                  return const GridSkeleton(aspectRatio: 0.65);
                 }
 
                 // Error state

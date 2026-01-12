@@ -11,6 +11,8 @@ class StorageService {
   static const String _manifestBoxName = 'manifest_box';
   static const String _downloadBoxName = 'download_box';
   static const String _progressBoxName = 'progress_box';
+
+  static const String _watchlistBoxName = 'watchlist_box';
   static const String _settingsBoxName = 'settings_box';
 
   static const String _manifestKey = 'cached_manifest';
@@ -19,6 +21,7 @@ class StorageService {
   late Box<String> _manifestBox;
   late Box<DownloadTask> _downloadBox;
   late Box<WatchProgress> _progressBox;
+  late Box<String> _watchlistBox;
   late Box<dynamic> _settingsBox;
 
   /// Get singleton instance
@@ -40,6 +43,7 @@ class StorageService {
     _manifestBox = await Hive.openBox<String>(_manifestBoxName);
     _downloadBox = await Hive.openBox<DownloadTask>(_downloadBoxName);
     _progressBox = await Hive.openBox<WatchProgress>(_progressBoxName);
+    _watchlistBox = await Hive.openBox<String>(_watchlistBoxName);
     _settingsBox = await Hive.openBox(_settingsBoxName);
 
     logger.i('StorageService initialized');
@@ -142,6 +146,34 @@ class StorageService {
     await _progressBox.clear();
   }
 
+  // ============ Watchlist ============
+
+  /// Toggle watchlist
+  Future<bool> toggleWatchlist(String videoId) async {
+    if (_watchlistBox.containsKey(videoId)) {
+      await _watchlistBox.delete(videoId);
+      return false; // Removed
+    } else {
+      await _watchlistBox.put(videoId, videoId);
+      return true; // Added
+    }
+  }
+
+  /// Get all watchlist IDs
+  List<String> getWatchlistIds() {
+    return _watchlistBox.values.toList();
+  }
+
+  /// Check if in watchlist
+  bool isInWatchlist(String videoId) {
+    return _watchlistBox.containsKey(videoId);
+  }
+
+  /// Clear watchlist
+  Future<void> clearWatchlist() async {
+    await _watchlistBox.clear();
+  }
+
   // ============ Settings ============
 
   /// Save setting
@@ -166,6 +198,7 @@ class StorageService {
     await _manifestBox.clear();
     await _downloadBox.clear();
     await _progressBox.clear();
+    await _watchlistBox.clear();
     await _settingsBox.clear();
     logger.i('All storage cleared');
   }
@@ -175,6 +208,7 @@ class StorageService {
     await _manifestBox.close();
     await _downloadBox.close();
     await _progressBox.close();
+    await _watchlistBox.close();
     await _settingsBox.close();
   }
 }

@@ -53,7 +53,7 @@ class VideoCardSkeleton extends StatelessWidget {
         children: [
           // Thumbnail
           AspectRatio(
-            aspectRatio: 16 / 9,
+            aspectRatio: 16 / 10,
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.shimmerBase,
