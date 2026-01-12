@@ -1,0 +1,41 @@
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# For more info: https://dart.dev/guides/language/analysis-options
+
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # --- Basic Rules ---
+    avoid_print: false  # Allow print for dev debugging
+    prefer_single_quotes: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+
+    # --- Senior Practices ---
+    always_declare_return_types: true
+    avoid_dynamic_calls: true
+    avoid_relative_lib_imports: true
+    avoid_unused_constructor_parameters: true
+    camel_case_types: true
+    curly_braces_in_flow_control_structures: true
+    directives_ordering: true
+    no_leading_underscores_for_local_identifiers: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    prefer_interpolation_to_compose_strings: true
+    require_trailing_commas: true
+    sort_constructors_first: true
+    unnecessary_null_in_if_null_operators: true
+    use_key_in_widget_constructors: true
+
+analyzer:
+  exclude:
+    - build/**
+    - lib/generated/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  errors:
+    missing_required_param: error
+    invalid_use_of_protected_member: error

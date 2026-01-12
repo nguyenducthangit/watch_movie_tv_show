@@ -1,0 +1,217 @@
+{
+    "version": 1,
+    "updatedAt": "2026-01-12T00:00:00Z",
+    "items": [
+        {
+            "id": "ep01",
+            "title": "Episode 1 - The Beginning",
+            "description": "The story begins with an unexpected journey. Our protagonist discovers a hidden world that will change everything they know about reality.",
+            "durationSec": 2780,
+            "thumbnailUrl": "https://picsum.photos/seed/video1/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                        "sizeMB": 120
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                        "sizeMB": 380
+                    }
+                ]
+            },
+            "tags": [
+                "season1",
+                "action"
+            ]
+        },
+        {
+            "id": "ep02",
+            "title": "Episode 2 - New Horizons",
+            "description": "The adventure continues as new allies join the quest. Together they face challenges that test their courage and determination.",
+            "durationSec": 3120,
+            "thumbnailUrl": "https://picsum.photos/seed/video2/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                        "sizeMB": 95
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                        "sizeMB": 320
+                    }
+                ]
+            },
+            "tags": [
+                "season1",
+                "drama"
+            ]
+        },
+        {
+            "id": "ep03",
+            "title": "Episode 3 - The Challenge",
+            "description": "A great challenge awaits. The team must work together to overcome obstacles that seem impossible to conquer.",
+            "durationSec": 2540,
+            "thumbnailUrl": "https://picsum.photos/seed/video3/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        "sizeMB": 85
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        "sizeMB": 280
+                    }
+                ]
+            },
+            "tags": [
+                "season1",
+                "action",
+                "thriller"
+            ]
+        },
+        {
+            "id": "ep04",
+            "title": "Episode 4 - Revelations",
+            "description": "Secrets are revealed that change everything. What was once hidden now comes to light in unexpected ways.",
+            "durationSec": 2890,
+            "thumbnailUrl": "https://picsum.photos/seed/video4/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                        "sizeMB": 100
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                        "sizeMB": 340
+                    }
+                ]
+            },
+            "tags": [
+                "season1",
+                "mystery"
+            ]
+        },
+        {
+            "id": "ep05",
+            "title": "Episode 5 - The Alliance",
+            "description": "New alliances are formed. Former enemies become friends in the face of a common threat.",
+            "durationSec": 3200,
+            "thumbnailUrl": "https://picsum.photos/seed/video5/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+                        "sizeMB": 110
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+                        "sizeMB": 360
+                    }
+                ]
+            },
+            "tags": [
+                "season1",
+                "drama"
+            ]
+        },
+        {
+            "id": "ep06",
+            "title": "Episode 6 - Final Battle",
+            "description": "The epic conclusion of season one. Everything leads to this moment - the final confrontation.",
+            "durationSec": 3600,
+            "thumbnailUrl": "https://picsum.photos/seed/video6/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+                        "sizeMB": 130
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+                        "sizeMB": 400
+                    }
+                ]
+            },
+            "tags": [
+                "season1",
+                "action",
+                "finale"
+            ]
+        },
+        {
+            "id": "ep07",
+            "title": "Season 2 - New Dawn",
+            "description": "A new season begins with fresh challenges and new characters joining the adventure.",
+            "durationSec": 2650,
+            "thumbnailUrl": "https://picsum.photos/seed/video7/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+                        "sizeMB": 90
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+                        "sizeMB": 300
+                    }
+                ]
+            },
+            "tags": [
+                "season2",
+                "adventure"
+            ]
+        },
+        {
+            "id": "ep08",
+            "title": "Season 2 - Dark Waters",
+            "description": "The journey takes a darker turn as the team faces their greatest fears.",
+            "durationSec": 2980,
+            "thumbnailUrl": "https://picsum.photos/seed/video8/640/360",
+            "streamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+            "download": {
+                "qualities": [
+                    {
+                        "label": "360p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+                        "sizeMB": 105
+                    },
+                    {
+                        "label": "720p",
+                        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+                        "sizeMB": 350
+                    }
+                ]
+            },
+            "tags": [
+                "season2",
+                "thriller",
+                "mystery"
+            ]
+        }
+    ]
+}
