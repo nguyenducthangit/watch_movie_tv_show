@@ -3,7 +3,6 @@ import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
-import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
@@ -20,7 +19,6 @@ class HomeController extends GetxController {
   final RxBool isRefreshing = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
-  final RxBool showWatchlistOnly = false.obs;
 
   // Data
   final RxList<VideoItem> videos = <VideoItem>[].obs;
@@ -37,6 +35,10 @@ class HomeController extends GetxController {
   // Search & Filter
   final RxString searchQuery = ''.obs;
   final RxString selectedTag = ''.obs;
+  final RxBool isSearchExpanded = false.obs;
+
+  /// Toggle search expansion
+  void toggleSearch() => isSearchExpanded.toggle();
 
   @override
   void onInit() {
@@ -164,23 +166,10 @@ class HomeController extends GetxController {
       result = result.where((v) => v.title.toLowerCase().contains(query)).toList();
     }
 
-    // Apply watchlist filter
-    if (showWatchlistOnly.value) {
-      final watchlistIds = StorageService.instance.getWatchlistIds();
-      result = result.where((v) => watchlistIds.contains(v.id)).toList();
-    }
-
     filteredVideos.value = result;
   }
 
-  /// Toggle watchlist filter
-  void toggleWatchlistFilter() {
-    showWatchlistOnly.value = !showWatchlistOnly.value;
-    if (showWatchlistOnly.value) {
-      selectedTag.value = ''; // Clear tags if showing watchlist
-    }
-    _applyFilters();
-  }
+  /// Set search query
 
   /// Set search query
   void setSearch(String query) {
@@ -220,7 +209,8 @@ class HomeController extends GetxController {
 
   /// Play video directly
   void playVideo(VideoItem video) {
-    Get.toNamed(MRoutes.player, arguments: video);
+    final localPath = DownloadService.to.getLocalPath(video.id);
+    Get.toNamed(MRoutes.player, arguments: {'video': video, 'localPath': localPath});
   }
 
   /// Retry loading
@@ -229,8 +219,7 @@ class HomeController extends GetxController {
   }
 
   /// Check if in browse/search mode (no filters active)
-  bool get isBrowseMode =>
-      searchQuery.value.isEmpty && selectedTag.value.isEmpty && !showWatchlistOnly.value;
+  bool get isBrowseMode => searchQuery.value.isEmpty && selectedTag.value.isEmpty;
 
   /// Check if has any continue watching
   bool get hasContinueWatching => continueWatching.isNotEmpty;

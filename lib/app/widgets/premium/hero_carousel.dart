@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_animations.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_effects.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/animated_button.dart';
 
@@ -18,7 +20,7 @@ class HeroCarousel extends StatefulWidget {
     required this.onVideoTap,
     required this.onPlayTap,
     this.height = 340,
-    this.autoRotateInterval = const Duration(seconds: 5),
+    this.autoRotateInterval = const Duration(seconds: 10),
   });
 
   final List<VideoItem> videos;
@@ -104,7 +106,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
           onTap: (index) {
             _pageController.animateToPage(
               index,
-              duration: AppAnimations.normal,
+              duration: const Duration(milliseconds: 500),
               curve: AppAnimations.defaultCurve,
             );
             _resetAutoRotate();
@@ -202,14 +204,8 @@ class _HeroItem extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
 
-                    // More info
-                    AnimatedIconButton(
-                      icon: Icons.info_outline_rounded,
-                      onPressed: onTap,
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      iconColor: Colors.white,
-                      tooltip: 'More Info',
-                    ),
+                    // Watchlist button
+                    _WatchlistButton(video: video),
                   ],
                 ),
               ],
@@ -250,5 +246,91 @@ class _PageIndicators extends StatelessWidget {
         );
       }),
     );
+  }
+}
+
+/// Watchlist Button
+class _WatchlistButton extends StatefulWidget {
+  const _WatchlistButton({required this.video});
+  final VideoItem video;
+
+  @override
+  State<_WatchlistButton> createState() => _WatchlistButtonState();
+}
+
+class _WatchlistButtonState extends State<_WatchlistButton> {
+  bool _isLoading = false;
+
+  Future<void> _handleTap() async {
+    if (_isLoading) return;
+    if (!Get.isRegistered<WatchlistService>()) return;
+
+    final watchlistService = Get.find<WatchlistService>();
+    final isAdding = !watchlistService.isInWatchlist(widget.video.id);
+
+    setState(() => _isLoading = true);
+
+    // Artificial delay: 2s when adding (loading -> tick), 600ms when removing
+    if (isAdding) {
+      await Future.delayed(const Duration(seconds: 2));
+    } else {
+      await Future.delayed(const Duration(milliseconds: 600));
+    }
+
+    await watchlistService.toggleWatchlist(widget.video.id);
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Get.isRegistered<WatchlistService>()) return const SizedBox.shrink();
+
+    final watchlistService = Get.find<WatchlistService>();
+
+    return Obx(() {
+      final isInWatchlist = watchlistService.isInWatchlist(widget.video.id);
+
+      return AnimatedButton(
+        onPressed: _handleTap,
+        child: Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_isLoading) ...[
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text('Watchlist', style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
+              ] else ...[
+                Icon(
+                  isInWatchlist ? Icons.check_rounded : Icons.add_rounded,
+                  color: isInWatchlist
+                      ? const Color(0xFF4ADE80)
+                      : Colors.white, // Green-400 equivalent for tick
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text('Watchlist', style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
+              ],
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

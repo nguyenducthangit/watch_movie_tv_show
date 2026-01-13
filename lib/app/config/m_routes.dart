@@ -9,6 +9,7 @@ import 'package:watch_movie_tv_show/features/settings/pages/about_page.dart';
 import 'package:watch_movie_tv_show/features/settings/pages/settings_page.dart';
 // Feature imports
 import 'package:watch_movie_tv_show/features/splash/pages/splash_page.dart';
+import 'package:watch_movie_tv_show/features/watchlist/pages/watchlist_page.dart';
 
 /// Route Constants
 class MRoutes {
@@ -21,6 +22,7 @@ class MRoutes {
   static const String detail = '/detail';
   static const String player = '/player';
   static const String downloads = '/downloads';
+  static const String watchlist = '/watchlist';
   static const String settings = '/settings';
   static const String about = '/about';
 
@@ -44,6 +46,8 @@ class MRoutes {
         return DownloadsPage.getPageRoute(settings);
       case MRoutes.settings:
         return SettingsPage.getPageRoute(settings);
+      case MRoutes.watchlist:
+        return WatchlistPage.getPageRoute(settings);
       case MRoutes.about:
         return AboutPage.getPageRoute(settings);
       default:

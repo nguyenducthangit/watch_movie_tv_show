@@ -39,9 +39,18 @@ class SettingsContent extends GetView<SettingsController> {
             // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-              child: Text(
-                AppStrings.settingsTitle,
-                style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppStrings.settingsTitle,
+                    style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary),
+                  ),
+                ],
               ),
             ),
 

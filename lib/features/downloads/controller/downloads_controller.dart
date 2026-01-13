@@ -8,6 +8,10 @@ import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 class DownloadsController extends GetxController {
   final DownloadService _downloadService = DownloadService.to;
 
+  // Edit mode state
+  final RxBool isEditMode = false.obs;
+  final RxList<String> selectedIds = <String>[].obs;
+
   // Expose download service observables
   RxList<DownloadTask> get activeDownloads => _downloadService.activeDownloads;
   RxList<DownloadTask> get completedDownloads => _downloadService.completedDownloads;
@@ -16,6 +20,63 @@ class DownloadsController extends GetxController {
   /// Get storage used string
   String get storageUsedString {
     return totalStorageBytes.value.toBytesString();
+  }
+
+  /// Toggle edit mode
+  void toggleEditMode() {
+    isEditMode.value = !isEditMode.value;
+    if (!isEditMode.value) {
+      selectedIds.clear();
+    }
+  }
+
+  /// Toggle selection for a video
+  void toggleSelection(String videoId) {
+    if (selectedIds.contains(videoId)) {
+      selectedIds.remove(videoId);
+    } else {
+      selectedIds.add(videoId);
+    }
+  }
+
+  /// Select all completed downloads
+  void selectAll() {
+    selectedIds.clear();
+    selectedIds.addAll(completedDownloads.map((task) => task.videoId));
+  }
+
+  /// Unselect all
+  void unselectAll() {
+    selectedIds.clear();
+  }
+
+  /// Check if video is selected
+  bool isSelected(String videoId) {
+    return selectedIds.contains(videoId);
+  }
+
+  /// Get selected count
+  int get selectedCount => selectedIds.length;
+
+  /// Delete selected downloads
+  void deleteSelected() {
+    if (selectedIds.isEmpty) return;
+
+    Get.defaultDialog(
+      title: 'Delete ${selectedIds.length} Videos',
+      middleText: 'Are you sure you want to delete ${selectedIds.length} video(s)?',
+      textConfirm: 'Delete',
+      textCancel: 'Cancel',
+      onConfirm: () {
+        // Delete each selected video
+        for (final videoId in selectedIds.toList()) {
+          _downloadService.deleteDownload(videoId);
+        }
+        // Exit edit mode
+        toggleEditMode();
+        Get.back();
+      },
+    );
   }
 
   /// Play downloaded video

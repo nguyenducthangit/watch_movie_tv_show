@@ -7,7 +7,7 @@ import 'package:watch_movie_tv_show/features/downloads/pages/downloads_page.dart
 import 'package:watch_movie_tv_show/features/home/pages/home_page.dart';
 import 'package:watch_movie_tv_show/features/main_nav/binding/main_nav_binding.dart';
 import 'package:watch_movie_tv_show/features/main_nav/controller/main_nav_controller.dart';
-import 'package:watch_movie_tv_show/features/settings/pages/settings_page.dart';
+import 'package:watch_movie_tv_show/features/watchlist/pages/watchlist_page.dart';
 
 /// Main Navigation Page
 /// Bottom navigation with 3 tabs: Home, Downloads, Settings
@@ -29,7 +29,7 @@ class MainNavPage extends GetView<MainNavController> {
       body: Obx(
         () => IndexedStack(
           index: controller.currentIndex.value,
-          children: const [HomeContent(), DownloadsContent(), SettingsContent()],
+          children: const [HomeContent(), DownloadsContent(), WatchlistContent()],
         ),
       ),
       bottomNavigationBar: Obx(
@@ -63,8 +63,8 @@ class MainNavPage extends GetView<MainNavController> {
                     onTap: () => controller.changeTab(1),
                   ),
                   _NavItem(
-                    icon: Icons.settings_rounded,
-                    label: AppStrings.settings,
+                    icon: Icons.bookmark_rounded,
+                    label: AppStrings.watchlist,
                     isSelected: controller.currentIndex.value == 2,
                     onTap: () => controller.changeTab(2),
                   ),

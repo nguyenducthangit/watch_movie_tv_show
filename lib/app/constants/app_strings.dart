@@ -3,12 +3,13 @@ class AppStrings {
   AppStrings._();
 
   // App
-  static const String appName = 'Video App';
+  static const String appName = 'ANGEL';
 
   // Navigation
   static const String home = 'Home';
   static const String downloads = 'Downloads';
   static const String settings = 'Settings';
+  static const String watchlist = 'Watchlist';
 
   // Home Screen
   static const String homeTitle = 'Discover';
@@ -20,11 +21,16 @@ class AppStrings {
 
   // Detail Screen
   static const String play = 'Play';
+  static const String watchNow = 'Watch Now';
   static const String download = 'Download';
-  static const String downloading = 'Downloading...';
+  static const String downloading = 'Downloading';
   static const String downloaded = 'Downloaded';
   static const String selectQuality = 'Select Quality';
   static const String videoInfo = 'Video Info';
+  static const String share = 'Share';
+  static const String addToWatchlist = 'Add to Watchlist';
+  static const String removeFromWatchlist = 'Remove from Watchlist';
+  static const String upNext = 'Up Next';
 
   // Player Screen
   static const String nowPlaying = 'Now Playing';
@@ -44,6 +50,14 @@ class AppStrings {
   static const String deleteConfirm = 'Delete this video?';
   static const String deleteDescription = 'This will remove the downloaded file';
   static const String storageUsed = 'Storage Used';
+  static const String edit = 'Edit';
+  static const String unselectAll = 'Unselect All';
+  static const String deleteSelected = 'Delete Selected';
+
+  // Watchlist Screen
+  static const String myList = 'My List';
+  static const String noWatchlist = 'Your watchlist is empty';
+  static const String noWatchlistDescription = 'Add videos to watch them later';
 
   // Settings Screen
   static const String settingsTitle = 'Settings';

@@ -127,6 +127,7 @@ class _TopBar extends StatelessWidget {
             Expanded(
               child: Text(
                 controller.video.title,
+
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,

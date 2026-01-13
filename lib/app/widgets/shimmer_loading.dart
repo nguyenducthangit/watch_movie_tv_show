@@ -105,8 +105,8 @@ class ListSkeleton extends StatelessWidget {
       padding: padding,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (_, __) => ShimmerLoading(
+      separatorBuilder: (_, _) => const SizedBox(height: 16),
+      itemBuilder: (_, _) => ShimmerLoading(
         child: Container(
           height: itemHeight,
           decoration: BoxDecoration(

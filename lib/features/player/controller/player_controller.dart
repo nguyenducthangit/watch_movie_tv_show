@@ -47,7 +47,25 @@ class PlayerController extends GetxController {
     super.onInit();
     // Get arguments
     final args = Get.arguments as Map<String, dynamic>;
-    video = args['video'] as VideoItem;
+
+    if (args['video'] != null) {
+      video = args['video'] as VideoItem;
+    } else if (args['localPath'] != null) {
+      // Create minimal video item from download info
+      video = VideoItem(
+        id: args['title'] ?? 'downloaded_video',
+        title: args['title'] ?? 'Downloaded Video',
+        streamUrl: '', // Not needed for local file
+        thumbnailUrl: '',
+        description: '',
+      );
+    } else {
+      logger.e('No video or local path provided to PlayerController');
+      hasError.value = true;
+      errorMessage.value = 'Failed to load video';
+      return;
+    }
+
     localPath = args['localPath'] as String?;
 
     // Hide system UI

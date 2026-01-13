@@ -89,25 +89,7 @@ class ContinueWatchingCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Progress bar
-                  Container(
-                    height: 4,
-                    child: Row(
-                      children: [
-                        // Progress fill
-                        Expanded(
-                          flex: (progress * 100).round(),
-                          child: Container(
-                            decoration: const BoxDecoration(color: AppColors.primary),
-                          ),
-                        ),
-                        // Remaining
-                        Expanded(
-                          flex: ((1 - progress) * 100).round(),
-                          child: Container(color: Colors.white.withValues(alpha: 0.3)),
-                        ),
-                      ],
-                    ),
-                  ),
+                  
 
                   // Title
                   Padding(
@@ -129,6 +111,32 @@ class ContinueWatchingCard extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
+                      height: 4,
+                      child: Row(
+                        children: [
+                          // Progress fill
+                          Expanded(
+                            flex: (progress * 100).round(),
+                            child: Container(
+                              decoration: const BoxDecoration(color: AppColors.primary),
+                            ),
+                          ),
+                          // Remaining
+                          Expanded(
+                            flex: ((1 - progress) * 100).round(),
+                            child: Container(color: Colors.white.withValues(alpha: 0.3)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

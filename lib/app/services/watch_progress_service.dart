@@ -21,10 +21,10 @@ class WatchProgressService extends GetxService {
   static const double minProgressThreshold = 0.05; // 5% watched
   static const double maxProgressThreshold = 0.95; // 95% watched
 
-  @override
-  void onInit() {
-    super.onInit();
-    _loadData();
+  /// Initialize service
+  Future<WatchProgressService> init() async {
+    await _loadData();
+    return this;
   }
 
   Future<void> _loadData() async {

@@ -8,6 +8,7 @@ import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/features/detail/binding/detail_binding.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
+import 'package:watch_movie_tv_show/features/detail/widgets/up_next_section.dart';
 import 'package:watch_movie_tv_show/features/downloads/widgets/download_button.dart';
 
 /// Detail Page
@@ -194,11 +195,37 @@ class DetailPage extends GetView<DetailController> {
                       style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      controller.video.description!,
-                      style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                    Builder(
+                      builder: (context) {
+                        final description = controller.video.description!;
+                        // Simple filter to remove legal/technical text blocks
+                        // This assumes legal text usually appears at the end or contains specific keywords
+                        final lines = description.split('\n');
+                        final cleanLines = lines.where((line) {
+                          final l = line.toLowerCase();
+                          return !l.contains('testament') &&
+                              !l.contains('copyright') &&
+                              !l.contains('all rights reserved') &&
+                              !l.contains('published by');
+                        }).toList();
+
+                        return Text(
+                          cleanLines.join('\n').trim(),
+                          style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                        );
+                      },
                     ),
                   ],
+
+                  // Up Next section
+                  UpNextSection(
+                    videos: controller.relatedVideos,
+                    onVideoTap: (video) {
+                      // Navigate to new detail page
+                      Get.toNamed(MRoutes.detail, arguments: video);
+                    },
+                  ),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

@@ -5,6 +5,7 @@ import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
+import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Detail Controller
@@ -17,12 +18,21 @@ class DetailController extends GetxController {
 
   final Rx<VideoQuality?> selectedQuality = Rx<VideoQuality?>(null);
   final RxBool isInWatchlist = false.obs;
+  final RxList<VideoItem> relatedVideos = <VideoItem>[].obs;
+
+  WatchlistService get _watchlistService => Get.find<WatchlistService>();
 
   @override
   void onInit() {
     super.onInit();
-    // Get video from arguments
+    // Get video from argumentso
     video = Get.arguments as VideoItem;
+    _loadRelatedVideos();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
     _checkDownloadStatus();
   }
 
@@ -44,13 +54,28 @@ class DetailController extends GetxController {
     });
 
     // Check watchlist
-    isInWatchlist.value = StorageService.instance.isInWatchlist(video.id);
+    isInWatchlist.value = _watchlistService.isInWatchlist(video.id);
+
+    // Listen to watchlist changes
+    ever(_watchlistService.watchlistIds, (_) {
+      isInWatchlist.value = _watchlistService.isInWatchlist(video.id);
+    });
+  }
+
+  /// Load related videos (videos with same tags)
+  void _loadRelatedVideos() {
+    // Get all videos from storage/service
+    // For now, we'll leave this empty - it will be populated by the video service
+    // In a real app, this would fetch videos with matching tags
+    relatedVideos.clear();
   }
 
   /// Toggle watchlist
   Future<void> toggleWatchlist() async {
-    final result = await StorageService.instance.toggleWatchlist(video.id);
-    isInWatchlist.value = result;
+    await _watchlistService.toggleWatchlist(video.id);
+    // State is updated automatically via 'ever' listener above
+
+    final result = _watchlistService.isInWatchlist(video.id);
     Get.snackbar(
       result ? 'Added to List' : 'Removed from List',
       result

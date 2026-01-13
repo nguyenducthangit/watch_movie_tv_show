@@ -15,6 +15,6 @@ class MainNavController extends GetxController {
   /// Navigate to downloads tab
   void goToDownloads() => changeTab(1);
 
-  /// Navigate to settings tab
-  void goToSettings() => changeTab(2);
+  /// Navigate to watchlist tab
+  void goToWatchlist() => changeTab(2);
 }
