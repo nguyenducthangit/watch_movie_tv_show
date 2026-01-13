@@ -46,6 +46,7 @@ dependencies:
   # ---------- Device & Permissions ----------
   device_info_plus: ^12.3.0
   package_info_plus: ^9.0.0
+  screen_brightness: ^0.2.2+1
 
   # ---------- JSON Serialization ----------
   json_annotation: ^4.8.1

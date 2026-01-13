@@ -9,9 +9,11 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/watch_progress.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
+import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Player Controller
+/// Enhanced with gesture controls, speed/quality selection, and progress tracking
 class PlayerController extends GetxController {
   late VideoItem video;
   String? localPath;
@@ -19,14 +21,26 @@ class PlayerController extends GetxController {
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
 
+  // Services
+  WatchProgressService get _progressService => Get.find<WatchProgressService>();
+
+  // State
   final RxBool isPlaying = false.obs;
   final RxBool isBuffering = false.obs;
   final RxBool isInitialized = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool showControls = true.obs;
 
+  // Position tracking
   final Rx<Duration> currentPosition = Duration.zero.obs;
   final Rx<Duration> totalDuration = Duration.zero.obs;
+
+  // Premium features
+  final RxDouble playbackSpeed = 1.0.obs;
+  final RxString currentQuality = 'Auto'.obs;
+  static const List<String> availableQualities = ['Auto', '1080p', '720p', '480p', '360p'];
+  static const List<double> availableSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 
   @override
   void onInit() {
@@ -54,7 +68,7 @@ class PlayerController extends GetxController {
 
       await videoPlayerController!.initialize();
 
-      // Get saved position
+      // Get saved position from both services
       Duration? startAt;
       final savedProgress = StorageService.instance.getWatchProgress(video.id);
       if (savedProgress != null && savedProgress.hasProgress) {
@@ -69,7 +83,7 @@ class PlayerController extends GetxController {
         aspectRatio: 16 / 9,
         startAt: startAt,
         allowFullScreen: true,
-        fullScreenByDefault: false, // Let user choose
+        fullScreenByDefault: false,
         deviceOrientationsAfterFullScreen: [
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
@@ -156,11 +170,17 @@ class PlayerController extends GetxController {
 
     // Check if completed
     if (value.position >= value.duration && value.duration > Duration.zero) {
-      _clearProgress();
+      _onVideoComplete();
     }
   }
 
-  /// Save watch progress
+  /// Called when video completes
+  void _onVideoComplete() {
+    _progressService.markAsComplete(video.id);
+    StorageService.instance.deleteWatchProgress(video.id);
+  }
+
+  /// Save watch progress to both services
   void _saveProgress() {
     if (!isInitialized.value || videoPlayerController == null) return;
 
@@ -168,15 +188,23 @@ class PlayerController extends GetxController {
     final duration = totalDuration.value.inMilliseconds;
 
     if (duration > 0 && position < duration) {
+      // Save to legacy service
       final progress = WatchProgress(videoId: video.id, positionMs: position, durationMs: duration);
       StorageService.instance.saveWatchProgress(progress);
-      logger.d('Saved progress: ${position}ms / ${duration}ms');
+
+      // Save to new progress service (for Continue Watching)
+      final progressPercent = position / duration;
+      _progressService.updateProgress(video.id, progressPercent);
+
+      logger.d(
+        'Saved progress: ${position}ms / ${duration}ms (${(progressPercent * 100).round()}%)',
+      );
     }
   }
 
-  /// Clear progress (when finished)
-  void _clearProgress() {
-    StorageService.instance.deleteWatchProgress(video.id);
+  /// Toggle controls visibility
+  void toggleControls() {
+    showControls.value = !showControls.value;
   }
 
   /// Toggle play/pause
@@ -191,7 +219,49 @@ class PlayerController extends GetxController {
   /// Seek by seconds
   void seek(int seconds) {
     final newPosition = currentPosition.value + Duration(seconds: seconds);
-    videoPlayerController?.seekTo(newPosition);
+    final clampedPosition = newPosition.isNegative
+        ? Duration.zero
+        : (newPosition > totalDuration.value ? totalDuration.value : newPosition);
+    videoPlayerController?.seekTo(clampedPosition);
+  }
+
+  /// Seek forward 10s
+  void seekForward() => seek(10);
+
+  /// Seek backward 10s
+  void seekBackward() => seek(-10);
+
+  /// Set playback speed
+  void setPlaybackSpeed(double speed) {
+    playbackSpeed.value = speed;
+    videoPlayerController?.setPlaybackSpeed(speed);
+    logger.d('Playback speed set to: ${speed}x');
+  }
+
+  /// Set video quality (would need actual implementation with multiple streams)
+  void setQuality(String quality) {
+    currentQuality.value = quality;
+    logger.d('Quality set to: $quality');
+    // Note: Actual quality switching would require multiple stream URLs
+    // and reinitializing the player with the selected quality
+  }
+
+  /// Get formatted current time
+  String get formattedPosition {
+    final pos = currentPosition.value;
+    return '${pos.inMinutes}:${(pos.inSeconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  /// Get formatted total duration
+  String get formattedDuration {
+    final dur = totalDuration.value;
+    return '${dur.inMinutes}:${(dur.inSeconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  /// Get progress percentage (0.0 - 1.0)
+  double get progressPercent {
+    if (totalDuration.value.inMilliseconds == 0) return 0.0;
+    return currentPosition.value.inMilliseconds / totalDuration.value.inMilliseconds;
   }
 
   /// Retry playback

@@ -4,12 +4,16 @@ import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
+import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Home Controller
-/// Manages video catalog display and search
+/// Manages video catalog display, search, and premium browse experience
 class HomeController extends GetxController {
   final ManifestRepository _repo = ManifestRepository();
+
+  // Services
+  WatchProgressService get _progressService => Get.find<WatchProgressService>();
 
   // State
   final RxBool isLoading = true.obs;
@@ -22,6 +26,13 @@ class HomeController extends GetxController {
   final RxList<VideoItem> videos = <VideoItem>[].obs;
   final RxList<VideoItem> filteredVideos = <VideoItem>[].obs;
   final RxList<String> tags = <String>[].obs;
+
+  // Premium Features
+  final RxList<VideoItem> featuredVideos = <VideoItem>[].obs;
+  final RxList<VideoItem> continueWatching = <VideoItem>[].obs;
+  final RxList<VideoItem> trendingVideos = <VideoItem>[].obs;
+  final RxList<VideoItem> newReleases = <VideoItem>[].obs;
+  final RxMap<String, List<VideoItem>> videosByGenre = <String, List<VideoItem>>{}.obs;
 
   // Search & Filter
   final RxString searchQuery = ''.obs;
@@ -36,6 +47,13 @@ class HomeController extends GetxController {
     debounce(searchQuery, (_) => _applyFilters(), time: const Duration(milliseconds: 300));
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    // Refresh continue watching when returning to home
+    ever(_progressService.progressMap, (_) => _updateContinueWatching());
+  }
+
   /// Load videos from repository
   Future<void> loadVideos() async {
     try {
@@ -45,6 +63,9 @@ class HomeController extends GetxController {
       final manifest = await _repo.getManifest();
       videos.value = manifest.items;
       tags.value = manifest.allTags;
+
+      // Setup premium sections
+      _setupPremiumSections();
       _applyFilters();
 
       logger.i('Loaded ${videos.length} videos');
@@ -66,6 +87,9 @@ class HomeController extends GetxController {
       final manifest = await _repo.refreshManifest();
       videos.value = manifest.items;
       tags.value = manifest.allTags;
+
+      // Re-setup premium sections
+      _setupPremiumSections();
       _applyFilters();
 
       logger.i('Refreshed ${videos.length} videos');
@@ -77,6 +101,54 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Setup premium sections (featured, trending, by genre)
+  void _setupPremiumSections() {
+    final allVideos = videos.toList();
+
+    // Featured: First 5-7 videos (could be based on a "featured" flag in future)
+    featuredVideos.value = allVideos.take(7).toList();
+
+    // Trending: Random shuffle of some videos
+    final shuffled = List<VideoItem>.from(allVideos)..shuffle();
+    trendingVideos.value = shuffled.take(10).toList();
+
+    // New Releases: Could be sorted by date, for now use last items
+    newReleases.value = allVideos.reversed.take(10).toList();
+
+    // Videos by genre
+    final genreMap = <String, List<VideoItem>>{};
+    for (final video in allVideos) {
+      if (video.tags != null) {
+        for (final tag in video.tags!) {
+          genreMap.putIfAbsent(tag, () => []).add(video);
+        }
+      }
+    }
+    videosByGenre.value = genreMap;
+
+    // Continue watching
+    _updateContinueWatching();
+  }
+
+  /// Update continue watching list
+  void _updateContinueWatching() {
+    final continueIds = _progressService.getContinueWatchingIds();
+    final videoMap = {for (final v in videos) v.id: v};
+
+    continueWatching.value = continueIds
+        .where((id) => videoMap.containsKey(id))
+        .map((id) => videoMap[id]!)
+        .toList();
+  }
+
+  /// Get watch progress for a video
+  double getWatchProgress(String videoId) {
+    return _progressService.getProgress(videoId);
+  }
+
+  /// Get progress map for continue watching UI
+  Map<String, double> get progressMap => _progressService.progressMap;
+
   /// Apply search and tag filters
   void _applyFilters() {
     List<VideoItem> result = videos.toList();
@@ -84,12 +156,6 @@ class HomeController extends GetxController {
     // Apply tag filter
     if (selectedTag.value.isNotEmpty) {
       result = result.where((v) => v.tags?.contains(selectedTag.value) ?? false).toList();
-    }
-
-    // Apply search filter
-    if (searchQuery.value.isNotEmpty) {
-      final query = searchQuery.value.toLowerCase();
-      result = result.where((v) => v.title.toLowerCase().contains(query)).toList();
     }
 
     // Apply search filter
@@ -152,8 +218,20 @@ class HomeController extends GetxController {
     Get.toNamed(MRoutes.detail, arguments: video);
   }
 
+  /// Play video directly
+  void playVideo(VideoItem video) {
+    Get.toNamed(MRoutes.player, arguments: video);
+  }
+
   /// Retry loading
   void retry() {
     loadVideos();
   }
+
+  /// Check if in browse/search mode (no filters active)
+  bool get isBrowseMode =>
+      searchQuery.value.isEmpty && selectedTag.value.isEmpty && !showWatchlistOnly.value;
+
+  /// Check if has any continue watching
+  bool get hasContinueWatching => continueWatching.isNotEmpty;
 }
