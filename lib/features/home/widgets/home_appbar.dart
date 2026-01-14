@@ -31,11 +31,7 @@ class HomeAppBar extends GetView<HomeController> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Get.toNamed(MRoutes.mainNav);
-
-                          // if (!controller.isSearchExpanded.value) {
-                          //   Get.toNamed(MRoutes.mainNav);
-                          // }
+                          controller.resetToHome();
                         },
                         child: Text(
                           AppStrings.appName,

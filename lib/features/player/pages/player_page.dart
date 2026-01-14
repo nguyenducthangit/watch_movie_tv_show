@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
-import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/widgets/error_state_widget.dart';
 import 'package:watch_movie_tv_show/features/player/binding/player_binding.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
 import 'package:watch_movie_tv_show/features/player/widgets/player_gesture_layer.dart';
-import 'package:watch_movie_tv_show/features/player/widgets/player_selectors.dart';
+import 'package:watch_movie_tv_show/features/player/widgets/player_menu.dart';
+import 'package:watch_movie_tv_show/features/player/widgets/subtitle_overlay.dart';
 
 /// Player Page
 /// Enhanced with gesture controls, quality/speed selection
@@ -66,29 +66,52 @@ class PlayerPage extends GetView<PlayerController> {
         // Player
         return Stack(
           children: [
-            // Chewie player
-            Center(child: Chewie(controller: controller.chewieController!)),
+            // Video player with controls overlay
+            Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Stack(
+                  children: [
+                    // Chewie player
+                    Chewie(controller: controller.chewieController!),
 
-            // Gesture layer for volume/brightness/seek
-            PlayerGestureLayer(
-              onSeekForward: controller.seekForward,
-              onSeekBackward: controller.seekBackward,
-              onTap: controller.toggleControls,
+                    // Gesture layer for volume/brightness/seek
+                    PlayerGestureLayer(
+                      onSeekForward: controller.seekForward,
+                      onSeekBackward: controller.seekBackward,
+                      onTap: controller.toggleControls,
+                    ),
+
+                    // Subtitle overlay
+                    SubtitleOverlay(controller: controller),
+
+                    // Center controls (10s backward, play/pause, 10s forward)
+                    Obx(() {
+                      if (!controller.showControls.value) return const SizedBox.shrink();
+                      return Center(child: _BottomControls(controller: controller));
+                    }),
+
+                    // Fullscreen button (bottom right)
+                    Obx(() {
+                      if (!controller.showControls.value) return const SizedBox.shrink();
+                      return Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: _ControlIconButton(
+                          icon: controller.isFullscreen.value
+                              ? Icons.fullscreen_exit_rounded
+                              : Icons.fullscreen_rounded,
+                          onTap: controller.toggleFullscreen,
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
             ),
 
-            // Custom top bar
+            // Custom top bar (outside video area)
             Positioned(top: 0, left: 0, right: 0, child: _TopBar(controller: controller)),
-
-            // Custom bottom controls (quality/speed)
-            Obx(() {
-              if (!controller.showControls.value) return const SizedBox.shrink();
-              return Positioned(
-                bottom: 80, // Above Chewie controls
-                left: 0,
-                right: 0,
-                child: _ExtraControls(controller: controller),
-              );
-            }),
 
             // Buffering indicator
             if (controller.isBuffering.value)
@@ -115,7 +138,7 @@ class _TopBar extends StatelessWidget {
             GestureDetector(
               onTap: () => Get.back(),
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color: AppColors.black.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
@@ -127,7 +150,6 @@ class _TopBar extends StatelessWidget {
             Expanded(
               child: Text(
                 controller.video.title,
-
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -137,6 +159,9 @@ class _TopBar extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: 16),
+            // 3-dot menu
+            PlayerMenu(controller: controller),
           ],
         ),
       ),
@@ -144,86 +169,55 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-/// Extra controls for quality and speed
-class _ExtraControls extends StatelessWidget {
-  const _ExtraControls({required this.controller});
+/// Bottom controls with 10s seek buttons and fullscreen
+class _BottomControls extends StatelessWidget {
+  const _BottomControls({required this.controller});
   final PlayerController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Playback speed
-          Obx(
-            () => _ControlButton(
-              icon: Icons.speed_rounded,
-              label: controller.playbackSpeed.value == 1.0
-                  ? 'Speed'
-                  : '${controller.playbackSpeed.value}x',
-              onTap: () async {
-                final speed = await SpeedSelector.show(
-                  context,
-                  currentSpeed: controller.playbackSpeed.value,
-                );
-                if (speed != null) {
-                  controller.setPlaybackSpeed(speed);
-                }
-              },
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min, // Important: don't expand
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // 10s backward
+        _ControlIconButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
+        const SizedBox(width: 24),
+        // Play/Pause
+        Obx(
+          () => _ControlIconButton(
+            icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            onTap: controller.togglePlayPause,
+            size: 48,
           ),
-          const SizedBox(width: 12),
-
-          // Quality
-          Obx(
-            () => _ControlButton(
-              icon: Icons.hd_rounded,
-              label: controller.currentQuality.value,
-              onTap: () async {
-                final quality = await QualitySelector.show(
-                  context,
-                  currentQuality: controller.currentQuality.value,
-                );
-                if (quality != null) {
-                  controller.setQuality(quality);
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 24),
+        // 10s forward
+        _ControlIconButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
+      ],
     );
   }
 }
 
-/// Individual control button
-class _ControlButton extends StatelessWidget {
-  const _ControlButton({required this.icon, required this.label, required this.onTap});
+/// Control icon button
+class _ControlIconButton extends StatelessWidget {
+  const _ControlIconButton({required this.icon, required this.onTap, this.size = 36});
 
   final IconData icon;
-  final String label;
   final VoidCallback onTap;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.all(size == 24 ? 6 : 4),
         decoration: BoxDecoration(
           color: AppColors.black.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(20),
+          shape: BoxShape.circle,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.white, size: 18),
-            const SizedBox(width: 6),
-            Text(label, style: MTextTheme.captionMedium.copyWith(color: Colors.white)),
-          ],
-        ),
+        child: Icon(icon, color: Colors.white, size: size == 48 ? 32 : 24),
       ),
     );
   }

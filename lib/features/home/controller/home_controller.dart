@@ -191,6 +191,13 @@ class HomeController extends GetxController {
     _applyFilters();
   }
 
+  /// Reset to home initial state
+  void resetToHome() {
+    selectedTag.value = '';
+    searchQuery.value = '';
+    _applyFilters();
+  }
+
   /// Clear tag filter
   void clearTagFilter() {
     selectedTag.value = '';

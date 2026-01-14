@@ -12,6 +12,8 @@ class VideoItem {
     required this.streamUrl,
     this.downloadQualities,
     this.tags,
+    this.subtitleUrl,
+    this.defaultSubtitleLanguage,
   });
 
   /// Create from JSON
@@ -29,6 +31,8 @@ class VideoItem {
                 .toList()
           : null,
       tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      subtitleUrl: json['subtitleUrl'] as String?,
+      defaultSubtitleLanguage: json['defaultSubtitleLanguage'] as String?,
     );
   }
   final String id;
@@ -39,6 +43,8 @@ class VideoItem {
   final String streamUrl;
   final List<VideoQuality>? downloadQualities;
   final List<String>? tags;
+  final String? subtitleUrl;
+  final String? defaultSubtitleLanguage;
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
@@ -53,6 +59,8 @@ class VideoItem {
           ? {'qualities': downloadQualities!.map((e) => e.toJson()).toList()}
           : null,
       'tags': tags,
+      'subtitleUrl': subtitleUrl,
+      'defaultSubtitleLanguage': defaultSubtitleLanguage,
     };
   }
 
@@ -81,6 +89,8 @@ class VideoItem {
     String? streamUrl,
     List<VideoQuality>? downloadQualities,
     List<String>? tags,
+    String? subtitleUrl,
+    String? defaultSubtitleLanguage,
   }) {
     return VideoItem(
       id: id ?? this.id,
@@ -91,6 +101,8 @@ class VideoItem {
       streamUrl: streamUrl ?? this.streamUrl,
       downloadQualities: downloadQualities ?? this.downloadQualities,
       tags: tags ?? this.tags,
+      subtitleUrl: subtitleUrl ?? this.subtitleUrl,
+      defaultSubtitleLanguage: defaultSubtitleLanguage ?? this.defaultSubtitleLanguage,
     );
   }
 

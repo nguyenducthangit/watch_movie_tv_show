@@ -43,8 +43,6 @@ class HomeContent extends GetView<HomeController> {
           backgroundColor: AppColors.background,
           body: Stack(
             children: [
-              // Sticky Header (Persistent across states)
-              const Positioned(top: 0, left: 0, right: 0, child: HomeAppBar()),
               Obx(() {
                 // Loading state
                 if (controller.isLoading.value) {
@@ -66,6 +64,8 @@ class HomeContent extends GetView<HomeController> {
                   return const HomeSearchFilterView();
                 }
               }),
+              // Sticky Header (Persistent across states)
+              const Positioned(top: 0, left: 0, right: 0, child: HomeAppBar()),
             ],
           ),
         ),

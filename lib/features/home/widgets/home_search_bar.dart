@@ -135,7 +135,9 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
                 controller: _controller,
                 focusNode: _focusNode,
                 onChanged: widget.onChanged,
-                cursorHeight: 40,
+                cursorHeight: 20,
+                cursorWidth: 1.5,
+                cursorRadius: const Radius.circular(1),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
