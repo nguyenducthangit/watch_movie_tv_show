@@ -1,6 +1,9 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
+import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
+import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/dialog/delete_download.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 
@@ -62,33 +65,43 @@ class DownloadsController extends GetxController {
   void deleteSelected() {
     if (selectedIds.isEmpty) return;
 
-    Get.defaultDialog(
-      title: 'Delete ${selectedIds.length} Videos',
+    DeleteDownload.show(
+      title: '${AppStrings.delete} ${selectedIds.length} Videos',
       middleText: 'Are you sure you want to delete ${selectedIds.length} video(s)?',
-      textConfirm: 'Delete',
-      textCancel: 'Cancel',
-      onConfirm: () {
+      textConfirm: AppStrings.delete,
+      textCancel: AppStrings.cancel,
+      onRemove: () {
         // Delete each selected video
         for (final videoId in selectedIds.toList()) {
           _downloadService.deleteDownload(videoId);
         }
         // Exit edit mode
         toggleEditMode();
-        Get.back();
       },
     );
   }
 
   /// Play downloaded video
-  void playVideo(DownloadTask task) {
-    Get.toNamed(
-      MRoutes.player,
-      arguments: {
-        'video': null, // We don't have full video item here
-        'localPath': task.localPath,
-        'title': task.videoTitle,
-      },
+  // void playVideo(DownloadTask task) {
+  //   Get.toNamed(
+  //     MRoutes.player,
+  //     arguments: {
+  //       'video': null, // We don't have full video item here
+  //       'localPath': task.localPath,
+  //       'title': task.videoTitle,
+  //     },
+  //   );
+  // }
+
+  void routeVideoDetails(DownloadTask task) {
+    final video = VideoItem(
+      id: task.videoId,
+      title: task.videoTitle,
+      thumbnailUrl: task.thumbnailUrl,
+      streamUrl: task.downloadUrl,
     );
+
+    Get.toNamed(MRoutes.detail, arguments: video);
   }
 
   /// Pause download
@@ -108,14 +121,13 @@ class DownloadsController extends GetxController {
 
   /// Delete downloaded video
   void deleteDownload(String videoId) {
-    Get.defaultDialog(
-      title: 'Delete Download',
-      middleText: 'Are you sure you want to delete this video?',
-      textConfirm: 'Delete',
-      textCancel: 'Cancel',
-      onConfirm: () {
+    DeleteDownload.show(
+      title: AppStrings.delete,
+      middleText: AppStrings.deleteConfirm,
+      textConfirm: AppStrings.delete,
+      textCancel: AppStrings.cancel,
+      onRemove: () {
         _downloadService.deleteDownload(videoId);
-        Get.back();
       },
     );
   }
@@ -124,14 +136,13 @@ class DownloadsController extends GetxController {
   void deleteAllDownloads() {
     if (completedDownloads.isEmpty && activeDownloads.isEmpty) return;
 
-    Get.defaultDialog(
-      title: 'Delete All',
-      middleText: 'Are you sure you want to delete all downloads?',
-      textConfirm: 'Delete All',
-      textCancel: 'Cancel',
-      onConfirm: () {
+    DeleteDownload.show(
+      title: AppStrings.clearAllDownloads,
+      middleText: AppStrings.clearAllDescription,
+      textConfirm: AppStrings.delete,
+      textCancel: AppStrings.cancel,
+      onRemove: () {
         _downloadService.deleteAllDownloads();
-        Get.back();
       },
     );
   }

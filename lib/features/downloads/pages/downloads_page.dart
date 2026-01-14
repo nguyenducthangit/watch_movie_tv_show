@@ -113,7 +113,7 @@ class DownloadsContent extends GetView<DownloadsController> {
                               isEditMode: controller.isEditMode.value,
                               isSelected: controller.isSelected(task.videoId),
                               onToggleSelect: () => controller.toggleSelection(task.videoId),
-                              onPlay: () => controller.playVideo(task),
+                              onPlay: () => controller.routeVideoDetails(task),
                               onDelete: () => controller.deleteDownload(task.videoId),
                             ),
                           ),
@@ -420,13 +420,13 @@ class _CompletedDownloadItem extends StatelessWidget {
                 ),
 
                 // Delete (non-edit mode)
-                if (!isEditMode)
-                  IconButton(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline_rounded),
-                    color: AppColors.textTertiary,
-                    iconSize: 22,
-                  ),
+                // if (!isEditMode)
+                //   IconButton(
+                //     onPressed: onDelete,
+                //     icon: const Icon(Icons.delete_outline_rounded),
+                //     color: AppColors.textTertiary,
+                //     iconSize: 22,
+                //   ),
               ],
             ),
           ),
