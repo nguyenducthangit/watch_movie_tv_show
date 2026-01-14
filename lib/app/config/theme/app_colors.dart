@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// App Color Palette
-/// Material 3 inspired dark theme for video streaming app
 class AppColors {
   AppColors._();
 
@@ -69,4 +67,8 @@ class AppColors {
   static const Color downloadPaused = warning;
   static const Color downloadCompleted = success;
   static const Color downloadFailed = error;
+  // 
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000); 
+  static const Color transparent = Color(0x00000000);
 }

@@ -4,8 +4,6 @@ const Color _kGoldPrimary = Color(0xFFD4AF37);
 const Color _kGoldGlow = Color(0xFFF8E79C);
 const Color _kDarkBackground = Color(0xFF1E1E1E);
 
-/// Expandable Search Bar
-/// Transitions from a Search Icon to a full-width Search Input
 class ExpandableSearchBar extends StatefulWidget {
   const ExpandableSearchBar({
     super.key,
@@ -43,7 +41,6 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _glowController, curve: Curves.easeInOut));
 
-    // Auto-focus when expanded
     if (widget.isExpanded) {
       _focusNode.requestFocus();
     }
@@ -71,22 +68,23 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
 
   @override
   Widget build(BuildContext context) {
+    final double expandedWidth = MediaQuery.of(context).size.width - 40;
+
     return AnimatedBuilder(
       animation: _glowAnimation,
       builder: (context, child) {
         return Align(
           alignment: Alignment.centerRight,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOutCubic,
-            width: widget.isExpanded ? MediaQuery.of(context).size.width - 40 : 48,
+            width: widget.isExpanded ? expandedWidth : 48,
             height: 48,
+            clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(
               color: widget.isExpanded ? _kDarkBackground : Colors.transparent,
               borderRadius: BorderRadius.circular(30),
-              border: widget.isExpanded
-                  ? Border.all(color: _kGoldPrimary, width: 1.5)
-                  : null, // No border when collapsed
+              border: widget.isExpanded ? Border.all(color: _kGoldPrimary, width: 1.5) : null,
               boxShadow: widget.isExpanded
                   ? [
                       BoxShadow(
@@ -97,14 +95,13 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
                     ]
                   : null,
             ),
-            child: widget.isExpanded ? _buildExpandedView() : _buildCollapsedView(),
+            child: widget.isExpanded ? _buildExpandedView(expandedWidth) : _buildCollapsedView(),
           ),
         );
       },
     );
   }
 
-  /// Collapsed View: Just the Search Icon
   Widget _buildCollapsedView() {
     return Material(
       color: Colors.transparent,
@@ -116,36 +113,58 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
     );
   }
 
-  /// Expanded View: Input Field + Close Button
-  Widget _buildExpandedView() {
-    return Row(
-      children: [
-        const SizedBox(width: 16),
-        const Icon(Icons.search_rounded, color: _kGoldPrimary, size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            onChanged: widget.onChanged,
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-            cursorColor: _kGoldPrimary,
-            decoration: InputDecoration(
-              hintText: 'Search...',
-              hintStyle: TextStyle(color: _kGoldPrimary.withValues(alpha: 0.5), fontSize: 16),
-              border: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
+  Widget _buildExpandedView(double width) {
+    return OverflowBox(
+      minWidth: width,
+      maxWidth: width,
+      alignment: Alignment.centerLeft,
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: _kGoldPrimary, width: 1),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16),
+            const Icon(Icons.search_rounded, color: _kGoldPrimary, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                onChanged: widget.onChanged,
+                cursorHeight: 40,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+                cursorColor: _kGoldPrimary,
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintStyle: TextStyle(color: _kGoldPrimary.withValues(alpha: 0.5), fontSize: 16),
+                  filled: true,
+                  fillColor: Colors.transparent,
+
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
             ),
-          ),
+            IconButton(
+              onPressed: widget.onCollapse,
+              icon: const Icon(Icons.close, color: _kGoldPrimary, size: 22),
+              splashRadius: 10,
+            ),
+            const SizedBox(width: 4),
+          ],
         ),
-        IconButton(
-          onPressed: widget.onCollapse,
-          icon: const Icon(Icons.close, color: _kGoldPrimary, size: 22),
-          splashRadius: 20,
-        ),
-        const SizedBox(width: 4),
-      ],
+      ),
     );
   }
 }

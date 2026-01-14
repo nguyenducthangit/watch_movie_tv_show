@@ -25,10 +25,7 @@ class AppEffects {
     return BoxDecoration(
       color: Colors.white.withValues(alpha: opacity),
       borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.all(
-        color: borderColor ?? Colors.white.withValues(alpha: 0.2),
-        width: 1,
-      ),
+      border: Border.all(color: borderColor ?? Colors.white.withValues(alpha: 0.2), width: 1),
     );
   }
 
@@ -41,10 +38,7 @@ class AppEffects {
     return BoxDecoration(
       color: AppColors.surface.withValues(alpha: opacity + 0.7),
       borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.all(
-        color: Colors.white.withValues(alpha: 0.08),
-        width: 1,
-      ),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
     );
   }
 
@@ -58,11 +52,8 @@ class AppEffects {
   // ============================================
 
   /// Premium multi-layer shadow for elevated components
-  static List<BoxShadow> cinematicShadow({
-    Color? color,
-    double elevation = 1.0,
-  }) {
-    final shadowColor = color ?? Colors.black;
+  static List<BoxShadow> cinematicShadow({Color? color, double elevation = 1.0}) {
+    final shadowColor = color ?? AppColors.black;
     return [
       BoxShadow(
         color: shadowColor.withValues(alpha: 0.3 * elevation),
@@ -81,7 +72,7 @@ class AppEffects {
   static List<BoxShadow> softShadow({double opacity = 0.2}) {
     return [
       BoxShadow(
-        color: Colors.black.withValues(alpha: opacity),
+        color: AppColors.black.withValues(alpha: opacity),
         blurRadius: 12,
         offset: const Offset(0, 4),
       ),
@@ -100,16 +91,13 @@ class AppEffects {
   }
 
   /// Inner shadow for depth effect
-  static BoxDecoration innerShadow({
-    double borderRadius = 16,
-    Color? backgroundColor,
-  }) {
+  static BoxDecoration innerShadow({double borderRadius = 16, Color? backgroundColor}) {
     return BoxDecoration(
       color: backgroundColor ?? AppColors.card,
       borderRadius: BorderRadius.circular(borderRadius),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.2),
+          color: AppColors.black.withValues(alpha: 0.2),
           blurRadius: 10,
           offset: const Offset(0, 2),
           blurStyle: BlurStyle.inner,
@@ -123,16 +111,13 @@ class AppEffects {
   // ============================================
 
   /// Cinematic fade from top to bottom
-  static LinearGradient fadeToBottom({
-    Color? endColor,
-    List<double>? stops,
-  }) {
+  static LinearGradient fadeToBottom({Color? endColor, List<double>? stops}) {
     return LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [
         Colors.transparent,
-        Colors.black.withValues(alpha: 0.3),
+        AppColors.black.withValues(alpha: 0.3),
         endColor ?? AppColors.background,
       ],
       stops: stops ?? const [0.0, 0.5, 1.0],
@@ -147,8 +132,8 @@ class AppEffects {
       colors: [
         Colors.transparent,
         Colors.transparent,
-        Colors.black.withValues(alpha: 0.4),
-        Colors.black.withValues(alpha: 0.8),
+        AppColors.black.withValues(alpha: 0.2),
+        AppColors.black.withValues(alpha: 0.4),
         AppColors.background,
       ],
       stops: const [0.0, 0.3, 0.5, 0.7, 1.0],

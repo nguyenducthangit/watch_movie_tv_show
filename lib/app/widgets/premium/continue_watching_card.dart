@@ -34,7 +34,7 @@ class ContinueWatchingCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: AppColors.black.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -57,8 +57,8 @@ class ContinueWatchingCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.5),
-                      Colors.black.withValues(alpha: 0.85),
+                      AppColors.black.withValues(alpha: 0.5),
+                      AppColors.black.withValues(alpha: 0.85),
                     ],
                     stops: const [0.3, 0.6, 1.0],
                   ),
@@ -89,7 +89,6 @@ class ContinueWatchingCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Progress bar
-                  
 
                   // Title
                   Padding(

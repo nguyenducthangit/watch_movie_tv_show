@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/watch_progress.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
@@ -126,7 +127,7 @@ class PlayerController extends GetxController {
           bufferedColor: Colors.white.withValues(alpha: 0.5),
         ),
         placeholder: Container(
-          color: Colors.black,
+          color: AppColors.black,
           child: const Center(child: CircularProgressIndicator(color: Color(0xFFD4AF37))),
         ),
         errorBuilder: (context, errorMessage) {
@@ -145,7 +146,7 @@ class PlayerController extends GetxController {
                 ElevatedButton(
                   onPressed: retry,
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD4AF37)),
-                  child: const Text('Retry', style: TextStyle(color: Colors.black)),
+                  child: const Text('Retry', style: TextStyle(color: AppColors.black)),
                 ),
               ],
             ),

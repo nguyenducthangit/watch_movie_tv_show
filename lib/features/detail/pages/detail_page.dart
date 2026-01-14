@@ -40,7 +40,7 @@ class DetailPage extends GetView<DetailController> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
+                  color: AppColors.black.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -66,7 +66,7 @@ class DetailPage extends GetView<DetailController> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.3),
+                          AppColors.black.withValues(alpha: 0.3),
                           AppColors.background,
                         ],
                         stops: const [0.0, 0.5, 1.0],

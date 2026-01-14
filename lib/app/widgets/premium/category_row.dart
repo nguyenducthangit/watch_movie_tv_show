@@ -122,7 +122,7 @@ class _CategoryVideoCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: AppColors.black.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -144,7 +144,7 @@ class _CategoryVideoCard extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
+                            colors: [Colors.transparent, AppColors.black.withValues(alpha: 0.7)],
                           ),
                         ),
                       ),

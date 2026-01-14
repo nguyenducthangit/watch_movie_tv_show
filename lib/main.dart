@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
+import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_theme.dart';
 import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
@@ -25,7 +26,7 @@ void main() async {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       statusBarBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.black,
+      systemNavigationBarColor: AppColors.black,
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );

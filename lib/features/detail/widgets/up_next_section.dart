@@ -83,7 +83,7 @@ class _UpNextItem extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.3)],
+                            colors: [Colors.transparent, AppColors.black.withValues(alpha: 0.3)],
                           ),
                         ),
                       ),

@@ -76,7 +76,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
       return SizedBox(height: widget.height);
     }
 
-    return Column(
+    return Stack(
       children: [
         // Hero PageView
         SizedBox(
@@ -99,18 +99,22 @@ class _HeroCarouselState extends State<HeroCarousel> {
         ),
 
         // Indicator dots
-        const SizedBox(height: 16),
-        _PageIndicators(
-          count: widget.videos.length,
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            _pageController.animateToPage(
-              index,
-              duration: const Duration(milliseconds: 500),
-              curve: AppAnimations.defaultCurve,
-            );
-            _resetAutoRotate();
-          },
+        Positioned(
+          bottom: 20,
+          left: 20,
+          right: 20,
+          child: _PageIndicators(
+            count: widget.videos.length,
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 500),
+                curve: AppAnimations.defaultCurve,
+              );
+              _resetAutoRotate();
+            },
+          ),
         ),
       ],
     );
@@ -172,7 +176,9 @@ class _HeroItem extends StatelessWidget {
                   video.title,
                   style: MTextTheme.h2Bold.copyWith(
                     color: Colors.white,
-                    shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 10)],
+                    shadows: [
+                      Shadow(color: AppColors.black.withValues(alpha: 0.5), blurRadius: 10),
+                    ],
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -270,7 +276,6 @@ class _WatchlistButtonState extends State<_WatchlistButton> {
 
     setState(() => _isLoading = true);
 
-    // Artificial delay: 2s when adding (loading -> tick), 600ms when removing
     if (isAdding) {
       await Future.delayed(const Duration(seconds: 2));
     } else {
