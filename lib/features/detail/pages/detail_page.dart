@@ -78,8 +78,8 @@ class DetailPage extends GetView<DetailController> {
                     child: GestureDetector(
                       onTap: controller.playVideo,
                       child: Container(
-                        width: 72,
-                        height: 72,
+                        width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           shape: BoxShape.circle,

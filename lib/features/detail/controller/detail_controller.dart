@@ -88,7 +88,10 @@ class DetailController extends GetxController {
 
   /// Share video
   void shareVideo() {
-    Share.share('Check out this video: ${video.title}\n${video.streamUrl}');
+    final youtubeUrl = video.youtubeId != null
+        ? 'https://www.youtube.com/watch?v=${video.youtubeId}'
+        : video.title;
+    Share.share('Check out this video: ${video.title}\n$youtubeUrl');
   }
 
   /// Play video

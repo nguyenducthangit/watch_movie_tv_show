@@ -98,7 +98,6 @@ class DownloadsController extends GetxController {
       id: task.videoId,
       title: task.videoTitle,
       thumbnailUrl: task.thumbnailUrl,
-      streamUrl: task.downloadUrl,
     );
 
     Get.toNamed(MRoutes.detail, arguments: video);

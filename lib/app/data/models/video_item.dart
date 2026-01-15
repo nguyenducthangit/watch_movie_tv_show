@@ -9,11 +9,9 @@ class VideoItem {
     this.description,
     this.durationSec,
     required this.thumbnailUrl,
-    required this.streamUrl,
+    this.youtubeId,
     this.downloadQualities,
     this.tags,
-    this.subtitleUrl,
-    this.defaultSubtitleLanguage,
   });
 
   /// Create from JSON
@@ -24,15 +22,13 @@ class VideoItem {
       description: json['description'] as String?,
       durationSec: json['durationSec'] as int?,
       thumbnailUrl: json['thumbnailUrl'] as String,
-      streamUrl: json['streamUrl'] as String,
+      youtubeId: json['youtubeId'] as String?,
       downloadQualities: json['download'] != null
           ? (json['download']['qualities'] as List<dynamic>?)
                 ?.map((e) => VideoQuality.fromJson(e as Map<String, dynamic>))
                 .toList()
           : null,
       tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      subtitleUrl: json['subtitleUrl'] as String?,
-      defaultSubtitleLanguage: json['defaultSubtitleLanguage'] as String?,
     );
   }
   final String id;
@@ -40,11 +36,9 @@ class VideoItem {
   final String? description;
   final int? durationSec;
   final String thumbnailUrl;
-  final String streamUrl;
+  final String? youtubeId;
   final List<VideoQuality>? downloadQualities;
   final List<String>? tags;
-  final String? subtitleUrl;
-  final String? defaultSubtitleLanguage;
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
@@ -54,13 +48,11 @@ class VideoItem {
       'description': description,
       'durationSec': durationSec,
       'thumbnailUrl': thumbnailUrl,
-      'streamUrl': streamUrl,
+      'youtubeId': youtubeId,
       'download': downloadQualities != null
           ? {'qualities': downloadQualities!.map((e) => e.toJson()).toList()}
           : null,
       'tags': tags,
-      'subtitleUrl': subtitleUrl,
-      'defaultSubtitleLanguage': defaultSubtitleLanguage,
     };
   }
 
@@ -86,11 +78,9 @@ class VideoItem {
     String? description,
     int? durationSec,
     String? thumbnailUrl,
-    String? streamUrl,
+    String? youtubeId,
     List<VideoQuality>? downloadQualities,
     List<String>? tags,
-    String? subtitleUrl,
-    String? defaultSubtitleLanguage,
   }) {
     return VideoItem(
       id: id ?? this.id,
@@ -98,11 +88,9 @@ class VideoItem {
       description: description ?? this.description,
       durationSec: durationSec ?? this.durationSec,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
-      streamUrl: streamUrl ?? this.streamUrl,
+      youtubeId: youtubeId ?? this.youtubeId,
       downloadQualities: downloadQualities ?? this.downloadQualities,
       tags: tags ?? this.tags,
-      subtitleUrl: subtitleUrl ?? this.subtitleUrl,
-      defaultSubtitleLanguage: defaultSubtitleLanguage ?? this.defaultSubtitleLanguage,
     );
   }
 

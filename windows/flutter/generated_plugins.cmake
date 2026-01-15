@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
+  flutter_inappwebview_windows
   permission_handler_windows
   screen_brightness_windows
   share_plus

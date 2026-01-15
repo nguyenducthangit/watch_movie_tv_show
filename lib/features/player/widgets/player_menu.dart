@@ -13,97 +13,93 @@ class PlayerMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.black.withValues(alpha: 0.9),
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        icon: const Icon(Icons.more_vert, color: Colors.white, size: 24),
-        onPressed: () => _showPlayerMenu(context),
-      ),
+    return IconButton(
+      icon: const Icon(Icons.more_vert, color: Colors.white, size: 24),
+      onPressed: () => _showPlayerMenu(context),
     );
   }
 
   /// Show player menu as bottom sheet
   void _showPlayerMenu(BuildContext context) {
     Get.bottomSheet(
+      clipBehavior: Clip.antiAlias,
       Container(
         decoration: const BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              // Handle bar
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textTertiary,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Speed option
-              Obx(
-                () => ListTile(
-                  leading: const Icon(Icons.speed_rounded, color: AppColors.primary),
-                  title: const Text('Playback Speed'),
-                  trailing: Text(
-                    controller.playbackSpeed.value == 1.0
-                        ? 'Normal'
-                        : '${controller.playbackSpeed.value}x',
-                    style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 8),
+                // Handle bar
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textTertiary,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  onTap: () {
-                    Get.back();
-                    _showSpeedPicker(context);
-                  },
                 ),
-              ),
+                const SizedBox(height: 16),
 
-              // Quality option
-              Obx(
-                () => ListTile(
-                  leading: const Icon(Icons.hd_rounded, color: AppColors.primary),
-                  title: const Text('Quality'),
-                  trailing: Text(
-                    controller.currentQuality.value,
-                    style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                // Speed option
+                Obx(
+                  () => ListTile(
+                    leading: const Icon(Icons.speed_rounded, color: AppColors.primary),
+                    title: const Text('Playback Speed'),
+                    trailing: Text(
+                      controller.playbackSpeed.value == 1.0
+                          ? 'Normal'
+                          : '${controller.playbackSpeed.value}x',
+                      style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                    ),
+                    onTap: () {
+                      Get.back();
+                      _showSpeedPicker(context);
+                    },
                   ),
-                  onTap: () {
-                    Get.back();
-                    _showQualityPicker(context);
-                  },
                 ),
-              ),
 
-              // Subtitles option
-              Obx(
-                () => ListTile(
-                  leading: const Icon(Icons.closed_caption_rounded, color: AppColors.primary),
-                  title: const Text('Subtitles'),
-                  trailing: Text(
-                    controller.selectedSubtitleLanguage.value == 'off'
-                        ? 'Off'
-                        : _getLanguageName(controller.selectedSubtitleLanguage.value),
-                    style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                // Quality option
+                Obx(
+                  () => ListTile(
+                    leading: const Icon(Icons.hd_rounded, color: AppColors.primary),
+                    title: const Text('Quality'),
+                    trailing: Text(
+                      controller.currentQuality.value,
+                      style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                    ),
+                    onTap: () {
+                      Get.back();
+                      _showQualityPicker(context);
+                    },
                   ),
-                  onTap: () {
-                    Get.back();
-                    _showSubtitlePicker(context);
-                  },
                 ),
-              ),
 
-              const SizedBox(height: 16),
-            ],
+                // Subtitles option
+                Obx(
+                  () => ListTile(
+                    leading: const Icon(Icons.closed_caption_rounded, color: AppColors.primary),
+                    title: const Text('Subtitles'),
+                    trailing: Text(
+                      controller.selectedSubtitleLanguage.value == 'off'
+                          ? 'Off'
+                          : _getLanguageName(controller.selectedSubtitleLanguage.value),
+                      style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                    ),
+                    onTap: () {
+                      Get.back();
+                      _showSubtitlePicker(context);
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -238,8 +234,7 @@ class PlayerMenu extends StatelessWidget {
                       onTap: () async {
                         Get.back();
                         // Show loading snackbar for translation
-                        if (lang != 'off' &&
-                            lang != (controller.video.defaultSubtitleLanguage ?? 'en')) {
+                        if (lang != 'off' && lang != 'en') {
                           Get.showSnackbar(
                             GetSnackBar(
                               message: 'Translating subtitles to ${_getLanguageName(lang)}...',

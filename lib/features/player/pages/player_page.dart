@@ -1,6 +1,6 @@
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/widgets/error_state_widget.dart';
@@ -9,9 +9,9 @@ import 'package:watch_movie_tv_show/features/player/controller/player_controller
 import 'package:watch_movie_tv_show/features/player/widgets/player_gesture_layer.dart';
 import 'package:watch_movie_tv_show/features/player/widgets/player_menu.dart';
 import 'package:watch_movie_tv_show/features/player/widgets/subtitle_overlay.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-/// Player Page
-/// Enhanced with gesture controls, quality/speed selection
+/// Player Page - YouTube style with video on top and info below
 class PlayerPage extends GetView<PlayerController> {
   const PlayerPage({super.key});
 
@@ -20,188 +20,411 @@ class PlayerPage extends GetView<PlayerController> {
     settings: settings,
     routeName: MRoutes.player,
     binding: PlayerBinding(),
-    transition: Transition.fade,
-    transitionDuration: const Duration(milliseconds: 200),
+    transition: Transition.downToUp,
+    transitionDuration: const Duration(milliseconds: 300),
+    curve: Curves.easeInOut,
   );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.black,
-      body: Obx(() {
-        // Error state
-        if (controller.hasError.value) {
-          return Stack(
-            children: [
-              Center(
-                child: ErrorStateWidget(
-                  title: 'Playback Error',
-                  message: controller.errorMessage.value,
-                  onRetry: controller.retry,
-                ),
-              ),
-              // Close button
-              SafeArea(
-                child: IconButton(
-                  onPressed: () => Get.back(),
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.black.withValues(alpha: 0.5),
-                      shape: BoxShape.circle,
+    return _DismissiblePlayerWrapper(
+      onDismiss: () => Get.back(),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Obx(() {
+            // Error state
+            if (controller.hasError.value) {
+              return _buildErrorState();
+            }
+
+            // Loading state
+            if (!controller.isInitialized.value || controller.youtubeController == null) {
+              return _buildLoadingState();
+            }
+
+            // Main player layout
+            return Column(
+              children: [
+                // Video player section
+                _buildVideoPlayer(),
+
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: Get.height),
+                      child: Container(
+                        color: const Color(0xFF212936),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Action buttons row
+                            _buildActionButtons(),
+
+                            const Divider(color: AppColors.textBody, height: 1),
+
+                            // About section
+                            _buildAboutSection(),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: const Icon(Icons.close, color: Colors.white),
                   ),
                 ),
+              ],
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Stack(
+      children: [
+        Center(
+          child: ErrorStateWidget(
+            title: 'Playback Error',
+            message: controller.errorMessage.value,
+            onRetry: controller.retry,
+          ),
+        ),
+        Positioned(
+          top: 8,
+          left: 8,
+          child: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 32),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Column(
+      children: [
+        // Placeholder for video area
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Container(
+            color: AppColors.black,
+            child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          ),
+        ),
+        const Spacer(),
+      ],
+    );
+  }
+
+  Widget _buildVideoPlayer() {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Stack(
+        children: [
+          YoutubePlayer(
+            controller: controller.youtubeController!,
+            showVideoProgressIndicator: false,
+            bottomActions: const [],
+            topActions: const [],
+          ),
+
+          PlayerGestureLayer(
+            onSeekForward: controller.seekForward,
+            onSeekBackward: controller.seekBackward,
+            onTap: controller.toggleControls,
+          ),
+
+          SubtitleOverlay(controller: controller),
+
+          Obx(() {
+            if (!controller.showControls.value) return const SizedBox.shrink();
+            return _buildTopBar();
+          }),
+
+          Obx(() {
+            if (!controller.showControls.value) return const SizedBox.shrink();
+            return const _CenterControls();
+          }),
+
+          Obx(() {
+            if (!controller.showControls.value) return const SizedBox.shrink();
+            return Positioned(left: 0, right: 0, bottom: 0, child: _buildProgressBar());
+          }),
+
+          Obx(() {
+            if (!controller.isBuffering.value) return const SizedBox.shrink();
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBar() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.black.withValues(alpha: 0.7), Colors.transparent],
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Row(
+        children: [
+          // Dismiss button (down arrow)
+          IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 28),
+          ),
+          // Title
+          Expanded(
+            child: Text(
+              controller.video.title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          );
-        }
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // 3-dot menu
+          PlayerMenu(controller: controller),
+        ],
+      ),
+    );
+  }
 
-        // Loading state
-        if (!controller.isInitialized.value || controller.chewieController == null) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-        }
+  Widget _buildProgressBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [AppColors.black.withValues(alpha: 0.8), Colors.transparent],
+        ),
+      ),
+      child: Obx(() {
+        final current = controller.currentPosition.value;
+        final total = controller.totalDuration.value;
+        final progress = total.inMilliseconds > 0
+            ? current.inMilliseconds / total.inMilliseconds
+            : 0.0;
 
-        // Player
-        return Stack(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Video player with controls overlay
-            Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Stack(
-                  children: [
-                    // Chewie player
-                    Chewie(controller: controller.chewieController!),
-
-                    // Gesture layer for volume/brightness/seek
-                    PlayerGestureLayer(
-                      onSeekForward: controller.seekForward,
-                      onSeekBackward: controller.seekBackward,
-                      onTap: controller.toggleControls,
-                    ),
-
-                    // Subtitle overlay
-                    SubtitleOverlay(controller: controller),
-
-                    // Center controls (10s backward, play/pause, 10s forward)
-                    Obx(() {
-                      if (!controller.showControls.value) return const SizedBox.shrink();
-                      return Center(child: _BottomControls(controller: controller));
-                    }),
-
-                    // Fullscreen button (bottom right)
-                    Obx(() {
-                      if (!controller.showControls.value) return const SizedBox.shrink();
-                      return Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: _ControlIconButton(
-                          icon: controller.isFullscreen.value
-                              ? Icons.fullscreen_exit_rounded
-                              : Icons.fullscreen_rounded,
-                          onTap: controller.toggleFullscreen,
-                        ),
-                      );
-                    }),
-                  ],
+            // Time display
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${_formatDuration(current)} / ${_formatDuration(total)}',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
+                // Fullscreen button
+                GestureDetector(
+                  onTap: controller.toggleFullscreen,
+                  child: Obx(
+                    () => Icon(
+                      controller.isFullscreen.value
+                          ? Icons.fullscreen_exit_rounded
+                          : Icons.fullscreen_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            // Progress slider
+            SliderTheme(
+              data: SliderThemeData(
+                trackHeight: 3,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                activeTrackColor: AppColors.primary,
+                inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
+                thumbColor: AppColors.primary,
+                overlayColor: AppColors.primary.withValues(alpha: 0.2),
+              ),
+              child: Slider(
+                value: progress.clamp(0.0, 1.0),
+                onChanged: (value) {
+                  final newPosition = Duration(
+                    milliseconds: (value * total.inMilliseconds).round(),
+                  );
+                  controller.youtubeController?.seekTo(newPosition);
+                },
               ),
             ),
-
-            // Custom top bar (outside video area)
-            Positioned(top: 0, left: 0, right: 0, child: _TopBar(controller: controller)),
-
-            // Buffering indicator
-            if (controller.isBuffering.value)
-              const Center(child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)),
           ],
         );
       }),
     );
   }
+
+  Widget _buildActionButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // Download button
+          _ActionButton(
+            icon: Icons.download_outlined,
+            label: 'Download',
+            onTap: () {
+              Get.snackbar('Download', 'Download feature coming soon');
+            },
+          ),
+          const SizedBox(width: 32),
+          // Share button
+          _ActionButton(
+            icon: Icons.share_outlined,
+            label: 'Share',
+            onTap: () {
+              final youtubeUrl = controller.video.youtubeId != null
+                  ? 'https://www.youtube.com/watch?v=${controller.video.youtubeId}'
+                  : controller.video.title;
+              SharePlus.instance.share(
+                ShareParams(text: 'Check out this video: ${controller.video.title}\n$youtubeUrl'),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAboutSection() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // "About" label
+          const Text(
+            'About',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Video title
+          Text(
+            controller.video.title,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Description
+          Text(
+            controller.video.description ?? 'No description available.',
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
+          ),
+          const SizedBox(height: 16),
+          // Tags
+          if (controller.video.tags != null && controller.video.tags!.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: controller.video.tags!.map((tag) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    tag,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  ),
+                );
+              }).toList(),
+            ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
 }
 
-/// Top bar with back button and title
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.controller});
-  final PlayerController controller;
+/// Center controls - Play/Pause with seek buttons
+class _CenterControls extends GetView<PlayerController> {
+  const _CenterControls();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: AppColors.black.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-              ),
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Seek backward 10s
+          _ControlButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
+          const SizedBox(width: 32),
+          // Play/Pause
+          Obx(
+            () => _ControlButton(
+              icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              onTap: controller.togglePlayPause,
+              size: 56,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                controller.video.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 16),
-            // 3-dot menu
-            PlayerMenu(controller: controller),
-          ],
-        ),
+          ),
+          const SizedBox(width: 32),
+          // Seek forward 10s
+          _ControlButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
+        ],
       ),
     );
   }
 }
 
-/// Bottom controls with 10s seek buttons and fullscreen
-class _BottomControls extends StatelessWidget {
-  const _BottomControls({required this.controller});
-  final PlayerController controller;
+/// Action button (Download, Share)
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({required this.icon, required this.label, required this.onTap});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min, // Important: don't expand
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // 10s backward
-        _ControlIconButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
-        const SizedBox(width: 24),
-        // Play/Pause
-        Obx(
-          () => _ControlIconButton(
-            icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
-            onTap: controller.togglePlayPause,
-            size: 48,
-          ),
-        ),
-        const SizedBox(width: 24),
-        // 10s forward
-        _ControlIconButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
-      ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.textPrimary, size: 24),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12)),
+        ],
+      ),
     );
   }
 }
 
-/// Control icon button
-class _ControlIconButton extends StatelessWidget {
-  const _ControlIconButton({required this.icon, required this.onTap, this.size = 36});
+/// Control button widget
+class _ControlButton extends StatelessWidget {
+  const _ControlButton({required this.icon, required this.onTap, this.size = 40});
 
   final IconData icon;
   final VoidCallback onTap;
@@ -212,12 +435,71 @@ class _ControlIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(size == 24 ? 6 : 4),
+        padding: EdgeInsets.all(size == 56 ? 8 : 6),
         decoration: BoxDecoration(
-          color: AppColors.black.withValues(alpha: 0.6),
+          color: AppColors.black.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white, size: size == 48 ? 32 : 24),
+        child: Icon(icon, color: Colors.white, size: size == 56 ? 40 : 28),
+      ),
+    );
+  }
+}
+
+/// Wrapper that allows dismissing the player by dragging down
+class _DismissiblePlayerWrapper extends StatefulWidget {
+  const _DismissiblePlayerWrapper({required this.child, required this.onDismiss});
+
+  final Widget child;
+  final VoidCallback onDismiss;
+
+  @override
+  State<_DismissiblePlayerWrapper> createState() => _DismissiblePlayerWrapperState();
+}
+
+class _DismissiblePlayerWrapperState extends State<_DismissiblePlayerWrapper> {
+  double _dragOffset = 0;
+  bool _isDragging = false;
+
+  void _onVerticalDragStart(DragStartDetails details) {
+    _isDragging = true;
+    _dragOffset = 0;
+  }
+
+  void _onVerticalDragUpdate(DragUpdateDetails details) {
+    if (!_isDragging) return;
+    setState(() {
+      _dragOffset += details.delta.dy;
+      // Only allow dragging down
+      if (_dragOffset < 0) _dragOffset = 0;
+    });
+  }
+
+  void _onVerticalDragEnd(DragEndDetails details) {
+    _isDragging = false;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // If dragged more than half screen, dismiss
+    if (_dragOffset > screenHeight * 0.3) {
+      widget.onDismiss();
+    } else {
+      // Animate back to original position
+      setState(() {
+        _dragOffset = 0;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onVerticalDragStart: _onVerticalDragStart,
+      onVerticalDragUpdate: _onVerticalDragUpdate,
+      onVerticalDragEnd: _onVerticalDragEnd,
+      child: AnimatedContainer(
+        duration: _isDragging ? Duration.zero : const Duration(milliseconds: 200),
+        transform: Matrix4.translationValues(0, _dragOffset, 0),
+        child: widget.child,
       ),
     );
   }
