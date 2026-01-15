@@ -26,39 +26,50 @@ class CachedImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (imageUrl.isEmpty) {
+      return _buildErrorWidget();
+    }
+
+    if (imageUrl.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: borderRadius ?? BorderRadius.zero,
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: width,
+          height: height,
+          fit: fit,
+          placeholder: (context, url) =>
+              placeholder ??
+              ShimmerBox(
+                width: width,
+                height: height,
+                borderRadius: borderRadius != null ? borderRadius!.topLeft.x : 0,
+              ),
+          errorWidget: (context, url, error) => _buildErrorWidget(),
+        ),
+      );
+    }
+
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
+      child: Image.asset(
+        imageUrl,
         width: width,
         height: height,
         fit: fit,
-        placeholder: (context, url) =>
-            placeholder ??
-            placeholder ??
-            ShimmerBox(
-              width: width,
-              height: height,
-              borderRadius: borderRadius != null
-                  ? borderRadius!
-                        .topLeft
-                        .x // Approximation or just 0 if complex
-                  : 0,
-            ),
-        errorWidget: (context, url, error) =>
-            errorWidget ??
-            Container(
-              width: width,
-              height: height,
-              color: AppColors.surfaceVariant,
-              child: const Icon(
-                Icons.broken_image_rounded,
-                color: AppColors.textTertiary,
-                size: 32,
-              ),
-            ),
+        errorBuilder: (context, error, stackTrace) => _buildErrorWidget(),
       ),
     );
+  }
+
+  Widget _buildErrorWidget() {
+    return errorWidget ??
+        Container(
+          width: width,
+          height: height,
+          color: AppColors.surfaceVariant,
+          child: const Icon(Icons.broken_image_rounded, color: AppColors.textTertiary, size: 32),
+        );
   }
 }
 

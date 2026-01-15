@@ -86,8 +86,14 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/movie/
     - assets/icons/
     - assets/data/
+    - assets/subtitles/
+    - assets/videos/
+    - assets/videos/360p/
+    - assets/videos/720p/
+    - assets/videos/images/
 
   # fonts:
   #   - family: Inter

@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/features/detail/binding/detail_binding.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
+import 'package:watch_movie_tv_show/features/detail/widgets/play_button.dart';
 import 'package:watch_movie_tv_show/features/detail/widgets/up_next_section.dart';
 import 'package:watch_movie_tv_show/features/downloads/widgets/download_button.dart';
 
@@ -131,9 +131,15 @@ class DetailPage extends GetView<DetailController> {
                         const SizedBox(width: 16),
                       ],
                       if (controller.video.tags != null && controller.video.tags!.isNotEmpty)
-                        Text(
-                          controller.video.tags!.join(' • '),
-                          style: MTextTheme.captionRegular.copyWith(color: AppColors.textTertiary),
+                        Expanded(
+                          child: Text(
+                            controller.video.tags!.join(' • '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: MTextTheme.captionRegular.copyWith(
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -145,7 +151,7 @@ class DetailPage extends GetView<DetailController> {
                       // Play button
                       Expanded(
                         flex: 2,
-                        child: _PlayButton(
+                        child: PlayButton(
                           onPressed: controller.playVideo,
                           resumeText: controller.watchProgressText,
                         ),
@@ -231,28 +237,6 @@ class DetailPage extends GetView<DetailController> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Play Button Widget
-class _PlayButton extends StatelessWidget {
-  const _PlayButton({required this.onPressed, this.resumeText});
-  final VoidCallback onPressed;
-  final String? resumeText;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: const Icon(Icons.play_arrow_rounded),
-      label: Text(resumeText != null ? 'Resume' : AppStrings.play),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

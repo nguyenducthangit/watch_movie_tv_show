@@ -21,10 +21,11 @@ class HomeFilterchip extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(24),
         splashColor: Colors.white.withValues(alpha: 0.3),
         highlightColor: Colors.white.withValues(alpha: 0.1),
         child: AnimatedContainer(
+          alignment: Alignment.center,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -63,6 +64,7 @@ class HomeFilterchip extends StatelessWidget {
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               color: isSelected ? Colors.white : Colors.grey.shade400,
               letterSpacing: 0.5,
+              height: 1,
             ),
           ),
         ),

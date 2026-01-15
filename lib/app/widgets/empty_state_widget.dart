@@ -23,41 +23,43 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: AppColors.surfaceVariant,
-                shape: BoxShape.circle,
+    return SingleChildScrollView(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: iconSize, color: AppColors.textTertiary),
               ),
-              child: Icon(icon, size: iconSize, color: AppColors.textTertiary),
-            ),
-            const SizedBox(height: 24),
-            // Title
-            Text(
-              title,
-              style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
-              textAlign: TextAlign.center,
-            ),
-            if (message != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 24),
+              // Title
               Text(
-                message!,
-                style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                title,
+                style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
+              if (message != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  message!,
+                  style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              if (buttonText != null && onButtonPressed != null) ...[
+                const SizedBox(height: 24),
+                ElevatedButton(onPressed: onButtonPressed, child: Text(buttonText!)),
+              ],
             ],
-            if (buttonText != null && onButtonPressed != null) ...[
-              const SizedBox(height: 24),
-              ElevatedButton(onPressed: onButtonPressed, child: Text(buttonText!)),
-            ],
-          ],
+          ),
         ),
       ),
     );
