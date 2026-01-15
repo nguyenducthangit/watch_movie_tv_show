@@ -47,4 +47,3 @@ app.*.map.json
 /openspec/
 *.md
 /assets/videos/
-/packages/
