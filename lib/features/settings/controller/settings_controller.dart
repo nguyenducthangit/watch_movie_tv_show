@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/app_config.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
@@ -26,13 +25,13 @@ class SettingsController extends GetxController {
     }
   }
 
-  /// Clear manifest cache
+  /// Clear manifest cache (now just clears storage cache)
   Future<void> clearManifestCache() async {
     try {
-      final repo = ManifestRepository();
-      await repo.clearCache();
+      // Since we're using API now, just clear local storage cache
+      await StorageService.instance.clearAll();
     } catch (e) {
-      logger.e('Failed to clear manifest cache: $e');
+      logger.e('Failed to clear cache: $e');
     }
   }
 

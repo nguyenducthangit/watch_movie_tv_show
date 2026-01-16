@@ -9,7 +9,8 @@ class VideoItem {
     this.description,
     this.durationSec,
     required this.thumbnailUrl,
-    this.youtubeId,
+    this.slug,
+    this.streamUrl,
     this.downloadQualities,
     this.tags,
   });
@@ -22,7 +23,8 @@ class VideoItem {
       description: json['description'] as String?,
       durationSec: json['durationSec'] as int?,
       thumbnailUrl: json['thumbnailUrl'] as String,
-      youtubeId: json['youtubeId'] as String?,
+      slug: json['slug'] as String?,
+      streamUrl: json['streamUrl'] as String?,
       downloadQualities: json['download'] != null
           ? (json['download']['qualities'] as List<dynamic>?)
                 ?.map((e) => VideoQuality.fromJson(e as Map<String, dynamic>))
@@ -36,7 +38,8 @@ class VideoItem {
   final String? description;
   final int? durationSec;
   final String thumbnailUrl;
-  final String? youtubeId;
+  final String? slug; // Ophim movie slug for detail API
+  final String? streamUrl; // HLS stream URL (.m3u8)
   final List<VideoQuality>? downloadQualities;
   final List<String>? tags;
 
@@ -48,7 +51,8 @@ class VideoItem {
       'description': description,
       'durationSec': durationSec,
       'thumbnailUrl': thumbnailUrl,
-      'youtubeId': youtubeId,
+      'slug': slug,
+      'streamUrl': streamUrl,
       'download': downloadQualities != null
           ? {'qualities': downloadQualities!.map((e) => e.toJson()).toList()}
           : null,
@@ -78,7 +82,8 @@ class VideoItem {
     String? description,
     int? durationSec,
     String? thumbnailUrl,
-    String? youtubeId,
+    String? slug,
+    String? streamUrl,
     List<VideoQuality>? downloadQualities,
     List<String>? tags,
   }) {
@@ -88,7 +93,8 @@ class VideoItem {
       description: description ?? this.description,
       durationSec: durationSec ?? this.durationSec,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
-      youtubeId: youtubeId ?? this.youtubeId,
+      slug: slug ?? this.slug,
+      streamUrl: streamUrl ?? this.streamUrl,
       downloadQualities: downloadQualities ?? this.downloadQualities,
       tags: tags ?? this.tags,
     );

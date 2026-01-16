@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
 
 /// Watchlist Controller
 class WatchlistController extends GetxController {
   final WatchlistService _watchlistService = Get.find<WatchlistService>();
-  final ManifestRepository _manifestRepository = ManifestRepository();
+  final OphimRepository _repository = OphimRepository();
 
   final RxList<VideoItem> watchlistVideos = <VideoItem>[].obs;
   final RxBool isLoading = false.obs;
@@ -27,8 +27,7 @@ class WatchlistController extends GetxController {
       final watchlistIds = _watchlistService.getWatchlistIds();
 
       // Fetch all videos from repository to find the ones in watchlist
-      final manifest = await _manifestRepository.getManifest();
-      final allVideos = manifest.items;
+      final allVideos = await _repository.fetchHomeMovies();
 
       // Filter videos that are in watchlist
       watchlistVideos.value = allVideos.where((video) => watchlistIds.contains(video.id)).toList();

@@ -1,32 +1,30 @@
 import 'dart:async';
 
+import 'package:chewie/chewie.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:watch_movie_tv_show/app/data/models/subtitle_data.dart';
-import 'package:watch_movie_tv_show/app/data/models/subtitle_entry.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/watch_progress.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
-import 'package:watch_movie_tv_show/app/services/subtitle_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-/// Player Controller - YouTube only
+/// Player Controller - HLS Video Player
 class PlayerController extends GetxController {
   late VideoItem video;
 
-  YoutubePlayerController? youtubeController;
+  VideoPlayerController? videoPlayerController;
+  ChewieController? chewieController;
 
   // Services
   WatchProgressService get _progressService => Get.find<WatchProgressService>();
-  SubtitleService get _subtitleService => Get.find<SubtitleService>();
 
   // State
   final RxBool isPlaying = false.obs;
   final RxBool isBuffering = false.obs;
-  final RxBool showControls = false.obs;
+  final RxBool showControls = true.obs;
   final RxBool isInitialized = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
@@ -41,23 +39,10 @@ class PlayerController extends GetxController {
   static const List<String> availableQualities = ['Auto', '1080p', '720p', '480p', '360p'];
   static const List<double> availableSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 
-  // Subtitle state
-  final RxBool subtitleEnabled = false.obs;
-  final Rx<SubtitleData?> currentSubtitle = Rx(null);
-  final RxString selectedSubtitleLanguage = 'off'.obs;
-  final RxList<String> availableSubtitleLanguages = <String>[
-    'off',
-    'en',
-    'vi',
-    'es',
-    'fr',
-    'de',
-    'ja',
-  ].obs;
-  final Rx<SubtitleEntry?> currentSubtitleEntry = Rx(null);
   final RxBool isFullscreen = false.obs;
 
   Timer? _hideControlsTimer;
+  Timer? _progressTimer;
 
   @override
   void onInit() {
@@ -80,40 +65,47 @@ class PlayerController extends GetxController {
 
   Future<void> _initPlayer() async {
     try {
-      if (video.youtubeId == null || video.youtubeId!.isEmpty) {
-        throw Exception('No YouTube ID provided');
+      if (video.streamUrl == null || video.streamUrl!.isEmpty) {
+        throw Exception('No stream URL provided');
       }
 
+      // Initialize video player
+      videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(video.streamUrl!));
+
+      await videoPlayerController!.initialize();
+
+      // Get saved progress
       Duration? startAt;
       final savedProgress = StorageService.instance.getWatchProgress(video.id);
       if (savedProgress != null && savedProgress.hasProgress) {
         startAt = Duration(milliseconds: savedProgress.positionMs);
+        await videoPlayerController!.seekTo(startAt);
       }
 
-      youtubeController = YoutubePlayerController(
-        initialVideoId: video.youtubeId!,
-        flags: YoutubePlayerFlags(
-          autoPlay: true,
-          mute: false,
-          enableCaption: true,
-          captionLanguage: availableSubtitleLanguages.first,
-          hideControls: true,
-          controlsVisibleAtStart: false,
-          forceHD: false,
-          startAt: startAt?.inSeconds ?? 0,
-          showLiveFullscreenButton: false,
-          disableDragSeek: false,
-          loop: false,
-          isLive: false,
-          useHybridComposition: true,
-        ),
+      // Initialize Chewie controller
+      chewieController = ChewieController(
+        videoPlayerController: videoPlayerController!,
+        autoPlay: true,
+        looping: false,
+        showControls: true, // We use custom controls
+        aspectRatio: 16 / 9,
+        autoInitialize: true,
+        allowFullScreen: true,
+        allowMuting: true,
+        allowPlaybackSpeedChanging: true,
+        playbackSpeeds: availableSpeeds,
       );
 
-      youtubeController!.addListener(_handleYoutubePlayerEvent);
-      isInitialized.value = true;
+      // Add listeners
+      videoPlayerController!.addListener(_handleVideoPlayerEvent);
 
+      isInitialized.value = true;
       WakelockPlus.enable();
-      logger.i('YouTube Player initialized for: ${video.title}');
+
+      // Start progress tracking timer
+      _startProgressTimer();
+
+      logger.i('Video Player initialized for: ${video.title}');
     } catch (e) {
       logger.e('Failed to initialize player: $e');
       hasError.value = true;
@@ -121,29 +113,33 @@ class PlayerController extends GetxController {
     }
   }
 
-  void _handleYoutubePlayerEvent() {
-    if (youtubeController == null) return;
+  void _handleVideoPlayerEvent() {
+    if (videoPlayerController == null) return;
 
-    final value = youtubeController!.value;
+    final value = videoPlayerController!.value;
 
     isPlaying.value = value.isPlaying;
-    isBuffering.value = value.playerState == PlayerState.buffering;
+    isBuffering.value = value.isBuffering;
     currentPosition.value = value.position;
-
-    if (youtubeController!.metadata.duration.inSeconds > 0) {
-      totalDuration.value = youtubeController!.metadata.duration;
-    }
+    totalDuration.value = value.duration;
 
     if (value.hasError) {
       hasError.value = true;
-      errorMessage.value = 'YouTube playback error: ${value.errorCode}';
+      errorMessage.value = 'Video playback error occurred';
     }
 
-    if (value.playerState == PlayerState.ended) {
+    // Check if video ended
+    if (value.position.inMilliseconds > 0 &&
+        value.position.inMilliseconds >= value.duration.inMilliseconds - 500) {
       _onVideoComplete();
     }
+  }
 
-    _updateCurrentSubtitle();
+  void _startProgressTimer() {
+    _progressTimer?.cancel();
+    _progressTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _saveProgress();
+    });
   }
 
   void _onVideoComplete() {
@@ -152,7 +148,7 @@ class PlayerController extends GetxController {
   }
 
   void _saveProgress() {
-    if (!isInitialized.value) return;
+    if (!isInitialized.value || videoPlayerController == null) return;
 
     final position = currentPosition.value.inMilliseconds;
     final duration = totalDuration.value.inMilliseconds;
@@ -195,22 +191,26 @@ class PlayerController extends GetxController {
   }
 
   void togglePlayPause() {
+    if (videoPlayerController == null) return;
+
     if (isPlaying.value) {
-      youtubeController?.pause();
+      videoPlayerController!.pause();
     } else {
-      youtubeController?.play();
+      videoPlayerController!.play();
     }
     showControls.value = true;
     _startHideTimer();
   }
 
   void seek(int seconds) {
+    if (videoPlayerController == null) return;
+
     final newPosition = currentPosition.value + Duration(seconds: seconds);
     final clampedPosition = newPosition.isNegative
         ? Duration.zero
         : (newPosition > totalDuration.value ? totalDuration.value : newPosition);
 
-    youtubeController?.seekTo(clampedPosition);
+    videoPlayerController!.seekTo(clampedPosition);
 
     showControls.value = true;
     _startHideTimer();
@@ -220,52 +220,17 @@ class PlayerController extends GetxController {
   void seekBackward() => seek(-10);
 
   void setPlaybackSpeed(double speed) {
+    if (videoPlayerController == null) return;
+
     playbackSpeed.value = speed;
-    youtubeController?.setPlaybackRate(speed);
+    videoPlayerController!.setPlaybackSpeed(speed);
     logger.d('Playback speed set to: ${speed}x');
   }
 
   void setQuality(String quality) {
     currentQuality.value = quality;
     logger.d('Quality set to: $quality');
-  }
-
-  void toggleSubtitle() {
-    subtitleEnabled.value = !subtitleEnabled.value;
-    logger.d('Subtitle ${subtitleEnabled.value ? 'enabled' : 'disabled'}');
-  }
-
-  Future<void> changeSubtitleLanguage(String language) async {
-    selectedSubtitleLanguage.value = language;
-
-    if (language == 'off') {
-      subtitleEnabled.value = false;
-      return;
-    }
-
-    subtitleEnabled.value = true;
-
-    // TODO: Implement with external subtitle source when available
-    if (currentSubtitle.value != null) {
-      logger.i('Translating subtitle to: $language');
-      final translatedData = await _subtitleService.translateSubtitle(
-        currentSubtitle.value!,
-        language,
-      );
-      currentSubtitle.value = translatedData;
-    }
-  }
-
-  void _updateCurrentSubtitle() {
-    if (!subtitleEnabled.value || currentSubtitle.value == null) {
-      currentSubtitleEntry.value = null;
-      return;
-    }
-
-    final entry = currentSubtitle.value!.getEntryAt(currentPosition.value);
-    if (entry != currentSubtitleEntry.value) {
-      currentSubtitleEntry.value = entry;
-    }
+    // Note: HLS streams auto-adjust quality, this is mostly for UI display
   }
 
   void toggleFullscreen() {
@@ -303,8 +268,10 @@ class PlayerController extends GetxController {
 
   void retry() {
     hasError.value = false;
-    youtubeController?.dispose();
-    youtubeController = null;
+    chewieController?.dispose();
+    videoPlayerController?.dispose();
+    chewieController = null;
+    videoPlayerController = null;
     _initPlayer();
   }
 
@@ -312,7 +279,10 @@ class PlayerController extends GetxController {
   void onClose() {
     _saveProgress();
     _cancelHideTimer();
-    youtubeController?.dispose();
+    _progressTimer?.cancel();
+
+    chewieController?.dispose();
+    videoPlayerController?.dispose();
 
     // Restore system UI and orientation
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

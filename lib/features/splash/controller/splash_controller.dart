@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
@@ -26,11 +26,11 @@ class SplashController extends GetxController {
       await StorageService.instance.init();
       await Future.delayed(const Duration(milliseconds: 300));
 
-      // Step 2: Load manifest (preload data)
+      // Step 2: Load content from Ophim API
       statusMessage.value = 'Loading content...';
       progress.value = 0.5;
-      final repo = ManifestRepository();
-      await repo.getManifest();
+      final repo = OphimRepository();
+      await repo.fetchHomeMovies();
       await Future.delayed(const Duration(milliseconds: 300));
 
       // Step 3: Complete

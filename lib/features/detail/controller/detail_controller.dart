@@ -3,6 +3,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
@@ -19,15 +20,41 @@ class DetailController extends GetxController {
   final Rx<VideoQuality?> selectedQuality = Rx<VideoQuality?>(null);
   final RxBool isInWatchlist = false.obs;
   final RxList<VideoItem> relatedVideos = <VideoItem>[].obs;
+  final RxBool isLoadingDetail = false.obs;
 
   WatchlistService get _watchlistService => Get.find<WatchlistService>();
+  final OphimRepository _repository = OphimRepository();
 
   @override
   void onInit() {
     super.onInit();
-    // Get video from argumentso
+    // Get video from arguments
     video = Get.arguments as VideoItem;
+    _loadMovieDetail();
     _loadRelatedVideos();
+  }
+
+  /// Load full movie detail from API
+  Future<void> _loadMovieDetail() async {
+    try {
+      if (video.slug == null || video.slug!.isEmpty) return;
+
+      isLoadingDetail.value = true;
+      final movieDetail = await _repository.fetchMovieDetail(video.slug!);
+
+      // Update video with full details (description, etc.)
+      video = video.copyWith(
+        description: movieDetail.content,
+        // Can add more fields here if needed
+      );
+
+      logger.i('Loaded movie detail: ${movieDetail.name}');
+    } catch (e) {
+      logger.e('Failed to load movie detail: $e');
+      // Continue anyway with basic info from list
+    } finally {
+      isLoadingDetail.value = false;
+    }
   }
 
   @override
@@ -88,18 +115,49 @@ class DetailController extends GetxController {
 
   /// Share video
   void shareVideo() {
-    final youtubeUrl = video.youtubeId != null
-        ? 'https://www.youtube.com/watch?v=${video.youtubeId}'
-        : video.title;
-    Share.share('Check out this video: ${video.title}\n$youtubeUrl');
+    final movieUrl = video.slug != null
+        ? 'Check out this movie: ${video.title}'
+        : 'Check out this video: ${video.title}';
+    Share.share(movieUrl);
   }
 
-  /// Play video
-  void playVideo() {
-    // Check if we have a local file
-    final localPath = DownloadService.to.getLocalPath(video.id);
+  /// Play video - fetch detail with stream URL if not already loaded
+  Future<void> playVideo() async {
+    try {
+      isLoadingDetail.value = true;
 
-    Get.toNamed(MRoutes.player, arguments: {'video': video, 'localPath': localPath});
+      // Fetch movie detail to get episodes and stream URL
+      if (video.slug == null || video.slug!.isEmpty) {
+        Get.snackbar('Error', 'Invalid movie slug');
+        return;
+      }
+
+      final movieDetail = await _repository.fetchMovieDetail(video.slug!);
+
+      // Convert to VideoItem with stream URL
+      final videoWithStream = _repository.movieWithEpisodeToVideoItem(movieDetail);
+
+      if (videoWithStream.streamUrl == null || videoWithStream.streamUrl!.isEmpty) {
+        Get.snackbar('Error', 'No stream available for this video');
+        return;
+      }
+
+      // Check if we have a local file
+      final localPath = DownloadService.to.getLocalPath(video.id);
+
+      Get.toNamed(
+        MRoutes.player,
+        arguments: {
+          'video': videoWithStream, // Pass video with stream URL
+          'localPath': localPath,
+        },
+      );
+    } catch (e) {
+      logger.e('Failed to play video: $e');
+      Get.snackbar('Error', 'Failed to load video stream');
+    } finally {
+      isLoadingDetail.value = false;
+    }
   }
 
   /// Show quality picker and start download

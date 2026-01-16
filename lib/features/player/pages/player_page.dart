@@ -1,3 +1,4 @@
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -6,12 +7,9 @@ import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/widgets/error_state_widget.dart';
 import 'package:watch_movie_tv_show/features/player/binding/player_binding.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
-import 'package:watch_movie_tv_show/features/player/widgets/player_gesture_layer.dart';
 import 'package:watch_movie_tv_show/features/player/widgets/player_menu.dart';
-import 'package:watch_movie_tv_show/features/player/widgets/subtitle_overlay.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-/// Player Page - YouTube style with video on top and info below
+/// Player Page - HLS Video Player with info below
 class PlayerPage extends GetView<PlayerController> {
   const PlayerPage({super.key});
 
@@ -39,7 +37,7 @@ class PlayerPage extends GetView<PlayerController> {
             }
 
             // Loading state
-            if (!controller.isInitialized.value || controller.youtubeController == null) {
+            if (!controller.isInitialized.value || controller.chewieController == null) {
               return _buildLoadingState();
             }
 
@@ -122,21 +120,13 @@ class PlayerPage extends GetView<PlayerController> {
       aspectRatio: 16 / 9,
       child: Stack(
         children: [
-          YoutubePlayer(
-            controller: controller.youtubeController!,
-            showVideoProgressIndicator: false,
-            bottomActions: const [],
-            topActions: const [],
-          ),
+          Chewie(controller: controller.chewieController!),
 
-          PlayerGestureLayer(
-            onSeekForward: controller.seekForward,
-            onSeekBackward: controller.seekBackward,
-            onTap: controller.toggleControls,
-          ),
-
-          SubtitleOverlay(controller: controller),
-
+          // PlayerGestureLayer(
+          //   onSeekForward: controller.seekForward,
+          //   onSeekBackward: controller.seekBackward,
+          //   onTap: controller.toggleControls,
+          // ),
           Obx(() {
             if (!controller.showControls.value) return const SizedBox.shrink();
             return _buildTopBar();
@@ -261,7 +251,7 @@ class PlayerPage extends GetView<PlayerController> {
                   final newPosition = Duration(
                     milliseconds: (value * total.inMilliseconds).round(),
                   );
-                  controller.youtubeController?.seekTo(newPosition);
+                  controller.videoPlayerController?.seekTo(newPosition);
                 },
               ),
             ),
@@ -291,12 +281,8 @@ class PlayerPage extends GetView<PlayerController> {
             icon: Icons.share_outlined,
             label: 'Share',
             onTap: () {
-              final youtubeUrl = controller.video.youtubeId != null
-                  ? 'https://www.youtube.com/watch?v=${controller.video.youtubeId}'
-                  : controller.video.title;
-              SharePlus.instance.share(
-                ShareParams(text: 'Check out this video: ${controller.video.title}\n$youtubeUrl'),
-              );
+              final movieInfo = 'Check out this movie: ${controller.video.title}';
+              SharePlus.instance.share(ShareParams(text: movieInfo));
             },
           ),
         ],

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
-import 'package:watch_movie_tv_show/app/data/repositories/manifest_repository.dart';
+import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
@@ -9,7 +9,7 @@ import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 /// Home Controller
 /// Manages video catalog display, search, and premium browse experience
 class HomeController extends GetxController {
-  final ManifestRepository _repo = ManifestRepository();
+  final OphimRepository _repo = OphimRepository();
 
   // Services
   WatchProgressService get _progressService => Get.find<WatchProgressService>();
@@ -62,9 +62,17 @@ class HomeController extends GetxController {
       isLoading.value = true;
       hasError.value = false;
 
-      final manifest = await _repo.getManifest();
-      videos.value = manifest.items;
-      tags.value = manifest.allTags;
+      final movieList = await _repo.fetchHomeMovies();
+      videos.value = movieList;
+
+      // Extract unique tags from all videos
+      final allTags = <String>{};
+      for (final video in movieList) {
+        if (video.tags != null) {
+          allTags.addAll(video.tags!);
+        }
+      }
+      tags.value = allTags.toList();
 
       // Setup premium sections
       _setupPremiumSections();
@@ -86,9 +94,17 @@ class HomeController extends GetxController {
       isRefreshing.value = true;
       hasError.value = false;
 
-      final manifest = await _repo.refreshManifest();
-      videos.value = manifest.items;
-      tags.value = manifest.allTags;
+      final movieList = await _repo.fetchHomeMovies();
+      videos.value = movieList;
+
+      // Extract unique tags
+      final allTags = <String>{};
+      for (final video in movieList) {
+        if (video.tags != null) {
+          allTags.addAll(video.tags!);
+        }
+      }
+      tags.value = allTags.toList();
 
       // Re-setup premium sections
       _setupPremiumSections();

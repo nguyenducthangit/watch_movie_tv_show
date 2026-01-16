@@ -5,7 +5,7 @@ import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
 
 /// Player 3-Dot Menu
-/// Contains Speed, Quality, and Subtitles options
+/// Contains Speed and Quality options
 class PlayerMenu extends StatelessWidget {
   const PlayerMenu({super.key, required this.controller});
 
@@ -75,24 +75,6 @@ class PlayerMenu extends StatelessWidget {
                     onTap: () {
                       Get.back();
                       _showQualityPicker(context);
-                    },
-                  ),
-                ),
-
-                // Subtitles option
-                Obx(
-                  () => ListTile(
-                    leading: const Icon(Icons.closed_caption_rounded, color: AppColors.primary),
-                    title: const Text('Subtitles'),
-                    trailing: Text(
-                      controller.selectedSubtitleLanguage.value == 'off'
-                          ? 'Off'
-                          : _getLanguageName(controller.selectedSubtitleLanguage.value),
-                      style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
-                    ),
-                    onTap: () {
-                      Get.back();
-                      _showSubtitlePicker(context);
                     },
                   ),
                 ),
@@ -188,89 +170,5 @@ class PlayerMenu extends StatelessWidget {
       isDismissible: true,
       enableDrag: true,
     );
-  }
-
-  /// Show subtitle language picker
-  void _showSubtitlePicker(BuildContext context) {
-    Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 16),
-                const Text('Subtitles', style: MTextTheme.h4SemiBold),
-                const SizedBox(height: 8),
-                // Loading indicator when translating
-                Obx(
-                  () =>
-                      controller.currentSubtitle.value != null &&
-                          controller.selectedSubtitleLanguage.value != 'off'
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            'Tap a language to translate',
-                            style: MTextTheme.captionRegular.copyWith(
-                              color: AppColors.textTertiary,
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 8),
-                ...controller.availableSubtitleLanguages.map((lang) {
-                  final displayName = _getLanguageName(lang);
-                  return Obx(
-                    () => ListTile(
-                      title: Text(displayName, textAlign: TextAlign.center),
-                      trailing: controller.selectedSubtitleLanguage.value == lang
-                          ? const Icon(Icons.check, color: AppColors.primary)
-                          : null,
-                      onTap: () async {
-                        Get.back();
-                        // Show loading snackbar for translation
-                        if (lang != 'off' && lang != 'en') {
-                          Get.showSnackbar(
-                            GetSnackBar(
-                              message: 'Translating subtitles to ${_getLanguageName(lang)}...',
-                              duration: const Duration(seconds: 2),
-                              showProgressIndicator: true,
-                              backgroundColor: AppColors.surface,
-                            ),
-                          );
-                        }
-                        await controller.changeSubtitleLanguage(lang);
-                      },
-                    ),
-                  );
-                }),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        ),
-      ),
-      isDismissible: true,
-      enableDrag: true,
-    );
-  }
-
-  /// Get language display name
-  String _getLanguageName(String code) {
-    const names = {
-      'off': 'Off',
-      'en': 'English',
-      'vi': 'Tiếng Việt',
-      'es': 'Español',
-      'fr': 'Français',
-      'de': 'Deutsch',
-      'ja': '日本語',
-    };
-    return names[code] ?? code.toUpperCase();
   }
 }
