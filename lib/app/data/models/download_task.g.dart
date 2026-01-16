@@ -1,5 +1,4 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// This is a placeholder. Run: flutter pub run build_runner build
 
 part of 'download_task.dart';
 
@@ -26,17 +25,20 @@ class DownloadTaskAdapter extends TypeAdapter<DownloadTask> {
       status: fields[5] as DownloadStatus,
       progress: fields[6] as double,
       localPath: fields[7] as String?,
-      createdAt: fields[8] as DateTime,
+      createdAt: fields[8] as DateTime?,
       errorMessage: fields[9] as String?,
       fileSizeBytes: fields[10] as int?,
       taskId: fields[11] as String?,
+      isHLS: fields[12] as bool,
+      totalSegments: fields[13] as int?,
+      downloadedSegments: fields[14] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, DownloadTask obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.videoId)
       ..writeByte(1)
@@ -60,7 +62,13 @@ class DownloadTaskAdapter extends TypeAdapter<DownloadTask> {
       ..writeByte(10)
       ..write(obj.fileSizeBytes)
       ..writeByte(11)
-      ..write(obj.taskId);
+      ..write(obj.taskId)
+      ..writeByte(12)
+      ..write(obj.isHLS)
+      ..writeByte(13)
+      ..write(obj.totalSegments)
+      ..writeByte(14)
+      ..write(obj.downloadedSegments);
   }
 
   @override
@@ -69,5 +77,7 @@ class DownloadTaskAdapter extends TypeAdapter<DownloadTask> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DownloadTaskAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+      other is DownloadTaskAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

@@ -180,6 +180,13 @@ class MTextTheme {
     color: _color,
   );
 
+  static const body2SemiBold = TextStyle(
+    fontWeight: FontWeight.w600,
+    fontSize: 14,
+    height: 1.5,
+    color: _color,
+  );
+
   // Caption - 12px
   static const captionRegular = TextStyle(
     fontWeight: FontWeight.w400,
@@ -190,6 +197,13 @@ class MTextTheme {
 
   static const captionMedium = TextStyle(
     fontWeight: FontWeight.w500,
+    fontSize: 12,
+    height: 1.33,
+    color: _color,
+  );
+
+  static const captionSemiBold = TextStyle(
+    fontWeight: FontWeight.w600,
     fontSize: 12,
     height: 1.33,
     color: _color,

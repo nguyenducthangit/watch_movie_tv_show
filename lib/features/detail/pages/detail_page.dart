@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
-import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/features/detail/binding/detail_binding.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
+import 'package:watch_movie_tv_show/features/detail/widgets/cast_crew_section.dart';
+import 'package:watch_movie_tv_show/features/detail/widgets/description_section.dart';
+import 'package:watch_movie_tv_show/features/detail/widgets/detail_info_header.dart';
+import 'package:watch_movie_tv_show/features/detail/widgets/episode_grid_section.dart';
 import 'package:watch_movie_tv_show/features/detail/widgets/play_button.dart';
 import 'package:watch_movie_tv_show/features/detail/widgets/up_next_section.dart';
 import 'package:watch_movie_tv_show/features/downloads/widgets/download_button.dart';
@@ -51,14 +53,18 @@ class DetailPage extends GetView<DetailController> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Thumbnail
-                  Hero(
-                    tag: 'video_thumb_${controller.video.id}',
-                    child: CachedImageWidget(
-                      imageUrl: controller.video.thumbnailUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  // Thumbnail - Reactive to handle dynamic updates
+                  Obx(() {
+                    final movieThumbnail = controller.movieDetail.value?.getFullThumbnailUrl();
+                    final thumbnailUrl = (movieThumbnail != null && movieThumbnail.isNotEmpty)
+                        ? movieThumbnail
+                        : controller.video.thumbnailUrl;
+
+                    return Hero(
+                      tag: 'video_thumb_${controller.video.id}',
+                      child: CachedImageWidget(imageUrl: thumbnailUrl, fit: BoxFit.cover),
+                    );
+                  }),
                   // Gradient overlay
                   Container(
                     decoration: BoxDecoration(
@@ -88,42 +94,21 @@ class DetailPage extends GetView<DetailController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
-                  Text(
-                    controller.video.title,
-                    style: MTextTheme.h3SemiBold.copyWith(color: AppColors.textPrimary),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Meta info
-                  Row(
-                    children: [
-                      if (controller.video.durationSec != null) ...[
-                        const Icon(
-                          Icons.access_time_rounded,
-                          size: 16,
-                          color: AppColors.textTertiary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          controller.video.durationSec!.toFormattedDuration(),
-                          style: MTextTheme.captionRegular.copyWith(color: AppColors.textSecondary),
-                        ),
-                        const SizedBox(width: 16),
-                      ],
-                      if (controller.video.tags != null && controller.video.tags!.isNotEmpty)
-                        Expanded(
-                          child: Text(
-                            controller.video.tags!.join(' • '),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: MTextTheme.captionRegular.copyWith(
-                              color: AppColors.textTertiary,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                  // Info Header (Title, Metadata, Categories) - Reactive
+                  Obx(() {
+                    final movie = controller.movieDetail.value;
+                    return DetailInfoHeader(
+                      title: movie?.name ?? controller.video.title,
+                      originName: movie?.originName,
+                      year: movie?.year ?? controller.video.year,
+                      quality: movie?.quality ?? controller.video.quality,
+                      lang: movie?.lang ?? controller.video.lang,
+                      episodeCurrent: movie?.episodeCurrent ?? controller.video.episodeCurrent,
+                      episodeTotal: movie?.episodeTotal ?? controller.video.episodeTotal,
+                      categories: movie?.categories ?? controller.video.tags,
+                      view: movie?.view,
+                    );
+                  }),
                   const SizedBox(height: 24),
 
                   // Action buttons
@@ -175,19 +160,51 @@ class DetailPage extends GetView<DetailController> {
                   ),
                   const SizedBox(height: 24),
 
-                  // // Description
-                  // if (controller.video.description != null &&
-                  //     controller.video.description!.isNotEmpty) ...[
-                  //   Text(
-                  //     'Description',
-                  //     style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   Text(
-                  //     controller.video.description!,
-                  //     style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
-                  //   ),
-                  // ],
+                  // Description Section - Reactive
+                  Obx(() {
+                    final description =
+                        controller.movieDetail.value?.content ?? controller.video.description;
+                    if (description != null && description.isNotEmpty) {
+                      return Column(
+                        children: [
+                          DescriptionSection(description: description),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
+                  // Cast & Crew Section - Reactive
+                  Obx(() {
+                    final actors = controller.movieDetail.value?.actor ?? controller.video.actor;
+                    final directors =
+                        controller.movieDetail.value?.director ?? controller.video.director;
+                    final hasActors = actors != null && actors.isNotEmpty;
+                    final hasDirectors = directors != null && directors.isNotEmpty;
+
+                    if (hasActors || hasDirectors) {
+                      return Column(
+                        children: [
+                          CastCrewSection(actors: actors, directors: directors),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
+                  // Episode Grid Section - Only show if movie has valid playable episodes
+                  Obx(() {
+                    final movie = controller.movieDetail.value;
+                    final hasValidEpisodes = movie != null && movie.hasValidEpisodes;
+
+                    if (!hasValidEpisodes) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return const Column(children: [EpisodeGridSection(), SizedBox(height: 24)]);
+                  }),
 
                   // Up Next section
                   UpNextSection(

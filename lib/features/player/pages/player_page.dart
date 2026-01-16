@@ -127,15 +127,15 @@ class PlayerPage extends GetView<PlayerController> {
           //   onSeekBackward: controller.seekBackward,
           //   onTap: controller.toggleControls,
           // ),
-          Obx(() {
-            if (!controller.showControls.value) return const SizedBox.shrink();
-            return _buildTopBar();
-          }),
+          // Obx(() {
+          //   if (!controller.showControls.value) return const SizedBox.shrink();
+          //   return _buildTopBar();
+          // }),
 
-          Obx(() {
-            if (!controller.showControls.value) return const SizedBox.shrink();
-            return const _CenterControls();
-          }),
+          // Obx(() {
+          //   if (!controller.showControls.value) return const SizedBox.shrink();
+          //   return const _CenterControls();
+          // }),
 
           Obx(() {
             if (!controller.showControls.value) return const SizedBox.shrink();
@@ -354,35 +354,35 @@ class PlayerPage extends GetView<PlayerController> {
   }
 }
 
-/// Center controls - Play/Pause with seek buttons
-class _CenterControls extends GetView<PlayerController> {
-  const _CenterControls();
+// /// Center controls - Play/Pause with seek buttons
+// class _CenterControls extends GetView<PlayerController> {
+//   const _CenterControls();
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Seek backward 10s
-          _ControlButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
-          const SizedBox(width: 32),
-          // Play/Pause
-          Obx(
-            () => _ControlButton(
-              icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              onTap: controller.togglePlayPause,
-              size: 56,
-            ),
-          ),
-          const SizedBox(width: 32),
-          // Seek forward 10s
-          _ControlButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           // Seek backward 10s
+//           _ControlButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
+//           const SizedBox(width: 32),
+//           // Play/Pause
+//           Obx(
+//             () => _ControlButton(
+//               icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+//               onTap: controller.togglePlayPause,
+//               size: 56,
+//             ),
+//           ),
+//           const SizedBox(width: 32),
+//           // Seek forward 10s
+//           _ControlButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 /// Action button (Download, Share)
 class _ActionButton extends StatelessWidget {

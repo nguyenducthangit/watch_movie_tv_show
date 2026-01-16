@@ -7,6 +7,7 @@ import 'package:watch_movie_tv_show/app/config/app_config.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
+import 'package:watch_movie_tv_show/app/services/hls_download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
@@ -16,6 +17,7 @@ class DownloadService extends GetxService {
   static DownloadService get to => Get.find<DownloadService>();
 
   final _storage = StorageService.instance;
+  final _hlsDownloader = HLSDownloadService();
 
   // Observable state
   final RxList<DownloadTask> activeDownloads = <DownloadTask>[].obs;
@@ -175,8 +177,10 @@ class DownloadService extends GetxService {
       return;
     }
 
+    // Detect HLS (m3u8) download
+    final isHLS = quality.url.contains('.m3u8');
+
     // Create download task
-    final filename = '${video.id}_${quality.label}.mp4';
     final task = DownloadTask(
       videoId: video.id,
       videoTitle: video.title,
@@ -184,27 +188,45 @@ class DownloadService extends GetxService {
       downloadUrl: quality.url,
       qualityLabel: quality.label,
       status: DownloadStatus.queued,
+      isHLS: isHLS,
     );
-
-    // Background downloader task
-    final backgroundTask = bd.DownloadTask(
-      url: quality.url,
-      filename: filename,
-      directory: 'videos',
-      baseDirectory: bd.BaseDirectory.applicationDocuments,
-      retries: AppConfig.downloadRetryCount,
-      allowPause: true,
-    );
-
-    task.taskId = backgroundTask.taskId;
 
     // Save and add to list
     await _storage.saveDownloadTask(task);
     activeDownloads.add(task);
 
-    // Enqueue download
-    await bd.FileDownloader().enqueue(backgroundTask);
-    logger.i('Download started: ${video.title}');
+    if (isHLS) {
+      // HLS download
+      logger.i('Starting HLS download: ${video.title}');
+      await _hlsDownloader.startHLSDownload(
+        videoId: video.id,
+        videoTitle: video.title,
+        m3u8Url: quality.url,
+        quality: quality.label,
+        task: task,
+      );
+
+      // Move to completed
+      _moveToCompleted(task);
+    } else {
+      // Regular MP4 download
+      final filename = '${video.id}_${quality.label}.mp4';
+      final backgroundTask = bd.DownloadTask(
+        url: quality.url,
+        filename: filename,
+        directory: 'videos',
+        baseDirectory: bd.BaseDirectory.applicationDocuments,
+        retries: AppConfig.downloadRetryCount,
+        allowPause: true,
+      );
+
+      task.taskId = backgroundTask.taskId;
+      await _storage.saveDownloadTask(task);
+
+      // Enqueue download
+      await bd.FileDownloader().enqueue(backgroundTask);
+      logger.i('Download started: ${video.title}');
+    }
   }
 
   /// Pause download
@@ -252,11 +274,16 @@ class DownloadService extends GetxService {
     final task = _storage.getDownloadTask(videoId);
     if (task == null) return;
 
-    // Delete file
-    if (task.localPath != null) {
-      final file = File(task.localPath!);
-      if (await file.exists()) {
-        await file.delete();
+    // Delete HLS or regular
+    if (task.isHLS) {
+      await _hlsDownloader.deleteHLSDownload(videoId);
+    } else {
+      // Delete file
+      if (task.localPath != null) {
+        final file = File(task.localPath!);
+        if (await file.exists()) {
+          await file.delete();
+        }
       }
     }
 
@@ -300,7 +327,14 @@ class DownloadService extends GetxService {
 
   /// Get local path for video
   String? getLocalPath(String videoId) {
-    return _storage.getDownloadTask(videoId)?.localPath;
+    final task = _storage.getDownloadTask(videoId);
+    if (task == null) return null;
+
+    // Return HLS playlist path or regular video path
+    if (task.isHLS) {
+      return _hlsDownloader.getLocalPlaylistPath(videoId);
+    }
+    return task.localPath;
   }
 
   /// Check if video is downloading

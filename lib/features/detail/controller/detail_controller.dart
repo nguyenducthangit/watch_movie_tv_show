@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
+import 'package:watch_movie_tv_show/app/data/models/movie_model.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
 import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
@@ -22,6 +23,11 @@ class DetailController extends GetxController {
   final RxList<VideoItem> relatedVideos = <VideoItem>[].obs;
   final RxBool isLoadingDetail = false.obs;
 
+  // Enhanced: Full movie detail with all metadata
+  final Rx<MovieModel?> movieDetail = Rx<MovieModel?>(null);
+  final Rx<EpisodeItem?> selectedEpisode = Rx<EpisodeItem?>(null);
+  final RxInt selectedServerIndex = 0.obs;
+
   WatchlistService get _watchlistService => Get.find<WatchlistService>();
   final OphimRepository _repository = OphimRepository();
 
@@ -40,21 +46,77 @@ class DetailController extends GetxController {
       if (video.slug == null || video.slug!.isEmpty) return;
 
       isLoadingDetail.value = true;
-      final movieDetail = await _repository.fetchMovieDetail(video.slug!);
+      final detail = await _repository.fetchMovieDetail(video.slug!);
 
-      // Update video with full details (description, etc.)
+      // Store full MovieModel for UI access
+      movieDetail.value = detail;
+
+      // Generate downloadQualities from episodes (if not already set)
+      List<VideoQuality>? qualities;
+      if (detail.hasEpisodes && detail.episodes!.isNotEmpty) {
+        qualities = _generateDownloadQualities(detail);
+      }
+
+      // Update video with full details
       video = video.copyWith(
-        description: movieDetail.content,
-        // Can add more fields here if needed
+        description: detail.content,
+        year: detail.year,
+        quality: detail.quality,
+        lang: detail.lang,
+        episodeCurrent: detail.episodeCurrent,
+        episodeTotal: detail.episodeTotal,
+        time: detail.time,
+        type: detail.type,
+        actor: detail.actor,
+        director: detail.director,
+        country: detail.country,
+        trailerUrl: detail.trailerUrl,
+        downloadQualities: qualities,
       );
 
-      logger.i('Loaded movie detail: ${movieDetail.name}');
+      // Auto-select first episode if series
+      if (detail.hasEpisodes && detail.episodes!.isNotEmpty) {
+        final firstServer = detail.episodes!.first;
+        if (firstServer.episodes.isNotEmpty) {
+          selectedEpisode.value = firstServer.episodes.first;
+        }
+      }
+
+      logger.i('Loaded movie detail: ${detail.name}');
     } catch (e) {
       logger.e('Failed to load movie detail: $e');
       // Continue anyway with basic info from list
     } finally {
       isLoadingDetail.value = false;
     }
+  }
+
+  /// Generate download qualities from episodes
+  List<VideoQuality> _generateDownloadQualities(MovieModel movie) {
+    final qualities = <VideoQuality>[];
+
+    // Use first server's first episode as download source
+    if (movie.episodes != null && movie.episodes!.isNotEmpty) {
+      final server = movie.episodes!.first;
+      if (server.episodes.isNotEmpty) {
+        final episode = server.episodes.first;
+
+        // Determine quality based on movie.quality field or default
+        final qualityLabel = movie.quality ?? 'HD';
+
+        // Create download quality
+        // Note: m3u8 streams are typically adaptive, so we offer single quality
+        qualities.add(
+          VideoQuality(
+            label: qualityLabel,
+            url: episode.linkM3u8,
+            sizeMB: null, // Unknown for HLS streams
+          ),
+        );
+      }
+    }
+
+    return qualities;
   }
 
   @override
@@ -121,8 +183,26 @@ class DetailController extends GetxController {
     Share.share(movieUrl);
   }
 
+  /// Select episode to play
+  void selectEpisode(EpisodeItem episode) {
+    selectedEpisode.value = episode;
+    logger.i('Selected episode: ${episode.name}');
+  }
+
+  /// Select server
+  void selectServer(int index) {
+    selectedServerIndex.value = index;
+    // Auto-select first episode of new server
+    if (movieDetail.value?.episodes != null && movieDetail.value!.episodes!.length > index) {
+      final server = movieDetail.value!.episodes![index];
+      if (server.episodes.isNotEmpty) {
+        selectedEpisode.value = server.episodes.first;
+      }
+    }
+  }
+
   /// Play video - fetch detail with stream URL if not already loaded
-  Future<void> playVideo() async {
+  Future<void> playVideo({EpisodeItem? episode}) async {
     try {
       isLoadingDetail.value = true;
 
@@ -133,23 +213,29 @@ class DetailController extends GetxController {
       }
 
       logger.i('Fetching detail for slug: ${video.slug}');
-      final movieDetail = await _repository.fetchMovieDetail(video.slug!);
+      final detail = movieDetail.value ?? await _repository.fetchMovieDetail(video.slug!);
 
-      logger.i('Movie detail fetched: ${movieDetail.name}');
-      logger.i('Has episodes: ${movieDetail.hasEpisodes}');
-      if (movieDetail.hasEpisodes) {
-        logger.i('Episodes count: ${movieDetail.episodes!.length}');
-        if (movieDetail.episodes!.isNotEmpty) {
-          logger.i('First server: ${movieDetail.episodes!.first.serverName}');
-          logger.i('Server episodes: ${movieDetail.episodes!.first.episodes.length}');
-          if (movieDetail.episodes!.first.episodes.isNotEmpty) {
-            logger.i('First episode link: ${movieDetail.episodes!.first.episodes.first.linkM3u8}');
-          }
+      logger.i('Movie detail fetched: ${detail.name}');
+      logger.i('Has episodes: ${detail.hasEpisodes}');
+
+      // Use provided episode or selected episode or first episode
+      EpisodeItem? episodeToPlay = episode ?? selectedEpisode.value;
+
+      if (detail.hasEpisodes && detail.episodes!.isNotEmpty) {
+        final serverIndex = selectedServerIndex.value;
+        final server = detail.episodes![serverIndex.clamp(0, detail.episodes!.length - 1)];
+
+        if (server.episodes.isNotEmpty) {
+          episodeToPlay ??= server.episodes.first;
+          logger.i('Playing episode: ${episodeToPlay.name} from server: ${server.serverName}');
         }
       }
 
-      // Convert to VideoItem with stream URL
-      final videoWithStream = _repository.movieWithEpisodeToVideoItem(movieDetail);
+      // Convert to VideoItem with stream URL from specific episode
+      final videoWithStream = _repository.movieWithEpisodeToVideoItem(
+        detail,
+        episodeToPlay: episodeToPlay,
+      );
 
       logger.i('VideoItem created with streamUrl: ${videoWithStream.streamUrl}');
 
@@ -163,13 +249,7 @@ class DetailController extends GetxController {
       final localPath = DownloadService.to.getLocalPath(video.id);
 
       logger.i('Navigating to player with stream URL: ${videoWithStream.streamUrl}');
-      Get.toNamed(
-        MRoutes.player,
-        arguments: {
-          'video': videoWithStream, // Pass video with stream URL
-          'localPath': localPath,
-        },
-      );
+      Get.toNamed(MRoutes.player, arguments: {'video': videoWithStream, 'localPath': localPath});
     } catch (e, stack) {
       logger.e('Failed to play video: $e');
       logger.e('Stack trace: $stack');

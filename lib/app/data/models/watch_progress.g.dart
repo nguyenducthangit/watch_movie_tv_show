@@ -20,7 +20,7 @@ class WatchProgressAdapter extends TypeAdapter<WatchProgress> {
       videoId: fields[0] as String,
       positionMs: fields[1] as int,
       durationMs: fields[2] as int,
-      updatedAt: fields[3] as DateTime,
+      updatedAt: fields[3] as DateTime?,
     );
   }
 
@@ -44,5 +44,7 @@ class WatchProgressAdapter extends TypeAdapter<WatchProgress> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WatchProgressAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+      other is WatchProgressAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

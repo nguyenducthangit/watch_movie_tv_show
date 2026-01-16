@@ -134,6 +134,22 @@ class MovieModel {
   /// Check if has episodes (TV series)
   bool get hasEpisodes => episodes != null && episodes!.isNotEmpty;
 
+  /// Check if has valid playable episodes (with non-empty linkM3u8)
+  bool get hasValidEpisodes {
+    if (!hasEpisodes) return false;
+
+    // Check if at least one episode in any server has a valid M3U8 link
+    for (final server in episodes!) {
+      for (final episode in server.episodes) {
+        if (episode.linkM3u8.isNotEmpty) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   /// Get total episode count
   int get episodeCount {
     if (!hasEpisodes) return 0;

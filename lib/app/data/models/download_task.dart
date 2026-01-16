@@ -22,6 +22,9 @@ class DownloadTask extends HiveObject {
     this.errorMessage,
     this.fileSizeBytes,
     this.taskId,
+    this.isHLS = false,
+    this.totalSegments,
+    this.downloadedSegments,
   }) : createdAt = createdAt ?? DateTime.now();
   @HiveField(0)
   final String videoId;
@@ -59,6 +62,16 @@ class DownloadTask extends HiveObject {
   @HiveField(11)
   String? taskId;
 
+  // HLS-specific fields
+  @HiveField(12)
+  bool isHLS;
+
+  @HiveField(13)
+  int? totalSegments;
+
+  @HiveField(14)
+  int? downloadedSegments;
+
   /// Check if download is active
   bool get isActive => status == DownloadStatus.queued || status == DownloadStatus.downloading;
 
@@ -74,6 +87,12 @@ class DownloadTask extends HiveObject {
   /// Get progress percentage
   int get progressPercent => (progress * 100).toInt();
 
+  /// Get HLS progress (for segment-based downloads)
+  String get hlsProgressText {
+    if (!isHLS || totalSegments == null) return '';
+    return '${downloadedSegments ?? 0}/$totalSegments segments';
+  }
+
   /// Copy with
   DownloadTask copyWith({
     String? videoId,
@@ -88,6 +107,9 @@ class DownloadTask extends HiveObject {
     String? errorMessage,
     int? fileSizeBytes,
     String? taskId,
+    bool? isHLS,
+    int? totalSegments,
+    int? downloadedSegments,
   }) {
     return DownloadTask(
       videoId: videoId ?? this.videoId,
@@ -102,6 +124,9 @@ class DownloadTask extends HiveObject {
       errorMessage: errorMessage ?? this.errorMessage,
       fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
       taskId: taskId ?? this.taskId,
+      isHLS: isHLS ?? this.isHLS,
+      totalSegments: totalSegments ?? this.totalSegments,
+      downloadedSegments: downloadedSegments ?? this.downloadedSegments,
     );
   }
 }

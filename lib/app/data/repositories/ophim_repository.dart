@@ -107,17 +107,27 @@ class OphimRepository {
   }
 
   /// Convert MovieModel with episode to VideoItem with stream URL
-  VideoItem movieWithEpisodeToVideoItem(MovieModel movie, {int episodeIndex = 0}) {
+  VideoItem movieWithEpisodeToVideoItem(
+    MovieModel movie, {
+    int episodeIndex = 0,
+    EpisodeItem? episodeToPlay,
+  }) {
     String? streamUrl;
 
-    // Get first available stream URL
+    // Get stream URL from specific episode or by index
     if (movie.hasEpisodes && movie.episodes!.isNotEmpty) {
-      final firstServer = movie.episodes!.first;
-      if (firstServer.episodes.isNotEmpty) {
-        final episode = episodeIndex < firstServer.episodes.length
-            ? firstServer.episodes[episodeIndex]
-            : firstServer.episodes.first;
-        streamUrl = episode.linkM3u8;
+      if (episodeToPlay != null) {
+        // Use provided episode directly
+        streamUrl = episodeToPlay.linkM3u8;
+      } else {
+        // Use episode by index (fallback)
+        final firstServer = movie.episodes!.first;
+        if (firstServer.episodes.isNotEmpty) {
+          final episode = episodeIndex < firstServer.episodes.length
+              ? firstServer.episodes[episodeIndex]
+              : firstServer.episodes.first;
+          streamUrl = episode.linkM3u8;
+        }
       }
     }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
-import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
@@ -109,92 +108,27 @@ class DownloadButton extends StatelessWidget {
     );
   }
 
-  /// Show Downloading Control Sheet
+  /// Show Downloading Control Dialog (simplified)
   void _showDownloadingSheet(BuildContext context, DownloadTask task) {
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Downloading...',
-              style: MTextTheme.h3SemiBold.copyWith(color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        task.videoTitle,
-                        style: MTextTheme.body1Medium.copyWith(color: AppColors.textPrimary),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${task.progressPercent}% • ${task.qualityLabel}',
-                        style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  task.isPaused ? 'Paused' : 'Downloading',
-                  style: MTextTheme.captionMedium.copyWith(
-                    color: task.isPaused ? AppColors.warning : AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      DownloadService.to.cancelDownload(video.id);
-                      Get.back();
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: const BorderSide(color: AppColors.error),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (task.isPaused) {
-                        DownloadService.to.resumeDownload(video.id);
-                      } else {
-                        DownloadService.to.pauseDownload(video.id);
-                      }
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.surfaceVariant,
-                      foregroundColor: AppColors.textPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(task.isPaused ? 'Resume' : 'Pause'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
+    Get.defaultDialog(
+      title: 'Cancel downloading the video?',
+      titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+      middleText: 'You can re-download this later.',
+      middleTextStyle: const TextStyle(fontSize: 14, color: Colors.white70),
+      backgroundColor: const Color(0xFF424242),
+      radius: 12,
+      textCancel: 'NO, KEEP DOWNLOADING',
+      textConfirm: 'YES, CANCEL',
+      cancelTextColor: AppColors.primary,
+      confirmTextColor: Colors.white70,
+      buttonColor: const Color(0xFF616161),
+      onConfirm: () {
+        DownloadService.to.cancelDownload(video.id);
+        Get.back();
+      },
+      onCancel: () {
+        // Just close dialog
+      },
     );
   }
 
