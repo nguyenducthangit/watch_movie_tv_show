@@ -175,34 +175,19 @@ class DetailPage extends GetView<DetailController> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Description
-                  if (controller.video.description != null) ...[
-                    Text(
-                      'Description',
-                      style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
-                    ),
-                    const SizedBox(height: 8),
-                    Builder(
-                      builder: (context) {
-                        final description = controller.video.description!;
-                        // Simple filter to remove legal/technical text blocks
-                        // This assumes legal text usually appears at the end or contains specific keywords
-                        final lines = description.split('\n');
-                        final cleanLines = lines.where((line) {
-                          final l = line.toLowerCase();
-                          return !l.contains('testament') &&
-                              !l.contains('copyright') &&
-                              !l.contains('all rights reserved') &&
-                              !l.contains('published by');
-                        }).toList();
-
-                        return Text(
-                          cleanLines.join('\n').trim(),
-                          style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
-                        );
-                      },
-                    ),
-                  ],
+                  // // Description
+                  // if (controller.video.description != null &&
+                  //     controller.video.description!.isNotEmpty) ...[
+                  //   Text(
+                  //     'Description',
+                  //     style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   Text(
+                  //     controller.video.description!,
+                  //     style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
+                  //   ),
+                  // ],
 
                   // Up Next section
                   UpNextSection(

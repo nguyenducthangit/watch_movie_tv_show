@@ -174,6 +174,49 @@ class _CategoryVideoCard extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                    // Quality badge (top-right)
+                    if (video.quality != null)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: _getQualityColor(video.quality!),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            video.quality!,
+                            style: MTextTheme.smallTextMedium.copyWith(
+                              color: Colors.white,
+                              fontSize: 9,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Year label (bottom-left)
+                    if (video.year != null)
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.black.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            video.year.toString(),
+                            style: MTextTheme.smallTextMedium.copyWith(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -191,6 +234,14 @@ class _CategoryVideoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getQualityColor(String quality) {
+    final q = quality.toUpperCase();
+    if (q.contains('FHD') || q.contains('4K')) return const Color(0xFF10B981);
+    if (q.contains('HD')) return const Color(0xFF3B82F6);
+    if (q.contains('CAM')) return const Color(0xFFEF4444);
+    return AppColors.primary;
   }
 }
 

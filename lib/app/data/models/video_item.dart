@@ -13,6 +13,17 @@ class VideoItem {
     this.streamUrl,
     this.downloadQualities,
     this.tags,
+    this.year,
+    this.quality,
+    this.lang,
+    this.episodeCurrent,
+    this.episodeTotal,
+    this.time,
+    this.type,
+    this.actor,
+    this.director,
+    this.country,
+    this.trailerUrl,
   });
 
   /// Create from JSON
@@ -42,6 +53,19 @@ class VideoItem {
   final String? streamUrl; // HLS stream URL (.m3u8)
   final List<VideoQuality>? downloadQualities;
   final List<String>? tags;
+
+  // Enhanced Ophim API fields
+  final int? year;
+  final String? quality; // HD, FHD, CAM
+  final String? lang; // Vietsub, Thuyết minh
+  final String? episodeCurrent; // Tập 10, Full
+  final String? episodeTotal; // 24, 1
+  final String? time; // 45 phút/tập, 120 Phút
+  final String? type; // series, single, hoathinh
+  final List<String>? actor;
+  final List<String>? director;
+  final List<String>? country;
+  final String? trailerUrl;
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
@@ -86,6 +110,17 @@ class VideoItem {
     String? streamUrl,
     List<VideoQuality>? downloadQualities,
     List<String>? tags,
+    int? year,
+    String? quality,
+    String? lang,
+    String? episodeCurrent,
+    String? episodeTotal,
+    String? time,
+    String? type,
+    List<String>? actor,
+    List<String>? director,
+    List<String>? country,
+    String? trailerUrl,
   }) {
     return VideoItem(
       id: id ?? this.id,
@@ -97,6 +132,17 @@ class VideoItem {
       streamUrl: streamUrl ?? this.streamUrl,
       downloadQualities: downloadQualities ?? this.downloadQualities,
       tags: tags ?? this.tags,
+      year: year ?? this.year,
+      quality: quality ?? this.quality,
+      lang: lang ?? this.lang,
+      episodeCurrent: episodeCurrent ?? this.episodeCurrent,
+      episodeTotal: episodeTotal ?? this.episodeTotal,
+      time: time ?? this.time,
+      type: type ?? this.type,
+      actor: actor ?? this.actor,
+      director: director ?? this.director,
+      country: country ?? this.country,
+      trailerUrl: trailerUrl ?? this.trailerUrl,
     );
   }
 

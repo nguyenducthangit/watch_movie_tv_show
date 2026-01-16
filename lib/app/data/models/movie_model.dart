@@ -9,7 +9,19 @@ class MovieModel {
     this.thumbUrl,
     this.posterUrl,
     this.year,
+    this.quality,
+    this.lang,
+    this.episodeCurrent,
+    this.episodeTotal,
+    this.time,
+    this.type,
+    this.status,
+    this.view,
+    this.trailerUrl,
+    this.actor,
+    this.director,
     this.categories,
+    this.country,
     this.episodes,
   });
 
@@ -26,7 +38,21 @@ class MovieModel {
       thumbUrl: movieData['thumb_url'] as String?,
       posterUrl: movieData['poster_url'] as String?,
       year: movieData['year'] as int?,
+      quality: movieData['quality'] as String?, // HD, FHD, CAM
+      lang: movieData['lang'] as String?, // Vietsub, Thuyết minh
+      episodeCurrent: movieData['episode_current'] as String?,
+      episodeTotal: movieData['episode_total'] as String?,
+      time: movieData['time'] as String?,
+      type: movieData['type'] as String?, // series, single, hoathinh
+      status: movieData['status'] as String?, // completed, ongoing
+      view: movieData['view'] as int?,
+      trailerUrl: movieData['trailer_url'] as String?,
+      actor: (movieData['actor'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      director: (movieData['director'] as List<dynamic>?)?.map((e) => e as String).toList(),
       categories: (movieData['category'] as List<dynamic>?)
+          ?.map((e) => (e as Map<String, dynamic>)['name'] as String)
+          .toList(),
+      country: (movieData['country'] as List<dynamic>?)
           ?.map((e) => (e as Map<String, dynamic>)['name'] as String)
           .toList(),
       episodes: (movieData['episodes'] as List<dynamic>?)
@@ -61,7 +87,19 @@ class MovieModel {
   final String? thumbUrl;
   final String? posterUrl;
   final int? year;
+  final String? quality; // HD, FHD, CAM
+  final String? lang; // Vietsub, Thuyết minh, Lồng tiếng
+  final String? episodeCurrent; // Tập 10, Full
+  final String? episodeTotal; // 24, 1
+  final String? time; // 45 phút/tập, 120 Phút
+  final String? type; // series, single, hoathinh
+  final String? status; // completed, ongoing
+  final int? view; // View count
+  final String? trailerUrl; // YouTube URL
+  final List<String>? actor;
+  final List<String>? director;
   final List<String>? categories;
+  final List<String>? country;
   final List<EpisodeServerData>? episodes;
 
   /// Convert to JSON

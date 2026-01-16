@@ -92,6 +92,17 @@ class OphimRepository {
       streamUrl: null, // Will be set when fetching detail
       tags: movie.categories,
       durationSec: null, // Not available from list API
+      year: movie.year,
+      quality: movie.quality,
+      lang: movie.lang,
+      episodeCurrent: movie.episodeCurrent,
+      episodeTotal: movie.episodeTotal,
+      time: movie.time,
+      type: movie.type,
+      actor: movie.actor,
+      director: movie.director,
+      country: movie.country,
+      trailerUrl: movie.trailerUrl,
     );
   }
 
@@ -119,6 +130,17 @@ class OphimRepository {
       streamUrl: streamUrl,
       tags: movie.categories,
       durationSec: null,
+      year: movie.year,
+      quality: movie.quality,
+      lang: movie.lang,
+      episodeCurrent: movie.episodeCurrent,
+      episodeTotal: movie.episodeTotal,
+      time: movie.time,
+      type: movie.type,
+      actor: movie.actor,
+      director: movie.director,
+      country: movie.country,
+      trailerUrl: movie.trailerUrl,
     );
   }
 }

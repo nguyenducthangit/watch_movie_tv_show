@@ -132,19 +132,37 @@ class DetailController extends GetxController {
         return;
       }
 
+      logger.i('Fetching detail for slug: ${video.slug}');
       final movieDetail = await _repository.fetchMovieDetail(video.slug!);
+
+      logger.i('Movie detail fetched: ${movieDetail.name}');
+      logger.i('Has episodes: ${movieDetail.hasEpisodes}');
+      if (movieDetail.hasEpisodes) {
+        logger.i('Episodes count: ${movieDetail.episodes!.length}');
+        if (movieDetail.episodes!.isNotEmpty) {
+          logger.i('First server: ${movieDetail.episodes!.first.serverName}');
+          logger.i('Server episodes: ${movieDetail.episodes!.first.episodes.length}');
+          if (movieDetail.episodes!.first.episodes.isNotEmpty) {
+            logger.i('First episode link: ${movieDetail.episodes!.first.episodes.first.linkM3u8}');
+          }
+        }
+      }
 
       // Convert to VideoItem with stream URL
       final videoWithStream = _repository.movieWithEpisodeToVideoItem(movieDetail);
 
+      logger.i('VideoItem created with streamUrl: ${videoWithStream.streamUrl}');
+
       if (videoWithStream.streamUrl == null || videoWithStream.streamUrl!.isEmpty) {
         Get.snackbar('Error', 'No stream available for this video');
+        logger.e('Stream URL is null or empty!');
         return;
       }
 
       // Check if we have a local file
       final localPath = DownloadService.to.getLocalPath(video.id);
 
+      logger.i('Navigating to player with stream URL: ${videoWithStream.streamUrl}');
       Get.toNamed(
         MRoutes.player,
         arguments: {
@@ -152,9 +170,10 @@ class DetailController extends GetxController {
           'localPath': localPath,
         },
       );
-    } catch (e) {
+    } catch (e, stack) {
       logger.e('Failed to play video: $e');
-      Get.snackbar('Error', 'Failed to load video stream');
+      logger.e('Stack trace: $stack');
+      Get.snackbar('Error', 'Failed to load video stream: $e');
     } finally {
       isLoadingDetail.value = false;
     }
