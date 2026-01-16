@@ -95,7 +95,8 @@ class PlayerController extends GetxController {
         flags: YoutubePlayerFlags(
           autoPlay: true,
           mute: false,
-          enableCaption: false,
+          enableCaption: true,
+          captionLanguage: availableSubtitleLanguages.first,
           hideControls: true,
           controlsVisibleAtStart: false,
           forceHD: false,

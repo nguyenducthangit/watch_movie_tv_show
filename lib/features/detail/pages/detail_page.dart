@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
@@ -73,28 +74,8 @@ class DetailPage extends GetView<DetailController> {
                       ),
                     ),
                   ),
-                  // Play button
-                  Center(
-                    child: GestureDetector(
-                      onTap: controller.playVideo,
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(Icons.play_arrow_rounded, size: 40, color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  // Play button with smooth animations
+                  Center(child: _PlayButtonWithAnimation(onTap: controller.playVideo)),
                 ],
               ),
             ),
@@ -237,6 +218,75 @@ class DetailPage extends GetView<DetailController> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Premium Play Button with smooth animations
+class _PlayButtonWithAnimation extends StatefulWidget {
+  const _PlayButtonWithAnimation({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  State<_PlayButtonWithAnimation> createState() => _PlayButtonWithAnimationState();
+}
+
+class _PlayButtonWithAnimationState extends State<_PlayButtonWithAnimation> {
+  bool _isPressed = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() => _isPressed = true);
+    HapticFeedback.lightImpact(); // Tactile feedback
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() => _isPressed = false);
+  }
+
+  void _handleTapCancel() {
+    setState(() => _isPressed = false);
+  }
+
+  void _handleTap() {
+    HapticFeedback.mediumImpact(); // Stronger feedback on actual tap
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _isPressed ? 0.90 : 1.0,
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOutCubic,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _handleTap,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          customBorder: const CircleBorder(),
+          splashColor: AppColors.primary.withValues(alpha: 0.3),
+          highlightColor: AppColors.primary.withValues(alpha: 0.2),
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.4),
+                  blurRadius: _isPressed ? 15 : 20,
+                  offset: Offset(0, _isPressed ? 6 : 8),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.play_arrow_rounded, size: 40, color: Colors.white),
+          ),
+        ),
       ),
     );
   }

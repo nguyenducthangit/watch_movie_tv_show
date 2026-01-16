@@ -21,8 +21,8 @@ class PlayerPage extends GetView<PlayerController> {
     routeName: MRoutes.player,
     binding: PlayerBinding(),
     transition: Transition.downToUp,
-    transitionDuration: const Duration(milliseconds: 300),
-    curve: Curves.easeInOut,
+    transitionDuration: const Duration(milliseconds: 250),
+    curve: Curves.easeOutCubic,
   );
 
   @override
