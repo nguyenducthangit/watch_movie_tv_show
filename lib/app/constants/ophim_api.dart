@@ -15,5 +15,5 @@ class OphimApi {
   //document
   // https://ophim17.cc/api-document
   // số trang cần fetcht song song (mỗi page có 24 video )
-  static const int quantityPagesFilm = 50;
+  static const int quantityPagesFilm = 2;
 }

@@ -29,51 +29,59 @@ class PlayerPage extends GetView<PlayerController> {
     return _DismissiblePlayerWrapper(
       onDismiss: () => Get.back(),
       child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: Obx(() {
-            // Error state
-            if (controller.hasError.value) {
-              return _buildErrorState();
-            }
+        backgroundColor: const Color(0xFF212936),
+        body: Obx(() {
+          // Fullscreen mode - only show video player
+          if (controller.isFullscreen.value) {
+            return _buildFullscreenPlayer();
+          }
 
-            // Loading state
-            if (!controller.isInitialized.value || controller.chewieController == null) {
-              return _buildLoadingState();
-            }
+          // Normal mode with SafeArea
+          return SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Obx(() {
+                  // Error state
+                  if (controller.hasError.value) {
+                    return _buildErrorState();
+                  }
 
-            // Main player layout
-            return Column(
-              children: [
-                // Video player section
-                _buildVideoPlayer(),
+                  // Loading state
+                  if (!controller.isInitialized.value || controller.chewieController == null) {
+                    return _buildLoadingState();
+                  }
 
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: Get.height),
-                      child: Container(
-                        color: const Color(0xFF212936),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Action buttons row
-                            _buildActionButtons(),
+                  // Main player layout
+                  return Column(
+                    children: [
+                      // Video player section
+                      _buildVideoPlayer(),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Container(
+                            color: const Color(0xFF212936),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Action buttons row
+                                _buildActionButtons(),
 
-                            const Divider(color: AppColors.textBody, height: 1),
+                                const Divider(color: AppColors.textBody, height: 1),
 
-                            // About section
-                            _buildAboutSection(),
-                          ],
+                                // About section
+                                _buildAboutSection(),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }),
-        ),
+                    ],
+                  );
+                });
+              },
+            ),
+          );
+        }),
       ),
     );
   }
@@ -116,6 +124,78 @@ class PlayerPage extends GetView<PlayerController> {
     );
   }
 
+  Widget _buildFullscreenPlayer() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Obx(() {
+          // Error state in fullscreen
+          if (controller.hasError.value) {
+            return _buildErrorState();
+          }
+
+          // Loading state in fullscreen
+          if (!controller.isInitialized.value || controller.chewieController == null) {
+            return Container(
+              color: AppColors.black,
+              child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+            );
+          }
+
+          // Fullscreen video player - fills entire screen without overflow
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              // Video player fills entire screen - use ClipRect and FittedBox to prevent overflow
+              Positioned.fill(
+                child: ClipRect(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: Chewie(controller: controller.chewieController!),
+                    ),
+                  ),
+                ),
+              ),
+
+              PlayerGestureLayer(
+                onSeekForward: controller.seekForward,
+                onSeekBackward: controller.seekBackward,
+                onTap: controller.toggleControls,
+              ),
+              Obx(() {
+                if (!controller.showControls.value) return const SizedBox.shrink();
+                return Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Builder(builder: (ctx) => _buildTopBar(context: ctx, isFullscreen: true)),
+                );
+              }),
+
+              Obx(() {
+                if (!controller.showControls.value) return const SizedBox.shrink();
+                return const _CenterControls();
+              }),
+              Obx(() {
+                if (!controller.showControls.value) return const SizedBox.shrink();
+                return Positioned(left: 0, right: 0, bottom: 0, child: _buildProgressBar());
+              }),
+
+              Obx(() {
+                if (!controller.isBuffering.value) return const SizedBox.shrink();
+                return const Center(
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                );
+              }),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   Widget _buildVideoPlayer() {
     return AspectRatio(
       aspectRatio: 16 / 9,
@@ -130,7 +210,7 @@ class PlayerPage extends GetView<PlayerController> {
           ),
           Obx(() {
             if (!controller.showControls.value) return const SizedBox.shrink();
-            return _buildTopBar();
+            return Builder(builder: (ctx) => _buildTopBar(context: ctx, isFullscreen: false));
           }),
 
           Obx(() {
@@ -153,7 +233,9 @@ class PlayerPage extends GetView<PlayerController> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar({required BuildContext? context, required bool isFullscreen}) {
+    final topPadding = context != null && isFullscreen ? MediaQuery.of(context).padding.top : 0.0;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -162,12 +244,12 @@ class PlayerPage extends GetView<PlayerController> {
           colors: [AppColors.black.withValues(alpha: 0.7), Colors.transparent],
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      padding: EdgeInsets.only(left: 4, right: 4, top: topPadding + 4, bottom: 4),
       child: Row(
         children: [
           // Dismiss button (down arrow)
           IconButton(
-            onPressed: () => Get.back(),
+            onPressed: isFullscreen ? controller.toggleFullscreen : () => Get.back(),
             icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 28),
           ),
           // Title

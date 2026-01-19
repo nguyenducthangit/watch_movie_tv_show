@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chewie/chewie.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
@@ -234,18 +235,24 @@ class PlayerController extends GetxController {
   }
 
   void toggleFullscreen() {
-    isFullscreen.value = !isFullscreen.value;
     if (isFullscreen.value) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    } else {
+      // Exiting fullscreen - change orientation first, then update state after next frame
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
+      ]);
+      // Wait for next frame to ensure orientation is updated
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        isFullscreen.value = false;
+      });
+    } else {
+      // Entering fullscreen
+      isFullscreen.value = true;
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
       ]);
     }
     logger.d('Fullscreen: ${isFullscreen.value}');
