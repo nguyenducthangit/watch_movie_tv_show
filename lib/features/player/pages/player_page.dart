@@ -127,16 +127,15 @@ class PlayerPage extends GetView<PlayerController> {
           //   onSeekBackward: controller.seekBackward,
           //   onTap: controller.toggleControls,
           // ),
-          // Obx(() {
-          //   if (!controller.showControls.value) return const SizedBox.shrink();
-          //   return _buildTopBar();
-          // }),
+          Obx(() {
+            if (!controller.showControls.value) return const SizedBox.shrink();
+            return _buildTopBar();
+          }),
 
           // Obx(() {
           //   if (!controller.showControls.value) return const SizedBox.shrink();
           //   return const _CenterControls();
           // }),
-
           Obx(() {
             if (!controller.showControls.value) return const SizedBox.shrink();
             return Positioned(left: 0, right: 0, bottom: 0, child: _buildProgressBar());

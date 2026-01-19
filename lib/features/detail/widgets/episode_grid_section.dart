@@ -32,18 +32,18 @@ class EpisodeGridSection extends GetView<DetailController> {
 
           // Server selector (if multiple servers)
           if (movie.episodes!.length > 1) ...[
-            _buildServerSelector(movie.episodes!),
+            serverSelector(movie.episodes!),
             const SizedBox(height: 12),
           ],
 
           // Episodes grid
-          _buildEpisodeGrid(movie.episodes![controller.selectedServerIndex.value]),
+          episodeGrid(movie.episodes![controller.selectedServerIndex.value]),
         ],
       );
     });
   }
 
-  Widget _buildServerSelector(List<EpisodeServerData> servers) {
+  Widget serverSelector(List<EpisodeServerData> servers) {
     return SizedBox(
       height: 40,
       child: ListView.separated(
@@ -79,7 +79,7 @@ class EpisodeGridSection extends GetView<DetailController> {
     );
   }
 
-  Widget _buildEpisodeGrid(EpisodeServerData serverData) {
+  Widget episodeGrid(EpisodeServerData serverData) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -94,16 +94,13 @@ class EpisodeGridSection extends GetView<DetailController> {
         final episode = serverData.episodes[index];
         final isValid = episode.linkM3u8.isNotEmpty;
 
-        return _EpisodeCard(
-          episode: episode,
-          isSelected: controller.selectedEpisode.value?.slug == episode.slug,
-          isDisabled: !isValid,
-          onTap: isValid
-              ? () {
-                  controller.selectEpisode(episode);
-                  controller.playVideo(episode: episode);
-                }
-              : () {}, // No-op for invalid episodes
+        return Obx(
+          () => _EpisodeCard(
+            episode: episode,
+            isSelected: controller.selectedEpisode.value?.slug == episode.slug,
+            isDisabled: !isValid,
+            onTap: isValid ? () => controller.selectEpisode(episode) : () {},
+          ),
         );
       },
     );

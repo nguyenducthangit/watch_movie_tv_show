@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
@@ -230,10 +231,66 @@ class HomeController extends GetxController {
     Get.toNamed(MRoutes.detail, arguments: video);
   }
 
-  /// Play video directly
-  void playVideo(VideoItem video) {
-    final localPath = DownloadService.to.getLocalPath(video.id);
-    Get.toNamed(MRoutes.player, arguments: {'video': video, 'localPath': localPath});
+  /// Play video directly - fetch detail to get stream URL
+  Future<void> playVideo(VideoItem video) async {
+    try {
+      // Show loading
+      Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+
+      // Fetch movie detail to get episodes and stream URL
+      if (video.slug == null || video.slug!.isEmpty) {
+        Get.back(); // Close loading
+        Get.snackbar('Error', 'Invalid movie slug');
+        return;
+      }
+
+      logger.i('Fetching detail for slug: ${video.slug}');
+      final detail = await _repo.fetchMovieDetail(video.slug!);
+
+      logger.i('Movie detail fetched: ${detail.name}');
+      logger.i('Has episodes: ${detail.hasEpisodes}');
+
+      // Get first episode for series or use movie directly
+      VideoItem videoWithStream;
+      if (detail.hasEpisodes && detail.episodes!.isNotEmpty) {
+        final firstServer = detail.episodes!.first;
+        if (firstServer.episodes.isNotEmpty) {
+          final firstEpisode = firstServer.episodes.first;
+          logger.i('Playing episode: ${firstEpisode.name} from server: ${firstServer.serverName}');
+
+          // Convert to VideoItem with stream URL from first episode
+          videoWithStream = _repo.movieWithEpisodeToVideoItem(detail, episodeToPlay: firstEpisode);
+        } else {
+          Get.back(); // Close loading
+          Get.snackbar('Error', 'No episodes available');
+          return;
+        }
+      } else {
+        // For movies (single file), convert to VideoItem
+        videoWithStream = _repo.movieWithEpisodeToVideoItem(detail);
+      }
+
+      logger.i('VideoItem created with streamUrl: ${videoWithStream.streamUrl}');
+
+      if (videoWithStream.streamUrl == null || videoWithStream.streamUrl!.isEmpty) {
+        Get.back(); // Close loading
+        Get.snackbar('Error', 'No stream available for this video');
+        logger.e('Stream URL is null or empty!');
+        return;
+      }
+
+      // Check if we have a local file
+      final localPath = DownloadService.to.getLocalPath(video.id);
+
+      Get.back(); // Close loading
+      logger.i('Navigating to player with stream URL: ${videoWithStream.streamUrl}');
+      Get.toNamed(MRoutes.player, arguments: {'video': videoWithStream, 'localPath': localPath});
+    } catch (e, stack) {
+      Get.back(); // Close loading if still showing
+      logger.e('Failed to play video: $e');
+      logger.e('Stack trace: $stack');
+      Get.snackbar('Error', 'Failed to load video stream: $e');
+    }
   }
 
   /// Retry loading

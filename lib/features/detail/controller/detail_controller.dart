@@ -13,6 +13,7 @@ import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 /// Detail Controller
 class DetailController extends GetxController {
   late VideoItem video;
+  
 
   final RxBool isDownloading = false.obs;
   final RxBool isDownloaded = false.obs;
