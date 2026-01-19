@@ -87,7 +87,7 @@ class PlayerController extends GetxController {
         videoPlayerController: videoPlayerController!,
         autoPlay: true,
         looping: false,
-        showControls: true, // We use custom controls
+        showControls: false, // Disable built-in controls, use custom controls instead
         aspectRatio: 16 / 9,
         autoInitialize: true,
         allowFullScreen: true,

@@ -14,18 +14,44 @@ class OphimRepository {
 
   late final Dio _dio;
 
-  /// Fetch home movie list
-  Future<List<VideoItem>> fetchHomeMovies() async {
+  /// Fetch home movie list with pagination
+  /// Fetches multiple pages concurrently for better variety
+  Future<List<VideoItem>> fetchHomeMovies({
+    int quantityPagesFilm = OphimApi.quantityPagesFilm,
+  }) async {
     try {
-      final response = await _dio.get('${OphimApi.baseUrl}${OphimApi.homeEndpoint}');
+      logger.i('Fetching $quantityPagesFilm pages of movies...');
+
+      // Fetch multiple pages concurrently
+      final futures = List.generate(quantityPagesFilm, (i) => _fetchMoviePage(i + 1));
+
+      final results = await Future.wait(futures);
+      final allMovies = results.expand((list) => list).toList();
+
+      logger.i('Fetched ${allMovies.length} movies from Ophim API $quantityPagesFilm pages');
+
+      // Convert MovieModel to VideoItem
+      return allMovies.map(_movieToVideoItem).toList();
+    } catch (e) {
+      logger.e('Error fetching home movies: $e');
+      rethrow;
+    }
+  }
+
+  /// Fetch a single page of movies
+  Future<List<MovieModel>> _fetchMoviePage(int page) async {
+    try {
+      final response = await _dio.get(
+        '${OphimApi.baseUrl}${OphimApi.listEndpoint}',
+        queryParameters: {'page': page},
+      );
 
       if (response.statusCode == 200) {
         final responseData = response.data as Map<String, dynamic>;
-
-        // API structure: {status: "success", data: {items: [...]}}
         final data = responseData['data'] as Map<String, dynamic>?;
+
         if (data == null) {
-          logger.e('No data field in response');
+          logger.e('No data field in response for page $page');
           return [];
         }
 
@@ -36,16 +62,15 @@ class OphimRepository {
                 .toList() ??
             [];
 
-        logger.i('Fetched ${items.length} movies from Ophim API');
-
-        // Convert MovieModel to VideoItem
-        return items.map(_movieToVideoItem).toList();
+        logger.i('Fetched ${items.length} movies from page $page');
+        return items;
       } else {
-        throw Exception('Failed to load movies: ${response.statusCode}');
+        logger.e('Failed to load page $page: ${response.statusCode}');
+        return [];
       }
     } catch (e) {
-      logger.e('Error fetching home movies: $e');
-      rethrow;
+      logger.e('Error fetching page $page: $e');
+      return []; // Return empty list instead of throwing to not break other pages
     }
   }
 

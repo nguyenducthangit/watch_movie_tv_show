@@ -7,6 +7,7 @@ import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/widgets/error_state_widget.dart';
 import 'package:watch_movie_tv_show/features/player/binding/player_binding.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
+import 'package:watch_movie_tv_show/features/player/widgets/player_gesture_layer.dart';
 import 'package:watch_movie_tv_show/features/player/widgets/player_menu.dart';
 
 /// Player Page - HLS Video Player with info below
@@ -122,20 +123,20 @@ class PlayerPage extends GetView<PlayerController> {
         children: [
           Chewie(controller: controller.chewieController!),
 
-          // PlayerGestureLayer(
-          //   onSeekForward: controller.seekForward,
-          //   onSeekBackward: controller.seekBackward,
-          //   onTap: controller.toggleControls,
-          // ),
+          PlayerGestureLayer(
+            onSeekForward: controller.seekForward,
+            onSeekBackward: controller.seekBackward,
+            onTap: controller.toggleControls,
+          ),
           Obx(() {
             if (!controller.showControls.value) return const SizedBox.shrink();
             return _buildTopBar();
           }),
 
-          // Obx(() {
-          //   if (!controller.showControls.value) return const SizedBox.shrink();
-          //   return const _CenterControls();
-          // }),
+          Obx(() {
+            if (!controller.showControls.value) return const SizedBox.shrink();
+            return const _CenterControls();
+          }),
           Obx(() {
             if (!controller.showControls.value) return const SizedBox.shrink();
             return Positioned(left: 0, right: 0, bottom: 0, child: _buildProgressBar());
@@ -353,35 +354,35 @@ class PlayerPage extends GetView<PlayerController> {
   }
 }
 
-// /// Center controls - Play/Pause with seek buttons
-// class _CenterControls extends GetView<PlayerController> {
-//   const _CenterControls();
+/// Center controls - Play/Pause with seek buttons
+class _CenterControls extends GetView<PlayerController> {
+  const _CenterControls();
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           // Seek backward 10s
-//           _ControlButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
-//           const SizedBox(width: 32),
-//           // Play/Pause
-//           Obx(
-//             () => _ControlButton(
-//               icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
-//               onTap: controller.togglePlayPause,
-//               size: 56,
-//             ),
-//           ),
-//           const SizedBox(width: 32),
-//           // Seek forward 10s
-//           _ControlButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
-//         ],
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Seek backward 10s
+          _ControlButton(icon: Icons.replay_10_rounded, onTap: controller.seekBackward),
+          const SizedBox(width: 32),
+          // Play/Pause
+          Obx(
+            () => _ControlButton(
+              icon: controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              onTap: controller.togglePlayPause,
+              size: 56,
+            ),
+          ),
+          const SizedBox(width: 32),
+          // Seek forward 10s
+          _ControlButton(icon: Icons.forward_10_rounded, onTap: controller.seekForward),
+        ],
+      ),
+    );
+  }
+}
 
 /// Action button (Download, Share)
 class _ActionButton extends StatelessWidget {

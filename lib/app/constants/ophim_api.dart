@@ -10,5 +10,10 @@ class OphimApi {
 
   /// API Endpoints
   static const String homeEndpoint = '/home';
+  static const String listEndpoint = '/danh-sach'; // Supports pagination
   static String movieDetailEndpoint(String slug) => '/phim/$slug';
+  //document
+  // https://ophim17.cc/api-document
+  // số trang cần fetcht song song (mỗi page có 24 video )
+  static const int quantityPagesFilm = 50;
 }
