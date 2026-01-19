@@ -8,6 +8,7 @@ import 'package:watch_movie_tv_show/app/data/models/hls_models.dart';
 import 'package:watch_movie_tv_show/app/services/hls_parser.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
+import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
 
 /// HLS Download Service
 /// Handles downloading HLS streams with all segments
@@ -16,6 +17,7 @@ class HLSDownloadService extends GetxService {
   final _storage = StorageService.instance;
 
   String? _downloadDirectory;
+  bool _isInitialized = false;
 
   @override
   void onInit() {
@@ -24,6 +26,8 @@ class HLSDownloadService extends GetxService {
   }
 
   Future<void> _initService() async {
+    if (_isInitialized) return;
+
     final appDir = await getApplicationDocumentsDirectory();
     _downloadDirectory = '${appDir.path}/videos';
 
@@ -33,7 +37,15 @@ class HLSDownloadService extends GetxService {
       await dir.create(recursive: true);
     }
 
+    _isInitialized = true;
     logger.i('HLSDownloadService initialized');
+  }
+
+  /// Ensure service is initialized before use
+  Future<void> _ensureInitialized() async {
+    if (!_isInitialized) {
+      await _initService();
+    }
   }
 
   /// Start HLS download
@@ -43,8 +55,12 @@ class HLSDownloadService extends GetxService {
     required String m3u8Url,
     required String quality,
     required DownloadTask task,
+    int selectedVariantIndex = 0, // Allow user to select variant
   }) async {
     try {
+      // Ensure service is initialized
+      await _ensureInitialized();
+
       logger.i('Starting HLS download: $videoTitle');
 
       // 1. Create video directory
@@ -65,11 +81,15 @@ class HLSDownloadService extends GetxService {
         final variants = HLSParser.parseMasterPlaylist(playlistContent, m3u8Url);
         logger.i('Found ${variants.length} quality variants');
 
-        // Select first variant (TODO: let user choose)
-        final selectedVariant = variants.isNotEmpty ? variants.first : null;
+        // Use user-selected variant index (with bounds check)
+        final variantIndex = selectedVariantIndex.clamp(0, variants.length - 1);
+        final selectedVariant = variants.isNotEmpty ? variants[variantIndex] : null;
+
         if (selectedVariant == null) {
           throw Exception('No quality variants found in master playlist');
         }
+
+        logger.i('Selected variant $variantIndex: ${selectedVariant.bandwidth} bps');
 
         // Fetch media playlist
         final mediaContent = await _fetchPlaylist(selectedVariant.url);
@@ -111,6 +131,13 @@ class HLSDownloadService extends GetxService {
         task.downloadedSegments = i + 1;
         task.progress = (i + 1) / playlist.totalSegments;
         await _storage.saveDownloadTask(task);
+
+        // Trigger selective UI update for this specific task
+        try {
+          Get.find<DownloadsController>().update(['download_task_$videoId']);
+        } catch (e) {
+          // Controller might not be registered yet or disposed
+        }
 
         logger.d('Downloaded segment ${i + 1}/${playlist.totalSegments}');
       }
@@ -172,21 +199,49 @@ class HLSDownloadService extends GetxService {
     }
   }
 
-  /// Download segment
-  Future<void> _downloadSegment(HLSSegment segment, String videoDir, int index) async {
-    try {
-      final response = await _dio.get<List<int>>(
-        segment.url,
-        options: Options(responseType: ResponseType.bytes),
-      );
+  /// Download segment with retry logic
+  Future<void> _downloadSegment(
+    HLSSegment segment,
+    String videoDir,
+    int index, {
+    int maxRetries = 3,
+  }) async {
+    int attempt = 0;
 
-      if (response.data != null) {
-        final segmentFile = File('$videoDir/segment_$index.ts');
-        await segmentFile.writeAsBytes(response.data!);
+    while (attempt < maxRetries) {
+      try {
+        final response = await _dio.get<List<int>>(
+          segment.url,
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (response.data != null) {
+          final segmentFile = File('$videoDir/segment_$index.ts');
+          await segmentFile.writeAsBytes(response.data!);
+          return; // Success, exit retry loop
+        }
+      } catch (e) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          logger.e('Failed to download segment $index after $maxRetries attempts: $e');
+
+          // Provide specific error messages
+          if (e.toString().contains('SocketException') || e.toString().contains('Network')) {
+            throw Exception('Network error: Please check your internet connection');
+          } else if (e.toString().contains('timeout')) {
+            throw Exception('Download timeout: Server is not responding');
+          } else {
+            throw Exception('Failed to download segment $index: $e');
+          }
+        }
+
+        // Exponential backoff: 1s, 2s, 4s
+        final delay = Duration(seconds: 1 << (attempt - 1));
+        logger.w(
+          'Segment $index download failed (attempt $attempt/$maxRetries), retrying in ${delay.inSeconds}s...',
+        );
+        await Future.delayed(delay);
       }
-    } catch (e) {
-      logger.e('Failed to download segment $index: $e');
-      rethrow;
     }
   }
 
@@ -226,6 +281,8 @@ class HLSDownloadService extends GetxService {
   /// Delete HLS download
   Future<void> deleteHLSDownload(String videoId) async {
     try {
+      await _ensureInitialized();
+
       final videoDir = Directory('$_downloadDirectory/$videoId');
       if (await videoDir.exists()) {
         await videoDir.delete(recursive: true);
@@ -238,7 +295,9 @@ class HLSDownloadService extends GetxService {
   }
 
   /// Get local playlist path
-  String? getLocalPlaylistPath(String videoId) {
+  Future<String?> getLocalPlaylistPath(String videoId) async {
+    await _ensureInitialized();
+
     final playlistFile = File('$_downloadDirectory/$videoId/playlist.m3u8');
     return playlistFile.existsSync() ? playlistFile.path : null;
   }

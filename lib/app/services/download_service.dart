@@ -10,6 +10,7 @@ import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
 import 'package:watch_movie_tv_show/app/services/hls_download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
+import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
 
 /// Download Service
 /// Manages video downloads using background_downloader
@@ -110,7 +111,13 @@ class DownloadService extends GetxService {
         break;
     }
 
-    _refreshLists();
+    // Trigger selective UI update for this specific task
+    try {
+      Get.find<DownloadsController>().update(['download_task_${task.videoId}']);
+    } catch (e) {
+      // Controller might not be registered yet, fallback to refresh
+      _refreshLists();
+    }
   }
 
   /// Handle progress update
@@ -121,7 +128,14 @@ class DownloadService extends GetxService {
 
     task.progress = update.progress;
     _storage.saveDownloadTask(task);
-    _refreshLists();
+
+    // Trigger selective UI update for this specific task
+    try {
+      Get.find<DownloadsController>().update(['download_task_${task.videoId}']);
+    } catch (e) {
+      // Controller might not be registered yet, fallback to refresh
+      _refreshLists();
+    }
   }
 
   /// Find task by background downloader task ID
@@ -163,17 +177,27 @@ class DownloadService extends GetxService {
   // ============ Public Methods ============
 
   /// Start download
-  Future<void> startDownload(VideoItem video, VideoQuality quality) async {
+  Future<void> startDownload(VideoItem video, VideoQuality quality, {int variantIndex = 0}) async {
     // Check if already downloading or downloaded
     if (isDownloading(video.id) || isDownloaded(video.id)) {
       logger.w('Video already downloading or downloaded');
+      Get.snackbar(
+        'Already Downloaded',
+        '${video.title} is already in your downloads',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
     // Check concurrent downloads limit
     if (activeDownloads.length >= AppConfig.maxConcurrentDownloads) {
       logger.w('Max concurrent downloads reached');
-      Get.snackbar('Limit Reached', 'Please wait for current downloads to finish');
+      Get.snackbar(
+        'Download Limit Reached',
+        'You have ${activeDownloads.length} active downloads. Please wait for them to finish.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
       return;
     }
 
@@ -195,78 +219,122 @@ class DownloadService extends GetxService {
     await _storage.saveDownloadTask(task);
     activeDownloads.add(task);
 
-    if (isHLS) {
-      // HLS download
-      logger.i('Starting HLS download: ${video.title}');
-      await _hlsDownloader.startHLSDownload(
-        videoId: video.id,
-        videoTitle: video.title,
-        m3u8Url: quality.url,
-        quality: quality.label,
-        task: task,
-      );
+    try {
+      if (isHLS) {
+        // HLS download
+        logger.i('Starting HLS download: ${video.title} with variant $variantIndex');
+        await _hlsDownloader.startHLSDownload(
+          videoId: video.id,
+          videoTitle: video.title,
+          m3u8Url: quality.url,
+          quality: quality.label,
+          task: task,
+          selectedVariantIndex: variantIndex, // Pass variant index
+        );
 
-      // Move to completed
-      _moveToCompleted(task);
-    } else {
-      // Regular MP4 download
-      final filename = '${video.id}_${quality.label}.mp4';
-      final backgroundTask = bd.DownloadTask(
-        url: quality.url,
-        filename: filename,
-        directory: 'videos',
-        baseDirectory: bd.BaseDirectory.applicationDocuments,
-        retries: AppConfig.downloadRetryCount,
-        allowPause: true,
-      );
+        // Move to completed
+        _moveToCompleted(task);
 
-      task.taskId = backgroundTask.taskId;
+        Get.snackbar(
+          'Download Complete',
+          '${video.title} is ready to watch offline',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        // Regular MP4 download
+        final filename = '${video.id}_${quality.label}.mp4';
+        final backgroundTask = bd.DownloadTask(
+          url: quality.url,
+          filename: filename,
+          directory: 'videos',
+          baseDirectory: bd.BaseDirectory.applicationDocuments,
+          retries: AppConfig.downloadRetryCount,
+          allowPause: true,
+        );
+
+        task.taskId = backgroundTask.taskId;
+        await _storage.saveDownloadTask(task);
+
+        // Enqueue download
+        await bd.FileDownloader().enqueue(backgroundTask);
+        logger.i('Download started: ${video.title}');
+      }
+    } catch (e) {
+      // Handle errors with specific messages
+      String errorMessage = 'Failed to start download';
+
+      if (e.toString().contains('Network') || e.toString().contains('SocketException')) {
+        errorMessage = 'Network error. Check your connection and try again.';
+      } else if (e.toString().contains('space') || e.toString().contains('storage')) {
+        errorMessage = 'Not enough storage space. Free up some space and try again.';
+      } else if (e.toString().contains('format') || e.toString().contains('playlist')) {
+        errorMessage = 'Video format not supported for download.';
+      }
+
+      logger.e('Download error: $e');
+      task.status = DownloadStatus.failed;
+      task.errorMessage = errorMessage;
       await _storage.saveDownloadTask(task);
 
-      // Enqueue download
-      await bd.FileDownloader().enqueue(backgroundTask);
-      logger.i('Download started: ${video.title}');
+      Get.snackbar(
+        'Download Failed',
+        errorMessage,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+      );
     }
   }
 
-  /// Pause download
-  Future<void> pauseDownload(String videoId) async {
-    final task = _storage.getDownloadTask(videoId);
-    if (task?.taskId == null) return;
-
-    await bd.FileDownloader().pause(
-      bd.DownloadTask(
-        taskId: task!.taskId!,
-        url: task.downloadUrl,
-        filename: '${task.videoId}_${task.qualityLabel}.mp4',
-      ),
-    );
-  }
-
-  /// Resume download
-  Future<void> resumeDownload(String videoId) async {
-    final task = _storage.getDownloadTask(videoId);
-    if (task?.taskId == null) return;
-
-    await bd.FileDownloader().resume(
-      bd.DownloadTask(
-        taskId: task!.taskId!,
-        url: task.downloadUrl,
-        filename: '${task.videoId}_${task.qualityLabel}.mp4',
-      ),
-    );
-  }
+  
+ 
 
   /// Cancel download
   Future<void> cancelDownload(String videoId) async {
     final task = _storage.getDownloadTask(videoId);
-    if (task?.taskId == null) return;
+    if (task == null) {
+      logger.w('cancelDownload: Task not found for videoId: $videoId');
+      return;
+    }
 
-    await bd.FileDownloader().cancelTaskWithId(task!.taskId!);
-    await _storage.deleteDownloadTask(videoId);
-    activeDownloads.removeWhere((t) => t.videoId == videoId);
+    try {
+      if (task.isHLS) {
+        // HLS: Mark as failed (download loop will stop), then delete
+        task.status = DownloadStatus.failed;
+        task.errorMessage = 'Cancelled by user';
+        await _storage.saveDownloadTask(task);
 
-    logger.i('Download cancelled: $videoId');
+        // Delete partial files
+        await _hlsDownloader.deleteHLSDownload(videoId);
+
+        logger.i('HLS download cancelled: $videoId');
+      } else {
+        // MP4: Use background downloader cancel
+        if (task.taskId != null) {
+          await bd.FileDownloader().cancelTaskWithId(task.taskId!);
+        }
+        logger.i('MP4 download cancelled: $videoId');
+      }
+
+      // Remove from storage and list
+      await _storage.deleteDownloadTask(videoId);
+      activeDownloads.removeWhere((t) => t.videoId == videoId);
+
+      // Trigger UI update
+      _refreshLists();
+
+      Get.snackbar(
+        'Download Cancelled',
+        'Download has been cancelled',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      logger.e('Error cancelling download: $e');
+      Get.snackbar(
+        'Cancel Failed',
+        'Could not cancel download. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   /// Delete downloaded video
@@ -326,13 +394,13 @@ class DownloadService extends GetxService {
   }
 
   /// Get local path for video
-  String? getLocalPath(String videoId) {
+  Future<String?> getLocalPath(String videoId) async {
     final task = _storage.getDownloadTask(videoId);
     if (task == null) return null;
 
     // Return HLS playlist path or regular video path
     if (task.isHLS) {
-      return _hlsDownloader.getLocalPlaylistPath(videoId);
+      return await _hlsDownloader.getLocalPlaylistPath(videoId);
     }
     return task.localPath;
   }
@@ -367,5 +435,16 @@ class DownloadService extends GetxService {
   void onClose() {
     bd.FileDownloader().resetUpdates();
     super.onClose();
+  }
+
+  void _showHlsResumeNotSupported() {
+    Get.snackbar(
+      'Resume Not Supported',
+      'HLS downloads cannot be resumed yet. Please restart.',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 3),
+    );
+
+    logger.w('[resumeDownload] HLS resume not supported');
   }
 }

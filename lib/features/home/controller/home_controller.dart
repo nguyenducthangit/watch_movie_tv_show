@@ -280,7 +280,7 @@ class HomeController extends GetxController {
       }
 
       // Check if we have a local file
-      final localPath = DownloadService.to.getLocalPath(video.id);
+      final localPath = await DownloadService.to.getLocalPath(video.id);
 
       Get.back(); // Close loading
       logger.i('Navigating to player with stream URL: ${videoWithStream.streamUrl}');

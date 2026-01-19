@@ -103,16 +103,7 @@ class DownloadsController extends GetxController {
     Get.toNamed(MRoutes.detail, arguments: video);
   }
 
-  /// Pause download
-  void pauseDownload(String videoId) {
-    _downloadService.pauseDownload(videoId);
-  }
-
-  /// Resume download
-  void resumeDownload(String videoId) {
-    _downloadService.resumeDownload(videoId);
-  }
-
+ 
   /// Cancel download
   void cancelDownload(String videoId) {
     _downloadService.cancelDownload(videoId);

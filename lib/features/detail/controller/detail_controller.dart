@@ -13,7 +13,6 @@ import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 /// Detail Controller
 class DetailController extends GetxController {
   late VideoItem video;
-  
 
   final RxBool isDownloading = false.obs;
   final RxBool isDownloaded = false.obs;
@@ -102,18 +101,23 @@ class DetailController extends GetxController {
       if (server.episodes.isNotEmpty) {
         final episode = server.episodes.first;
 
-        // Determine quality based on movie.quality field or default
-        final qualityLabel = movie.quality ?? 'HD';
+        // For HLS streams, create multiple quality options
+        // The actual quality selection happens during download via variant index
+        final m3u8Url = episode.linkM3u8;
 
-        // Create download quality
-        // Note: m3u8 streams are typically adaptive, so we offer single quality
-        qualities.add(
-          VideoQuality(
-            label: qualityLabel,
-            url: episode.linkM3u8,
-            sizeMB: null, // Unknown for HLS streams
-          ),
-        );
+        if (m3u8Url.isNotEmpty) {
+          // Create quality options that user can choose from
+          // These will map to variant indices during download (0=highest, 1=medium, 2=lowest)
+          qualities.addAll([
+            VideoQuality(
+              label: 'HD',
+              url: m3u8Url,
+              sizeMB: null, // Unknown for HLS
+            ),
+            VideoQuality(label: 'SD', url: m3u8Url, sizeMB: null),
+            VideoQuality(label: '360p', url: m3u8Url, sizeMB: null),
+          ]);
+        }
       }
     }
 
@@ -247,7 +251,7 @@ class DetailController extends GetxController {
       }
 
       // Check if we have a local file
-      final localPath = DownloadService.to.getLocalPath(video.id);
+      final localPath = await DownloadService.to.getLocalPath(video.id);
 
       logger.i('Navigating to player with stream URL: ${videoWithStream.streamUrl}');
       Get.toNamed(MRoutes.player, arguments: {'video': videoWithStream, 'localPath': localPath});

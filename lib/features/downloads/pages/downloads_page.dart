@@ -92,8 +92,6 @@ class DownloadsContent extends GetView<DownloadsController> {
                           ...controller.activeDownloads.map(
                             (task) => DownloadActiveItem(
                               task: task,
-                              onPause: () => controller.pauseDownload(task.videoId),
-                              onResume: () => controller.resumeDownload(task.videoId),
                               onCancel: () => controller.cancelDownload(task.videoId),
                             ),
                           ),

@@ -41,7 +41,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 1.0);
+    _pageController = PageController(initialPage: 1);
     _startAutoRotate();
   }
 
@@ -83,16 +83,40 @@ class _HeroCarouselState extends State<HeroCarousel> {
           height: widget.height,
           child: PageView.builder(
             controller: _pageController,
+            itemCount: widget.videos.length + 2,
             onPageChanged: (index) {
-              setState(() => _currentIndex = index);
+              final lastFakePage = widget.videos.length + 1;
+
+              if (index == 0) {
+                // Vuốt ngược ở đầu → nhảy về cuối thật
+                _pageController.jumpToPage(widget.videos.length);
+                _currentIndex = widget.videos.length - 1;
+              } else if (index == lastFakePage) {
+                // Vuốt tiếp ở cuối → nhảy về đầu thật
+                _pageController.jumpToPage(1);
+                _currentIndex = 0;
+              } else {
+                _currentIndex = index - 1;
+              }
+
+              setState(() {});
               _resetAutoRotate();
             },
-            itemCount: widget.videos.length,
             itemBuilder: (context, index) {
+              int realIndex;
+
+              if (index == 0) {
+                realIndex = widget.videos.length - 1;
+              } else if (index == widget.videos.length + 1) {
+                realIndex = 0;
+              } else {
+                realIndex = index - 1;
+              }
+
               return _HeroItem(
-                video: widget.videos[index],
-                onTap: () => widget.onVideoTap(widget.videos[index]),
-                onPlayTap: () => widget.onPlayTap(widget.videos[index]),
+                video: widget.videos[realIndex],
+                onTap: () => widget.onVideoTap(widget.videos[realIndex]),
+                onPlayTap: () => widget.onPlayTap(widget.videos[realIndex]),
               );
             },
           ),

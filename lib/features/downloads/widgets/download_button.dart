@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
 import 'package:watch_movie_tv_show/features/downloads/widgets/quality_sheet.dart';
 
-/// Download Button Widget
-/// Handles download state (not downloaded, downloading, downloaded)
 class DownloadButton extends StatelessWidget {
   const DownloadButton({super.key, required this.video});
   final VideoItem video;
@@ -90,18 +90,78 @@ class DownloadButton extends StatelessWidget {
   }
 
   /// Show Quality Selection Sheet
-  void _showQualitySheet() {
+  Future<void> _showQualitySheet() async {
+    // Ensure movie detail is loaded first (to get downloadQualities)
     if (video.downloadQualities == null || video.downloadQualities!.isEmpty) {
-      Get.snackbar('Error', 'No download options available');
+      // Try to get DetailController to wait for detail loading
+      try {
+        final detailController = Get.find<DetailController>();
+
+        // Show loading
+        Get.dialog(
+          const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          barrierDismissible: false,
+        );
+
+        // Wait for detail loading to complete (if currently loading)
+        // The _loadMovieDetail() is already called in onInit()
+        if (detailController.isLoadingDetail.value) {
+          // Wait for loading to finish (max 10 seconds)
+          int attempts = 0;
+          while (detailController.isLoadingDetail.value && attempts < 100) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            attempts++;
+          }
+        }
+
+        Get.back(); // Close loading
+
+        // Check again after loading - use controller's updated video
+        if (detailController.video.downloadQualities == null ||
+            detailController.video.downloadQualities!.isEmpty) {
+          Get.snackbar(
+            'No Download Available',
+            'This video cannot be downloaded',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          return;
+        }
+
+        // Use controller's updated video with qualities
+        final qualities = detailController.video.downloadQualities!;
+        _showQualityBottomSheet(qualities);
+      } catch (e) {
+        Get.back(); // Close loading if error
+        Get.snackbar(
+          'Error',
+          'Failed to load download options',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
       return;
     }
 
+    _showQualityBottomSheet(video.downloadQualities!);
+  }
+
+  void _showQualityBottomSheet(List<VideoQuality> qualities) {
     Get.bottomSheet(
       QualitySheet(
-        qualities: video.downloadQualities!,
+        qualities: qualities,
         onSelected: (quality) {
           Get.back(); // Close sheet
-          DownloadService.to.startDownload(video, quality);
+
+          // Map quality label to HLS variant index
+          // HD = 0 (highest), SD = 1 (medium), 360p = 2 (lowest)
+          int variantIndex = 0;
+          if (quality.label == 'SD') {
+            variantIndex = 1;
+          } else if (quality.label == '360p') {
+            variantIndex = 2;
+          }
+
+          // Start download with variant index (will be used for HLS)
+          DownloadService.to.startDownload(video, quality, variantIndex: variantIndex);
         },
       ),
       isScrollControlled: true,
