@@ -176,8 +176,9 @@ class HomeController extends GetxController {
   void _setupPremiumSections() {
     final allVideos = videos.toList();
 
-    // Featured: First 5-7 videos (could be based on a "featured" flag in future)
-    featuredVideos.value = allVideos.take(7).toList();
+    // Featured: Random 7 videos (different each time for variety!)
+    final shuffledForFeatured = List<VideoItem>.from(allVideos)..shuffle();
+    featuredVideos.value = shuffledForFeatured.take(7).toList();
 
     // Trending: Random shuffle of some videos
     final shuffled = List<VideoItem>.from(allVideos)..shuffle();
