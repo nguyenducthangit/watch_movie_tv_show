@@ -115,7 +115,28 @@ class HomePremiumBrowseView extends GetView<HomeController> {
           SliverToBoxAdapter(
             child: Obx(() {
               final genreMap = Map<String, List<VideoItem>>.from(controller.videosByGenre);
-              final genres = genreMap.keys.take(3).toList();
+
+              // Prioritize requested genres
+              final priorityGenres = ['Tâm Lý'];
+              final allKeys = genreMap.keys.toList();
+
+              // Sort to put priority genres first
+              allKeys.sort((a, b) {
+                final aPriority = priorityGenres.indexOf(a);
+                final bPriority = priorityGenres.indexOf(b);
+                if (aPriority != -1 && bPriority != -1) return aPriority.compareTo(bPriority);
+                if (aPriority != -1) return -1;
+                if (bPriority != -1) return 1;
+                return 0;
+              });
+
+              final genres = allKeys.length <= 4
+                  ? allKeys
+                  : allKeys.sublist(
+                      ((allKeys.length - 4) / 2).floor(),
+                      ((allKeys.length - 4) / 2).floor() + 4,
+                    );
+
               if (genres.isEmpty) return const SizedBox.shrink();
               return Column(
                 children: genres.map((genre) {

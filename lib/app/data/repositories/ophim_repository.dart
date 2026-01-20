@@ -15,26 +15,89 @@ class OphimRepository {
   late final Dio _dio;
 
   /// Fetch home movie list with pagination
-  /// Fetches multiple pages concurrently for better variety
+  /// If countries are defined in OphimApi, fetches from those countries.
+  /// Otherwise fetches from the default latest list.
   Future<List<VideoItem>> fetchHomeMovies({
     int quantityPagesFilm = OphimApi.quantityPagesFilm,
   }) async {
     try {
-      logger.i('Fetching $quantityPagesFilm pages of movies...');
+      final countrySlugs = OphimApi.countrySlugs;
+      final hasCountryFilter = countrySlugs.isNotEmpty;
 
-      // Fetch multiple pages concurrently
-      final futures = List.generate(quantityPagesFilm, (i) => _fetchMoviePage(i + 1));
+      logger.i(
+        hasCountryFilter
+            ? 'Fetching movies from countries: $countrySlugs ($quantityPagesFilm pages each)...'
+            : 'Fetching $quantityPagesFilm pages of latest movies...',
+      );
+
+      final futures = <Future<List<VideoItem>>>[];
+
+      if (hasCountryFilter) {
+        // Fetch from specified countries
+        for (final slug in countrySlugs) {
+          for (var i = 1; i <= quantityPagesFilm; i++) {
+            futures.add(fetchMoviesByCountry(slug, page: i));
+          }
+        }
+      } else {
+        // Fetch from default list
+        for (var i = 1; i <= quantityPagesFilm; i++) {
+          futures.add(_fetchMoviePage(i).then((models) => models.map(_movieToVideoItem).toList()));
+        }
+      }
 
       final results = await Future.wait(futures);
       final allMovies = results.expand((list) => list).toList();
 
-      logger.i('Fetched ${allMovies.length} movies from Ophim API $quantityPagesFilm pages');
+      // Remove duplicates (possible overlap if multiple countries or pagination issues)
+      final uniqueMovies = <String, VideoItem>{};
+      for (final movie in allMovies) {
+        uniqueMovies[movie.id] = movie;
+      }
+      final uniqueList = uniqueMovies.values.toList();
 
-      // Convert MovieModel to VideoItem
-      return allMovies.map(_movieToVideoItem).toList();
+      logger.i('Fetched ${uniqueList.length} unique movies from Ophim API');
+
+      return uniqueList;
     } catch (e) {
       logger.e('Error fetching home movies: $e');
       rethrow;
+    }
+  }
+
+  /// Fetch movies by country
+  Future<List<VideoItem>> fetchMoviesByCountry(String countrySlug, {int page = 1}) async {
+    try {
+      final response = await _dio.get(
+        '${OphimApi.baseUrl}${OphimApi.countryEndpoint(countrySlug)}',
+        queryParameters: {'page': page},
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = response.data as Map<String, dynamic>;
+        final data = responseData['data'] as Map<String, dynamic>?;
+
+        if (data == null) {
+          logger.e('No data field in response for country $countrySlug page $page');
+          return [];
+        }
+
+        // Parse items from response
+        final items =
+            (data['items'] as List<dynamic>?)
+                ?.map((json) => MovieModel.fromJson(json as Map<String, dynamic>))
+                .toList() ??
+            [];
+
+        logger.i('Fetched ${items.length} movies for country $countrySlug page $page');
+        return items.map(_movieToVideoItem).toList();
+      } else {
+        logger.e('Failed to load country $countrySlug page $page: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      logger.e('Error fetching movies for country $countrySlug: $e');
+      return [];
     }
   }
 

@@ -46,7 +46,6 @@ class HomeController extends GetxController {
     super.onInit();
     loadVideos();
 
-    // Listen to search changes
     debounce(searchQuery, (_) => _applyFilters(), time: const Duration(milliseconds: 300));
   }
 
@@ -117,6 +116,59 @@ class HomeController extends GetxController {
       Get.snackbar('Error', 'Failed to refresh content');
     } finally {
       isRefreshing.value = false;
+    }
+  }
+
+  /// Fetch videos by countries
+  Future<void> fetchMoviesByCountries(List<String> countrySlugs) async {
+    if (countrySlugs.isEmpty) {
+      loadVideos();
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      hasError.value = false;
+      videos.clear();
+
+      // Fetch from all countries concurrently (2 pages each for variety)
+      final futures = <Future<List<VideoItem>>>[];
+      for (final slug in countrySlugs) {
+        futures.add(_repo.fetchMoviesByCountry(slug, page: 1));
+        futures.add(_repo.fetchMoviesByCountry(slug, page: 2));
+      }
+
+      final results = await Future.wait(futures);
+      final allMovies = results.expand((list) => list).toList();
+
+      // Updates videos list
+      // Remove duplicates based on ID if any
+      final uniqueMovies = <String, VideoItem>{};
+      for (final movie in allMovies) {
+        uniqueMovies[movie.id] = movie;
+      }
+      videos.value = uniqueMovies.values.toList();
+
+      // Extract unique tags from all videos
+      final allTags = <String>{};
+      for (final video in videos) {
+        if (video.tags != null) {
+          allTags.addAll(video.tags!);
+        }
+      }
+      tags.value = allTags.toList();
+
+      // Setup premium sections
+      _setupPremiumSections();
+      _applyFilters();
+
+      logger.i('Loaded ${videos.length} videos from countries: $countrySlugs');
+    } catch (e) {
+      logger.e('Failed to load videos from countries: $e');
+      hasError.value = true;
+      errorMessage.value = e.toString();
+    } finally {
+      isLoading.value = false;
     }
   }
 
