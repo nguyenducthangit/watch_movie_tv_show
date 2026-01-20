@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/features/detail/pages/detail_page.dart';
 import 'package:watch_movie_tv_show/features/downloads/pages/downloads_page.dart';
 import 'package:watch_movie_tv_show/features/home/pages/home_page.dart';
+import 'package:watch_movie_tv_show/features/language/presentation/pages/language_first_open_page.dart';
+import 'package:watch_movie_tv_show/features/language/presentation/pages/language_setting_page.dart';
 import 'package:watch_movie_tv_show/features/main_nav/pages/main_nav_page.dart';
+import 'package:watch_movie_tv_show/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:watch_movie_tv_show/features/player/pages/player_page.dart';
-import 'package:watch_movie_tv_show/features/settings/pages/about_page.dart';
 import 'package:watch_movie_tv_show/features/settings/pages/settings_page.dart';
 // Feature imports
 import 'package:watch_movie_tv_show/features/splash/pages/splash_page.dart';
@@ -25,6 +27,9 @@ class MRoutes {
   static const String watchlist = '/watchlist';
   static const String settings = '/settings';
   static const String about = '/about';
+  static const String languageFirstOpen = '/language_first_open';
+  static const String languageSetting = '/language_setting';
+  static const String onboarding = '/onboarding';
 
   /// Initial route
   static const String initial = splash;
@@ -48,8 +53,12 @@ class MRoutes {
         return SettingsPage.getPageRoute(settings);
       case MRoutes.watchlist:
         return WatchlistPage.getPageRoute(settings);
-      case MRoutes.about:
-        return AboutPage.getPageRoute(settings);
+      case languageFirstOpen:
+        return LanguageFirstOpenPage.getPageRoute(settings);
+      case languageSetting:
+        return LanguageSettingPage.getPageRoute(settings);
+      case onboarding:
+        return OnboardingPage.getPageRoute(settings);
       default:
         return _errorRoute(settings);
     }

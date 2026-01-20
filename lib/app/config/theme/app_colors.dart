@@ -12,17 +12,18 @@ class AppColors {
   static const Color secondary = Color(0xFFE5E7EB); // Silver/White
   static const Color accent = Color(0xFF6366F1); // Indigo for accents
 
-  // Background Colors (Deep Black/Grey)
-  static const Color background = Color(0xFF000000); // Pure Black
-  static const Color surface = Color(0xFF141414); // Very Dark Grey
-  static const Color surfaceVariant = Color(0xFF262626);
-  static const Color card = Color(0xFF1C1C1C);
+  // Background Colors (Cinematic Dark)
+  static const Color background = Color(0xFF0B0E11); // Deep blue-black (đỡ gắt hơn #000)
+  static const Color surface = Color(0xFF12161C); // Dark navy grey
+  static const Color surfaceVariant = Color(0xFF1A1F27); // Card / section
+  static const Color card = Color(0xFF161B22); // Elevated card
 
   // Text Colors
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFFA1A1AA); // Zinc-400
   static const Color textTertiary = Color(0xFF71717A); // Zinc-500
   static const Color textBody = Color(0xFFD4D4D8); // Zinc-300
+  static const Color textBodyNight = Color(0xFF2E2E2E); // Zinc-300
 
   // Gradient
   static const LinearGradient primaryGradient = LinearGradient(
@@ -67,8 +68,8 @@ class AppColors {
   static const Color downloadPaused = warning;
   static const Color downloadCompleted = success;
   static const Color downloadFailed = error;
-  // 
+  //
   static const Color white = Color(0xFFFFFFFF);
-  static const Color black = Color(0xFF000000); 
+  static const Color black = Color(0xFF000000);
   static const Color transparent = Color(0x00000000);
 }

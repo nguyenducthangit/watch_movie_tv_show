@@ -1,12 +1,12 @@
+import 'package:package_info_plus/package_info_plus.dart';
+
 /// App Configuration
 /// Contains all app-level configurations like URLs, timeouts, etc.
 class AppConfig {
   AppConfig._();
 
-  // API Configuration
-  static const String manifestUrl =
-      'https://raw.githubusercontent.com/your-org/video-catalog/main/manifest.json';
 
+ static late final PackageInfo packageInfo;
   // Timeout durations
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

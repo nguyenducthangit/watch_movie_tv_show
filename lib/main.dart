@@ -31,6 +31,7 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   // Initialize Storage
   await StorageService.instance.init();
