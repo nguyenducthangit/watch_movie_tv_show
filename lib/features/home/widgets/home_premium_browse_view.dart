@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/category_row.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/continue_watching_card.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/hero_carousel.dart';
@@ -88,7 +89,7 @@ class HomePremiumBrowseView extends GetView<HomeController> {
             child: Obx(() {
               final videos = controller.trendingVideos.toList();
               return CategoryRow(
-                title: 'Trending Now',
+                title: L.trendingNow.tr,
                 videos: videos,
                 onVideoTap: controller.openVideoDetail,
               );
@@ -102,7 +103,7 @@ class HomePremiumBrowseView extends GetView<HomeController> {
             child: Obx(() {
               final videos = controller.newReleases.toList();
               return LargeCategoryRow(
-                title: 'New Releases',
+                title: L.newRelease.tr,
                 videos: videos,
                 onVideoTap: controller.openVideoDetail,
               );

@@ -5,6 +5,7 @@ import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/dialog/delete_download.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 
 /// Downloads Controller
@@ -66,10 +67,10 @@ class DownloadsController extends GetxController {
     if (selectedIds.isEmpty) return;
 
     DeleteDownload.show(
-      title: '${AppStrings.delete} ${selectedIds.length} Videos',
+      title: '${L.delete.tr} ${selectedIds.length} ${L.videos.tr}',
       middleText: 'Are you sure you want to delete ${selectedIds.length} video(s)?',
-      textConfirm: AppStrings.delete,
-      textCancel: AppStrings.cancel,
+      textConfirm: L.delete.tr,
+      textCancel: L.cancel.tr,
       onRemove: () {
         // Delete each selected video
         for (final videoId in selectedIds.toList()) {
@@ -112,10 +113,10 @@ class DownloadsController extends GetxController {
   /// Delete downloaded video
   void deleteDownload(String videoId) {
     DeleteDownload.show(
-      title: AppStrings.delete,
-      middleText: AppStrings.deleteConfirm,
-      textConfirm: AppStrings.delete,
-      textCancel: AppStrings.cancel,
+      title: L.delete.tr,
+      middleText: L.deleteConfirm.tr,
+      textConfirm: L.delete.tr,
+      textCancel: L.cancel.tr,
       onRemove: () {
         _downloadService.deleteDownload(videoId);
       },

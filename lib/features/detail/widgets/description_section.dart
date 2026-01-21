@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 /// Description Section Widget
 /// Expandable description with "Read more" functionality
@@ -23,7 +25,7 @@ class _DescriptionSectionState extends State<DescriptionSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section title
-        Text('Nội dung', style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary)),
+        Text(L.contents.tr, style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary)),
         const SizedBox(height: 8),
 
         // Description text with animation
@@ -53,7 +55,7 @@ class _DescriptionSectionState extends State<DescriptionSection> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _isExpanded ? 'Thu gọn' : 'Xem thêm',
+                  _isExpanded ? L.collapse.tr : L.seeMore.tr,
                   style: MTextTheme.body2SemiBold.copyWith(color: AppColors.primary),
                 ),
                 const SizedBox(width: 4),

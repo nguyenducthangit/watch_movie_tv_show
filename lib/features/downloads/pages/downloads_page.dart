@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/empty_state_widget.dart';
 import 'package:watch_movie_tv_show/features/downloads/binding/downloads_binding.dart';
 import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
@@ -40,14 +40,14 @@ class DownloadsContent extends GetView<DownloadsController> {
         child: Obx(() {
           // Empty state
           if (!controller.hasDownloads) {
-            return const Column(
+            return Column(
               children: [
-                DownloadAppBar(),
+                const DownloadAppBar(),
                 Expanded(
                   child: EmptyStateWidget(
                     icon: Icons.download_outlined,
-                    title: AppStrings.noDownloads,
-                    message: AppStrings.noDownloadsDescription,
+                    title: L.noDownloads.tr,
+                    message: L.noDownloadsDescription.tr,
                   ),
                 ),
               ],
@@ -69,7 +69,7 @@ class DownloadsContent extends GetView<DownloadsController> {
                         const Icon(Icons.storage_rounded, size: 16, color: AppColors.textTertiary),
                         const SizedBox(width: 8),
                         Text(
-                          '${AppStrings.storageUsed}: ${controller.storageUsedString}',
+                          '${L.storageUsed.tr}: ${controller.storageUsedString}',
                           style: MTextTheme.captionRegular.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
@@ -85,7 +85,7 @@ class DownloadsContent extends GetView<DownloadsController> {
                         // Active downloads section
                         if (controller.activeDownloads.isNotEmpty) ...[
                           DownloadSectionHeader(
-                            title: AppStrings.activeDownloads,
+                            title: L.activeDownloads.tr,
                             count: controller.activeDownloads.length,
                           ),
                           const SizedBox(height: 12),
@@ -101,7 +101,7 @@ class DownloadsContent extends GetView<DownloadsController> {
                         // Completed downloads section
                         if (controller.completedDownloads.isNotEmpty) ...[
                           DownloadSectionHeader(
-                            title: AppStrings.completedDownloads,
+                            title: L.completedDownloads.tr,
                             count: controller.completedDownloads.length,
                           ),
                           const SizedBox(height: 12),

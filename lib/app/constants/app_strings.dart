@@ -37,22 +37,6 @@ class AppStrings {
   static const String resume = 'Resume';
   static const String playFromStart = 'Play from start';
 
-  // Downloads Screen
-  static const String activeDownloads = 'Active Downloads';
-  static const String completedDownloads = 'Downloaded';
-  static const String noDownloads = 'No downloads yet';
-  static const String noDownloadsDescription = 'Videos you download will appear here';
-  static const String offlineMode = 'You are offline';
-  static const String pause = 'Pause';
-  static const String cancel = 'Cancel';
-  static const String retry = 'Retry';
-  static const String delete = 'Delete';
-  static const String deleteConfirm = 'Delete this video?';
-  static const String deleteDescription = 'This will remove the downloaded file';
-  static const String storageUsed = 'Storage Used';
-  static const String edit = 'Edit';
-  static const String unselectAll = 'Unselect All';
-  static const String deleteSelected = 'Delete Selected';
 
   // Watchlist Screen
   static const String myList = 'My List';
@@ -88,4 +72,21 @@ class AppStrings {
   // File size
   static const String mb = 'MB';
   static const String gb = 'GB';
+    // Downloads Screen
+  static const String activeDownloads = 'Active Downloads';
+  static const String completedDownloads = 'Downloaded';
+  static const String noDownloads = 'No downloads yet';
+  static const String noDownloadsDescription = 'Videos you download will appear here';
+  static const String offlineMode = 'You are offline';
+  static const String pause = 'Pause';
+  static const String cancel = 'Cancel';
+  static const String retry = 'Retry';
+  static const String delete = 'Delete';
+  static const String deleteConfirm = 'Delete this video?';
+  static const String deleteDescription = 'This will remove the downloaded file';
+  static const String storageUsed = 'Storage Used';
+  static const String edit = 'Edit';
+  static const String unselectAll = 'Unselect All';
+  static const String deleteSelected = 'Delete Selected';
+
 }

@@ -10,7 +10,7 @@ class MovieModel {
     this.posterUrl,
     this.year,
     this.quality,
-    this.lang,
+
     this.episodeCurrent,
     this.episodeTotal,
     this.time,
@@ -23,6 +23,7 @@ class MovieModel {
     this.categories,
     this.country,
     this.episodes,
+    this.translatedCategories,
   });
 
   /// Create from JSON
@@ -39,7 +40,7 @@ class MovieModel {
       posterUrl: movieData['poster_url'] as String?,
       year: movieData['year'] as int?,
       quality: movieData['quality'] as String?, // HD, FHD, CAM
-      lang: movieData['lang'] as String?, // Vietsub, Thuyết minh
+
       episodeCurrent: movieData['episode_current'] as String?,
       episodeTotal: movieData['episode_total'] as String?,
       time: movieData['time'] as String?,
@@ -88,7 +89,7 @@ class MovieModel {
   final String? posterUrl;
   final int? year;
   final String? quality; // HD, FHD, CAM
-  final String? lang; // Vietsub, Thuyết minh, Lồng tiếng
+
   final String? episodeCurrent; // Tập 10, Full
   final String? episodeTotal; // 24, 1
   final String? time; // 45 phút/tập, 120 Phút
@@ -99,6 +100,7 @@ class MovieModel {
   final List<String>? actor;
   final List<String>? director;
   final List<String>? categories;
+  final List<String>? translatedCategories;
   final List<String>? country;
   final List<EpisodeServerData>? episodes;
 
@@ -166,7 +168,7 @@ class MovieModel {
     String? posterUrl,
     int? year,
     String? quality,
-    String? lang,
+
     String? episodeCurrent,
     String? episodeTotal,
     String? time,
@@ -177,6 +179,7 @@ class MovieModel {
     List<String>? actor,
     List<String>? director,
     List<String>? categories,
+    List<String>? translatedCategories,
     List<String>? country,
     List<EpisodeServerData>? episodes,
   }) {
@@ -189,7 +192,7 @@ class MovieModel {
       posterUrl: posterUrl ?? this.posterUrl,
       year: year ?? this.year,
       quality: quality ?? this.quality,
-      lang: lang ?? this.lang,
+
       episodeCurrent: episodeCurrent ?? this.episodeCurrent,
       episodeTotal: episodeTotal ?? this.episodeTotal,
       time: time ?? this.time,
@@ -200,6 +203,7 @@ class MovieModel {
       actor: actor ?? this.actor,
       director: director ?? this.director,
       categories: categories ?? this.categories,
+      translatedCategories: translatedCategories ?? this.translatedCategories,
       country: country ?? this.country,
       episodes: episodes ?? this.episodes,
     );

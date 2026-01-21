@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/error_state_widget.dart';
 import 'package:watch_movie_tv_show/features/player/binding/player_binding.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
@@ -255,7 +256,7 @@ class PlayerPage extends GetView<PlayerController> {
           // Title
           Expanded(
             child: Text(
-              controller.video.title,
+              controller.video.displayTitle,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -352,18 +353,18 @@ class PlayerPage extends GetView<PlayerController> {
           // Download button
           _ActionButton(
             icon: Icons.download_outlined,
-            label: 'Download',
+            label: L.download.tr,
             onTap: () {
-              Get.snackbar('Download', 'Download feature coming soon');
+              Get.snackbar(L.download.tr, 'Download feature coming soon');
             },
           ),
           const SizedBox(width: 32),
           // Share button
           _ActionButton(
             icon: Icons.share_outlined,
-            label: 'Share',
+            label: L.share.tr,
             onTap: () {
-              final movieInfo = 'Check out this movie: ${controller.video.title}';
+              final movieInfo = '${L.checkOutThisMovie.tr} ${controller.video.title}';
               SharePlus.instance.share(ShareParams(text: movieInfo));
             },
           ),
@@ -379,9 +380,9 @@ class PlayerPage extends GetView<PlayerController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // "About" label
-          const Text(
-            'About',
-            style: TextStyle(
+          Text(
+            L.about.tr,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -390,7 +391,7 @@ class PlayerPage extends GetView<PlayerController> {
           const SizedBox(height: 12),
           // Video title
           Text(
-            controller.video.title,
+            controller.video.displayTitle,
             style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
@@ -400,16 +401,16 @@ class PlayerPage extends GetView<PlayerController> {
           const SizedBox(height: 8),
           // Description
           Text(
-            controller.video.description ?? 'No description available.',
+            controller.video.displayDescription ?? 'No description available.',
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
           ),
           const SizedBox(height: 16),
           // Tags
-          if (controller.video.tags != null && controller.video.tags!.isNotEmpty)
+          if (controller.video.displayTags != null && controller.video.displayTags!.isNotEmpty)
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: controller.video.tags!.map((tag) {
+              children: controller.video.displayTags!.map((tag) {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -430,8 +431,13 @@ class PlayerPage extends GetView<PlayerController> {
   }
 
   String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
+    final totalSeconds = duration.inSeconds;
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }

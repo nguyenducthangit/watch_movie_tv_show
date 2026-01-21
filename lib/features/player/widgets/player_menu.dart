@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
 
 /// Player 3-Dot Menu
@@ -49,11 +50,11 @@ class PlayerMenu extends StatelessWidget {
                 Obx(
                   () => ListTile(
                     leading: const Icon(Icons.speed_rounded, color: AppColors.primary),
-                    title: const Text('Playback Speed'),
+                    title: Text(L.playbackSpeed.tr),
                     trailing: Text(
                       controller.playbackSpeed.value == 1.0
-                          ? 'Normal'
-                          : '${controller.playbackSpeed.value}x',
+                          ? L.normal.tr
+                          : '${controller.playbackSpeed.value} ${L.x.tr}',
                       style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
                     ),
                     onTap: () {
@@ -67,7 +68,7 @@ class PlayerMenu extends StatelessWidget {
                 Obx(
                   () => ListTile(
                     leading: const Icon(Icons.hd_rounded, color: AppColors.primary),
-                    title: const Text('Quality'),
+                    title: Text(L.quality.tr),
                     trailing: Text(
                       controller.currentQuality.value,
                       style: MTextTheme.body2Regular.copyWith(color: AppColors.textSecondary),
@@ -104,7 +105,7 @@ class PlayerMenu extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 16),
-                const Text('Playback Speed', style: MTextTheme.h4SemiBold),
+                Text(L.playbackSpeed.tr, style: MTextTheme.h4SemiBold),
                 const SizedBox(height: 16),
                 ...PlayerController.availableSpeeds.map((speed) {
                   return Obx(
@@ -145,7 +146,7 @@ class PlayerMenu extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 16),
-                const Text('Video Quality', style: MTextTheme.h4SemiBold),
+                Text(L.videoQuality.tr, style: MTextTheme.h4SemiBold),
                 const SizedBox(height: 16),
                 ...PlayerController.availableQualities.map((quality) {
                   return Obx(

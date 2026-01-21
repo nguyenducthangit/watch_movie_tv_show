@@ -28,7 +28,7 @@ dependencies:
   video_player: ^2.8.6
   chewie: ^1.8.1
   subtitle: ^0.1.4
-  translator: ^1.0.0
+  # translator: ^1.0.0
   google_mlkit_translation: ^0.13.0
 
   # ---------- Images ----------
@@ -45,7 +45,7 @@ dependencies:
   intl: ^0.20.2
   url_launcher: ^6.1.10
   share_plus: ^12.0.1
-  # flutter_launcher_icons: ^0.14.3
+  flutter_launcher_icons: ^0.14.3
 
   # ---------- Device & Permissions ----------
   device_info_plus: ^12.3.0
@@ -74,10 +74,8 @@ dev_dependencies:
   flutter_gen: 5.6.0
   flutter_gen_runner: 5.6.0
 
-# --------------------------------------------------
 # Flavorizr
 # dart run flutter_flavorizr -p android:buildGradle,android:androidManifest,google:firebase
-# --------------------------------------------------
 flavorizr:
   flavors:
     dev:
@@ -99,29 +97,22 @@ flavorizr:
           ads_app_id:
             type: "string"
             value: "ca-app-pub-3940256099942544~3347511713"
-# --------------------------------------------------
 # Flutter Gen (disabled due to dependency conflict)
-# --------------------------------------------------
 flutter_gen:
   output: lib/app/utils
   line_length: 100
   integrations:
     flutter_svg: true
-# --------------------------------------------------
 # Flutter launcher icons
 # dart run flutter_launcher_icons
-# --------------------------------------------------
-# comment phần này lại khi nào tôi dùng sẽ mở nó ra
-# flutter_launcher_icons:
-#   android: "launcher_icon"
-#   ios: false
-#   remove_alpha_ios: false
-#   adaptive_icon_background: "#FFFFFF"
-#   adaptive_icon_foreground: "assets/images/icon_app.png"
-#   image_path: "assets/images/icon_app.png"
-# --------------------------------------------------
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  remove_alpha_ios: false
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/icon_app.png"
+  image_path: "assets/images/icon_app.png"
 # Flutter
-# --------------------------------------------------
 flutter:
   uses-material-design: true
 

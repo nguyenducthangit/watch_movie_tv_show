@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -70,8 +71,11 @@ class PlayerController extends GetxController {
         throw Exception('No stream URL provided');
       }
 
-      // Initialize video player
-      videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(video.streamUrl!));
+      // Initialize video player with HLS hint
+      videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(video.streamUrl!),
+        formatHint: VideoFormat.hls,
+      );
 
       await videoPlayerController!.initialize();
 
@@ -95,6 +99,7 @@ class PlayerController extends GetxController {
         allowMuting: true,
         allowPlaybackSpeedChanging: true,
         playbackSpeeds: availableSpeeds,
+        subtitleBuilder: (context, dynamic subtitle) => const SizedBox(),
       );
 
       // Add listeners
@@ -110,7 +115,12 @@ class PlayerController extends GetxController {
     } catch (e) {
       logger.e('Failed to initialize player: $e');
       hasError.value = true;
-      errorMessage.value = e.toString();
+      if (e.toString().contains('NO_EXCEEDS_CAPABILITIES')) {
+        errorMessage.value =
+            'Description: Video format resolution/bitrate not supported on this device.';
+      } else {
+        errorMessage.value = 'Playback Error: $e';
+      }
     }
   }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 class PlayButton extends StatelessWidget {
   const PlayButton({super.key, required this.onPressed, this.resumeText});
@@ -12,7 +14,7 @@ class PlayButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: const Icon(Icons.play_arrow_rounded),
-      label: Text(resumeText != null ? 'Resume' : AppStrings.play),
+      label: Text(resumeText != null ? 'Resume' : L.play.tr),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,

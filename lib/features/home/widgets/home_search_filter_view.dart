@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/empty_state_widget.dart';
 import 'package:watch_movie_tv_show/features/home/controller/home_controller.dart';
 import 'package:watch_movie_tv_show/features/home/widgets/home_filterchip.dart';
@@ -48,11 +48,11 @@ class HomeSearchFilterView extends GetView<HomeController> {
             return SliverFillRemaining(
               child: EmptyStateWidget(
                 icon: Icons.video_library_outlined,
-                title: AppStrings.noVideosFound,
+                title: L.noVideosFound.tr,
                 message: controller.searchQuery.value.isNotEmpty
-                    ? 'Try a different search'
-                    : AppStrings.noVideosDescription,
-                buttonText: controller.searchQuery.value.isNotEmpty ? 'Clear Search' : null,
+                    ? L.tryADifferentSearch.tr
+                    : L.checkBackLater.tr,
+                buttonText: controller.searchQuery.value.isNotEmpty ? L.clearSearch.tr : null,
                 onButtonPressed: controller.searchQuery.value.isNotEmpty
                     ? controller.clearSearch
                     : null,

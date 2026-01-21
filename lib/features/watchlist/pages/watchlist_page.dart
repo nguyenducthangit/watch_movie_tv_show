@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/empty_state_widget.dart';
 import 'package:watch_movie_tv_show/features/watchlist/binding/watchlist_binding.dart';
 import 'package:watch_movie_tv_show/features/watchlist/controller/watchlist_controller.dart';
@@ -43,7 +43,7 @@ class WatchlistContent extends GetView<WatchlistController> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
               child: Text(
-                AppStrings.watchlist,
+                L.watchlist.tr,
                 style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary),
               ),
             ),
@@ -58,10 +58,10 @@ class WatchlistContent extends GetView<WatchlistController> {
 
                 // Empty state
                 if (controller.isEmpty) {
-                  return const EmptyStateWidget(
+                  return EmptyStateWidget(
                     icon: Icons.bookmark_border_rounded,
-                    title: AppStrings.noWatchlist,
-                    message: AppStrings.noWatchlistDescription,
+                    title: L.yourWatchlistisEmpty.tr,
+                    message: L.addVideoToWatchThemLater.tr,
                   );
                 }
 

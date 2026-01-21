@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
 
@@ -88,7 +89,7 @@ class DownloadActiveItem extends GetWidget<DownloadsController> {
                     icon: const Icon(Icons.close_rounded),
                     color: AppColors.error,
                     iconSize: 20,
-                    tooltip: 'Cancel',
+                    tooltip: L.cancel.tr,
                   ),
                 ],
               );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 
@@ -25,7 +27,7 @@ class UpNextSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            AppStrings.upNext,
+            L.upNext.tr,
             style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
           ),
         ),

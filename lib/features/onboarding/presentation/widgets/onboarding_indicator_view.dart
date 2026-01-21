@@ -40,7 +40,7 @@ class OnboardingIndicatorView extends GetView<OnboardingController> {
                 const Spacer(),
                 Obx(() {
                   final isLastPage = controller.isLastPage;
-                  final text = isLastPage ? L.letStarted : L.next;
+                  final text = isLastPage ? L.getStarted : L.next;
                   return MButton(
                     onPressed: isLastPage ? controller.completeOnboarding : controller.onNextPage,
                     padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),

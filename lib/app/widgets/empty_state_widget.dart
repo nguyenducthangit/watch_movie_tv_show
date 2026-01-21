@@ -8,14 +8,14 @@ class EmptyStateWidget extends StatelessWidget {
   const EmptyStateWidget({
     super.key,
     required this.icon,
-    required this.title,
+     this.title,
     this.message,
     this.buttonText,
     this.onButtonPressed,
     this.iconSize = 80,
   });
   final IconData icon;
-  final String title;
+  final String? title;
   final String? message;
   final String? buttonText;
   final VoidCallback? onButtonPressed;
@@ -42,7 +42,7 @@ class EmptyStateWidget extends StatelessWidget {
               const SizedBox(height: 24),
               // Title
               Text(
-                title,
+                title!,
                 style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),

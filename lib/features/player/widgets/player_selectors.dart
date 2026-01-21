@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/glass_card.dart';
 
 /// Quality Selector Widget
@@ -53,7 +55,7 @@ class QualitySelector extends StatelessWidget {
                   const Icon(Icons.hd_rounded, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Text(
-                    'Video Quality',
+                    L.videoQuality.tr,
                     style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
                   ),
                 ],
@@ -83,7 +85,7 @@ class QualitySelector extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      if (quality == 'Auto')
+                      if (quality == L.auto.tr)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
@@ -91,7 +93,7 @@ class QualitySelector extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'Recommended',
+                            L.recommended.tr,
                             style: MTextTheme.smallTextMedium.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -133,8 +135,8 @@ class SpeedSelector extends StatelessWidget {
   }
 
   String _formatSpeed(double speed) {
-    if (speed == 1.0) return 'Normal';
-    return '${speed}x';
+    if (speed == 1.0) return L.normal.tr;
+    return '$speed ${L.x.tr}';
   }
 
   @override
@@ -156,7 +158,7 @@ class SpeedSelector extends StatelessWidget {
                   const Icon(Icons.speed_rounded, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Text(
-                    'Playback Speed',
+                    L.playbackSpeed.tr,
                     style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
                   ),
                 ],

@@ -62,7 +62,7 @@ class DetailController extends GetxController {
         description: detail.content,
         year: detail.year,
         quality: detail.quality,
-        lang: detail.lang,
+
         episodeCurrent: detail.episodeCurrent,
         episodeTotal: detail.episodeTotal,
         time: detail.time,

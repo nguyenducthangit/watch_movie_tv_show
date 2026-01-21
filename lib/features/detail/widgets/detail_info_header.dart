@@ -10,7 +10,7 @@ class DetailInfoHeader extends StatelessWidget {
     this.originName,
     this.year,
     this.quality,
-    this.lang,
+
     this.episodeCurrent,
     this.episodeTotal,
     this.categories,
@@ -22,7 +22,7 @@ class DetailInfoHeader extends StatelessWidget {
   final String? originName;
   final int? year;
   final String? quality;
-  final String? lang;
+
   final String? episodeCurrent;
   final String? episodeTotal;
   final List<String>? categories;
@@ -62,10 +62,6 @@ class DetailInfoHeader extends StatelessWidget {
             // Quality badge (HD, FHD)
             if (quality != null && quality!.isNotEmpty)
               _MetadataBadge(label: quality!, icon: Icons.hd_rounded, isPremium: true),
-
-            // Language badge (Vietsub, Thuyết minh)
-            if (lang != null && lang!.isNotEmpty)
-              _MetadataBadge(label: lang!, icon: Icons.subtitles_rounded),
 
             // Episode progress
             if (episodeCurrent != null && episodeTotal != null)

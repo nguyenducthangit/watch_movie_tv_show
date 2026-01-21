@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
 
 /// Quality Selection Bottom Sheet
@@ -38,7 +39,7 @@ class QualitySheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-              AppStrings.selectQuality,
+              L.selectQuality.tr,
               style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
             ),
           ),

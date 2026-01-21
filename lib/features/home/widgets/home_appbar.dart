@@ -4,6 +4,7 @@ import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/animations/sninning_settingicon.dart';
 import 'package:watch_movie_tv_show/features/home/controller/home_controller.dart';
 import 'package:watch_movie_tv_show/features/home/widgets/home_search_bar.dart';
@@ -34,7 +35,7 @@ class HomeAppBar extends GetView<HomeController> {
                           controller.resetToHome();
                         },
                         child: Text(
-                          AppStrings.appName,
+                          L.appName.tr,
                           style: MTextTheme.h2Bold.copyWith(
                             color: AppColors.primary,
                             letterSpacing: -0.5,

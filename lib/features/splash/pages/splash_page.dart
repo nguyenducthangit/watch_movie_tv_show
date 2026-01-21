@@ -4,6 +4,7 @@ import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
+import 'package:watch_movie_tv_show/app/utils/assets.gen.dart';
 import 'package:watch_movie_tv_show/features/splash/binding/splash_binding.dart';
 import 'package:watch_movie_tv_show/features/splash/controller/splash_controller.dart';
 import 'package:watch_movie_tv_show/features/splash/widgets/splash_progress_bar.dart';
@@ -42,7 +43,7 @@ class SplashPage extends GetView<SplashController> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  // child: Assets.images.iconApp.image(height: 128, width: 128),
+                  child: Assets.images.iconApp.image(height: 128, width: 128),
                 ),
               ),
               const SizedBox(height: 12),

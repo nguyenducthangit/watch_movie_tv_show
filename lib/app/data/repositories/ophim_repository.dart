@@ -178,9 +178,11 @@ class OphimRepository {
         // Translate logic if enabled
         if (_translateService.isTranslationEnabled) {
           try {
+            final tags = movie.categories ?? <String>[];
             final textsToTranslate = <String>[
               movie.name,
               if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
+              ...tags,
             ];
 
             final translations = await _translateService.translateBatch(textsToTranslate);
@@ -188,6 +190,9 @@ class OphimRepository {
             return movie.copyWith(
               name: translations[movie.name] ?? movie.name,
               content: movie.content != null ? translations[movie.content!] : null,
+              translatedCategories: tags.isNotEmpty
+                  ? tags.map((t) => translations[t] ?? t).toList()
+                  : null,
             );
           } catch (e) {
             logger.e('Error translating detail for ${movie.name}: $e');
@@ -210,18 +215,24 @@ class OphimRepository {
     // Translate title and description if translation is enabled
     String? translatedTitle;
     String? translatedDescription;
+    List<String>? translatedTags;
 
     if (_translateService.isTranslationEnabled) {
       try {
         // Use batch translation for efficiency
+        final tags = movie.categories ?? <String>[];
         final textsToTranslate = <String>[
           movie.name,
           if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
+          ...tags,
         ];
 
         final translations = await _translateService.translateBatch(textsToTranslate);
         translatedTitle = translations[movie.name];
         translatedDescription = movie.content != null ? translations[movie.content!] : null;
+        translatedTags = tags.isNotEmpty ? tags.map((t) => translations[t] ?? t).toList() : null;
+        logger.i('Tags translation input: $tags');
+        logger.i('Tags translation output: $translatedTags');
       } catch (e) {
         logger.e('Error translating movie ${movie.name}: $e');
       }
@@ -238,7 +249,7 @@ class OphimRepository {
       durationSec: null, // Not available from list API
       year: movie.year,
       quality: movie.quality,
-      lang: movie.lang,
+
       episodeCurrent: movie.episodeCurrent,
       episodeTotal: movie.episodeTotal,
       time: movie.time,
@@ -249,6 +260,7 @@ class OphimRepository {
       trailerUrl: movie.trailerUrl,
       translatedTitle: translatedTitle,
       translatedDescription: translatedDescription,
+      translatedTags: translatedTags,
     );
   }
 
@@ -280,17 +292,21 @@ class OphimRepository {
     // Translate title and description if translation is enabled
     String? translatedTitle;
     String? translatedDescription;
+    List<String>? translatedTags;
 
     if (_translateService.isTranslationEnabled) {
       try {
+        final tags = movie.categories ?? <String>[];
         final textsToTranslate = <String>[
           movie.name,
           if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
+          ...tags,
         ];
 
         final translations = await _translateService.translateBatch(textsToTranslate);
         translatedTitle = translations[movie.name];
         translatedDescription = movie.content != null ? translations[movie.content!] : null;
+        translatedTags = tags.isNotEmpty ? tags.map((t) => translations[t] ?? t).toList() : null;
       } catch (e) {
         logger.e('Error translating movie ${movie.name}: $e');
       }
@@ -307,7 +323,7 @@ class OphimRepository {
       durationSec: null,
       year: movie.year,
       quality: movie.quality,
-      lang: movie.lang,
+
       episodeCurrent: movie.episodeCurrent,
       episodeTotal: movie.episodeTotal,
       time: movie.time,
@@ -318,6 +334,7 @@ class OphimRepository {
       trailerUrl: movie.trailerUrl,
       translatedTitle: translatedTitle,
       translatedDescription: translatedDescription,
+      translatedTags: translatedTags,
     );
   }
 }

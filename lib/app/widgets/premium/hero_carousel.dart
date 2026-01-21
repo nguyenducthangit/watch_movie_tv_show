@@ -8,6 +8,7 @@ import 'package:watch_movie_tv_show/app/config/theme/app_effects.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/animated_button.dart';
 
@@ -226,7 +227,7 @@ class _HeroItem extends StatelessWidget {
                   children: [
                     // Play button
                     PrimaryButton(
-                      text: 'Play',
+                      text: L.play.tr,
                       icon: Icons.play_arrow_rounded,
                       onPressed: onPlayTap,
                       height: 48,
@@ -344,7 +345,7 @@ class _WatchlistButtonState extends State<_WatchlistButton> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text('Watchlist', style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
+                Text(L.watchlist.tr, style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
               ] else ...[
                 Icon(
                   isInWatchlist ? Icons.check_rounded : Icons.add_rounded,

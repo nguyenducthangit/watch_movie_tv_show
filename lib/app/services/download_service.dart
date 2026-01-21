@@ -285,9 +285,6 @@ class DownloadService extends GetxService {
     }
   }
 
-  
- 
-
   /// Cancel download
   Future<void> cancelDownload(String videoId) async {
     final task = _storage.getDownloadTask(videoId);
@@ -435,16 +432,5 @@ class DownloadService extends GetxService {
   void onClose() {
     bd.FileDownloader().resetUpdates();
     super.onClose();
-  }
-
-  void _showHlsResumeNotSupported() {
-    Get.snackbar(
-      'Resume Not Supported',
-      'HLS downloads cannot be resumed yet. Please restart.',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 3),
-    );
-
-    logger.w('[resumeDownload] HLS resume not supported');
   }
 }

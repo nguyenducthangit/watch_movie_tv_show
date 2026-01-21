@@ -27,7 +27,7 @@ class _SpinningSettingIconState extends State<SpinningSettingIcon>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 5))..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat();
   }
 
   @override

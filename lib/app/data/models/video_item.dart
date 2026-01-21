@@ -15,7 +15,7 @@ class VideoItem {
     this.tags,
     this.year,
     this.quality,
-    this.lang,
+
     this.episodeCurrent,
     this.episodeTotal,
     this.time,
@@ -26,6 +26,7 @@ class VideoItem {
     this.trailerUrl,
     this.translatedTitle,
     this.translatedDescription,
+    this.translatedTags,
   });
 
   /// Create from JSON
@@ -59,7 +60,7 @@ class VideoItem {
   // Enhanced Ophim API fields
   final int? year;
   final String? quality; // HD, FHD, CAM
-  final String? lang; // Vietsub, Thuyết minh
+
   final String? episodeCurrent; // Tập 10, Full
   final String? episodeTotal; // 24, 1
   final String? time; // 45 phút/tập, 120 Phút
@@ -72,6 +73,7 @@ class VideoItem {
   // Translation fields
   final String? translatedTitle;
   final String? translatedDescription;
+  final List<String>? translatedTags;
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
@@ -111,6 +113,9 @@ class VideoItem {
   /// Get display description (translated if available, otherwise original)
   String? get displayDescription => translatedDescription ?? description;
 
+  /// Get display tags (translated if available, otherwise original)
+  List<String>? get displayTags => translatedTags ?? tags;
+
   /// Copy with
   VideoItem copyWith({
     String? id,
@@ -124,7 +129,7 @@ class VideoItem {
     List<String>? tags,
     int? year,
     String? quality,
-    String? lang,
+
     String? episodeCurrent,
     String? episodeTotal,
     String? time,
@@ -135,6 +140,7 @@ class VideoItem {
     String? trailerUrl,
     String? translatedTitle,
     String? translatedDescription,
+    List<String>? translatedTags,
   }) {
     return VideoItem(
       id: id ?? this.id,
@@ -148,7 +154,7 @@ class VideoItem {
       tags: tags ?? this.tags,
       year: year ?? this.year,
       quality: quality ?? this.quality,
-      lang: lang ?? this.lang,
+
       episodeCurrent: episodeCurrent ?? this.episodeCurrent,
       episodeTotal: episodeTotal ?? this.episodeTotal,
       time: time ?? this.time,
@@ -159,6 +165,7 @@ class VideoItem {
       trailerUrl: trailerUrl ?? this.trailerUrl,
       translatedTitle: translatedTitle ?? this.translatedTitle,
       translatedDescription: translatedDescription ?? this.translatedDescription,
+      translatedTags: translatedTags ?? this.translatedTags,
     );
   }
 

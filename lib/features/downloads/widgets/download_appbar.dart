@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
 
 class DownloadAppBar extends StatelessWidget {
@@ -21,15 +21,12 @@ class DownloadAppBar extends StatelessWidget {
               TextButton(
                 onPressed: controller.unselectAll,
                 child: Text(
-                  AppStrings.unselectAll,
+                  L.unselectAll,
                   style: MTextTheme.body2Medium.copyWith(color: AppColors.primary),
                 ),
               )
             else
-              Text(
-                AppStrings.downloads,
-                style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary),
-              ),
+              Text(L.downloads, style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary)),
             const Spacer(),
 
             // Right side - Edit or Cancel
@@ -38,7 +35,7 @@ class DownloadAppBar extends StatelessWidget {
                 TextButton(
                   onPressed: controller.toggleEditMode,
                   child: Text(
-                    AppStrings.cancel,
+                    L.cancel,
                     style: MTextTheme.body2Medium.copyWith(color: AppColors.textSecondary),
                   ),
                 )
@@ -46,7 +43,7 @@ class DownloadAppBar extends StatelessWidget {
                 TextButton(
                   onPressed: controller.toggleEditMode,
                   child: Text(
-                    AppStrings.edit,
+                    L.edit,
                     style: MTextTheme.body2Medium.copyWith(color: AppColors.primary),
                   ),
                 ),

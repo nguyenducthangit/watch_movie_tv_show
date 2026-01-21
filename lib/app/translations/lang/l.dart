@@ -20,7 +20,90 @@ class L {
   static const onboardingTitle3 = 'onboardingTitle3';
   static const onboardingDescription3 = 'onboardingDescription3';
   static const next = 'next';
-  static const letStarted = 'letStarted';
+  static const getStarted = 'getStarted';
+
+  //player
+  static const playbackSpeed = 'playbackSpeed';
+  static const quality = 'quality';
+  static const normal = 'normal';
+  static const videoQuality = 'videoQuality';
+  static const auto = 'auto';
+  static const about = 'about';
+  static const x = 'x';
+  static const recommended = 'recommended';
+
+  //home
+  static const home = 'home';
+  static const downloads = 'downloads';
+  static const history = 'history';
+  static const search = 'search';
+  static const play = 'play';
+  static const watchList = 'watchList';
+  static const trendingNow = 'trendingNow';
+  static const watched = 'watched';
+  static const continueWatching = 'continueWatching';
+  static const newRelease = 'newRelease';
+  static const hd = 'hd';
+  static const sd = 'sd';
+  static const fhd = 'fhd';
+  // categories
+  static const drama = 'drama'; // chính kịch
+  static const comedy = 'comedy'; // hài hước
+  static const action = 'action'; // hành động
+  static const war = 'war'; // chiến tranh
+  static const adventure = 'adventure'; // phiêu lưu
+  static const family = 'family'; // gia đình
+  static const mystery = 'mystery'; // bí ẩn
+  static const crime = 'crime'; // hình sự
+  static const scienceFiction = 'scienceFiction'; // viễn tưởng
+  static const science = 'science'; // khoa học
+  static const documentary = 'documentary'; // tài liệu
+  static const horror = 'horror'; // kinh dị
+  static const psychological = 'psychological'; // tâm lý
+  static const romance = 'romance'; // tình cảm
+  static const shortDrama = 'shortDrama'; // short drama
+
+  // download
+  static const download = 'download';
+  static const downloading = 'downloading';
+  static const downloaded = 'downloaded';
+  static const selectQuality = 'selectQuality';
+  static const videoInfo = 'videoInfo';
+  static const share = 'share';
+  static const addToWatchlist = 'addToWatchlist';
+  static const removeFromWatchlist = 'removeFromWatchlist';
+  static const upNext = 'upNext';
+  static const storageUsed = 'storageUsed';
+  static const activeDownloads = 'activeDownloads';
+  static const completedDownloads = 'completedDownloads';
+  static const noDownloads = 'noDownloads';
+  static const noDownloadsDescription = 'noDownloadsDescription';
+  static const offlineMode = 'offlineMode';
+  static const pause = 'pause';
+  static const retry = 'retry';
+  static const deleteConfirm = 'deleteConfirm';
+  static const deleteDescription = 'deleteDescription';
+  static const unselectAll = 'unselectAll';
+  static const deleteSelected = 'deleteSelected';
+  static const edit = 'edit';
+  static const noInternet = 'noInternet';
+  static const checkConnection = 'checkConnection';
+  static const checkOutThisMovie = 'checkOutThisMovie';
+  static const clearAllDownloads = 'clearAllDownloads';
+  static const clearAllDescription = 'clearAllDescription';
+  // watchlist
+  static const watchlist = 'watchlist';
+  static const yourWatchlistisEmpty = 'yourWatchlistisEmpty';
+  static const addVideoToWatchThemLater = 'addVideoToWatchThemLater';
+  //detail
+  static const watchNow = 'watchNow';
+  static const contents = 'contents';
+  static const seeMore = 'seeMore'; // xem thêm
+  static const collapse = 'collapse'; // thu gọn
+  static const director = 'director'; // đạo diễn
+  static const episodeList = 'episodeList'; // danh sách tập
+  static const full = 'full'; // full
+  static const castAndCrew = 'castAndCrew'; // Diễn viên & Đạo diễn
 
   /// Settings
   static const settings = 'settings';
@@ -41,7 +124,6 @@ class L {
   // Empty data
   static const noDataAvailable = 'noDataAvailable';
 
-
   //common
   static const cancel = 'cancel';
   static const save = 'save';
@@ -49,20 +131,16 @@ class L {
   static const delete = 'delete';
   static const yes = 'yes';
   static const no = 'no';
-  static const error = 'error';
-  static const info = 'info';
-  static const success = 'success';
-  static const somethingWentWrong = 'somethingWentWrong';
-  static const ok = 'ok';
-  static const latest = 'latest';
-  static const note = 'note';
-  static const pleaseEnterAllInformation = 'pleaseEnterAllInformation';
-  static const saveSuccess = 'saveSuccess';
-  static const saveFailed = 'saveFailed';
-  static const pleaseSelectDateTimeBeforeSaving = 'pleaseSelectDateTimeBeforeSaving';
-  static const deleteSuccess = 'deleteSuccess';
-  static const selectYear = 'selectYear';
-
-
-
+  // File size
+  static const String mb = 'MB';
+  static const String gb = 'GB';
+  static const String p = 'p';
+  //commoon
+  static const videos = 'Videos';
+  static const noVideosFound = 'noVideosFound';
+  static const checkBackLater = 'Check back later for new content';
+  static const String tryAgain = 'TryAgain';
+  static const String somethingWentWrong = 'Somethingwentwrong';
+  static const clearSearch = 'clearSearch';
+  static const tryADifferentSearch = 'tryADifferentSearch';
 }

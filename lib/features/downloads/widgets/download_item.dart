@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 
 class DownloadItem extends StatelessWidget {
@@ -99,7 +101,7 @@ class DownloadItem extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            task.qualityLabel ?? 'Downloaded',
+                            task.qualityLabel ?? L.downloaded.tr,
                             style: MTextTheme.smallTextRegular.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -109,15 +111,6 @@ class DownloadItem extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // Delete (non-edit mode)
-                // if (!isEditMode)
-                //   IconButton(
-                //     onPressed: onDelete,
-                //     icon: const Icon(Icons.delete_outline_rounded),
-                //     color: AppColors.textTertiary,
-                //     iconSize: 22,
-                //   ),
               ],
             ),
           ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
 
 class DownloadBottomActionBar extends StatelessWidget {
@@ -36,7 +36,7 @@ class DownloadBottomActionBar extends StatelessWidget {
             ),
             child: Obx(
               () => Text(
-                '${AppStrings.deleteSelected} (${controller.selectedCount})',
+                '${L.deleteSelected.tr} (${controller.selectedCount})',
                 style: MTextTheme.body1SemiBold.copyWith(color: Colors.white),
               ),
             ),

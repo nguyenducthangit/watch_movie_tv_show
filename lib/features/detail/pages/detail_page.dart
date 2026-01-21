@@ -102,10 +102,13 @@ class DetailPage extends GetView<DetailController> {
                       originName: movie?.originName,
                       year: movie?.year ?? controller.video.year,
                       quality: movie?.quality ?? controller.video.quality,
-                      lang: movie?.lang ?? controller.video.lang,
+
                       episodeCurrent: movie?.episodeCurrent ?? controller.video.episodeCurrent,
                       episodeTotal: movie?.episodeTotal ?? controller.video.episodeTotal,
-                      categories: movie?.categories ?? controller.video.tags,
+                      categories:
+                          movie?.translatedCategories ??
+                          movie?.categories ??
+                          controller.video.displayTags,
                       view: movie?.view,
                     );
                   }),

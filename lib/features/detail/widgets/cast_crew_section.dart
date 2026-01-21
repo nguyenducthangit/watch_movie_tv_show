@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 /// Cast & Crew Section Widget
 /// Horizontal scrollable list of actors and directors
@@ -22,7 +24,7 @@ class CastCrewSection extends StatelessWidget {
       children: [
         // Section title
         Text(
-          'Diễn viên & Đạo diễn',
+          L.castAndCrew.tr,
           style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
         ),
         const SizedBox(height: 12),
@@ -48,7 +50,7 @@ class CastCrewSection extends StatelessWidget {
             const Icon(Icons.movie_creation_rounded, size: 16, color: AppColors.primary),
             const SizedBox(width: 6),
             Text(
-              'Đạo diễn',
+              L.director.tr,
               style: MTextTheme.body2SemiBold.copyWith(color: AppColors.textSecondary),
             ),
           ],

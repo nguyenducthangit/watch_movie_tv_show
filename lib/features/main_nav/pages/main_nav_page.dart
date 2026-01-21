@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/downloads/pages/downloads_page.dart';
 import 'package:watch_movie_tv_show/features/home/pages/home_page.dart';
 import 'package:watch_movie_tv_show/features/main_nav/binding/main_nav_binding.dart';
@@ -53,19 +54,19 @@ class MainNavPage extends GetView<MainNavController> {
                 children: [
                   NavItem(
                     icon: Icons.home_rounded,
-                    label: AppStrings.home,
+                    label: L.home,
                     isSelected: controller.currentIndex.value == 0,
                     onTap: () => controller.changeTab(0),
                   ),
                   NavItem(
                     icon: Icons.download_rounded,
-                    label: AppStrings.downloads,
+                    label: L.downloads,
                     isSelected: controller.currentIndex.value == 1,
                     onTap: () => controller.changeTab(1),
                   ),
                   NavItem(
                     icon: Icons.bookmark_rounded,
-                    label: AppStrings.watchlist,
+                    label: L.watchlist,
                     isSelected: controller.currentIndex.value == 2,
                     onTap: () => controller.changeTab(2),
                   ),

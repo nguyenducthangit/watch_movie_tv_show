@@ -5,6 +5,7 @@ import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
 import 'package:watch_movie_tv_show/features/downloads/widgets/quality_sheet.dart';
 
@@ -154,9 +155,9 @@ class DownloadButton extends StatelessWidget {
           // Map quality label to HLS variant index
           // HD = 0 (highest), SD = 1 (medium), 360p = 2 (lowest)
           int variantIndex = 0;
-          if (quality.label == 'SD') {
+          if (quality.label == L.sd.tr) {
             variantIndex = 1;
-          } else if (quality.label == '360p') {
+          } else if (quality.label == '360${L.p.tr}') {
             variantIndex = 2;
           }
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 /// Error State Widget
 /// Display error with retry button
@@ -40,7 +41,7 @@ class ErrorStateWidget extends StatelessWidget {
             const SizedBox(height: 24),
             // Title
             Text(
-              title ?? AppStrings.somethingWentWrong,
+              title ?? L.somethingWentWrong.tr,
               style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
               textAlign: TextAlign.center,
             ),
@@ -57,7 +58,7 @@ class ErrorStateWidget extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text(AppStrings.tryAgain),
+                label: Text(L.tryAgain.tr),
               ),
             ],
           ],
@@ -76,8 +77,8 @@ class NetworkErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ErrorStateWidget(
       icon: Icons.wifi_off_rounded,
-      title: AppStrings.noInternet,
-      message: AppStrings.checkConnection,
+      title: L.noInternet.tr,
+      message: L.checkConnection.tr,
       onRetry: onRetry,
     );
   }

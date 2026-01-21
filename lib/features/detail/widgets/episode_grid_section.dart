@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/movie_model.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
 
 /// Episode Grid Section Widget
@@ -25,7 +26,7 @@ class EpisodeGridSection extends GetView<DetailController> {
         children: [
           // Section title
           Text(
-            'Danh sách tập',
+           L.episodeList.tr,
             style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
           ),
           const SizedBox(height: 12),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 const Color _kGoldPrimary = Color(0xFFD4AF37);
 const Color _kGoldGlow = Color(0xFFF8E79C);
@@ -145,7 +147,7 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
                 ),
                 cursorColor: _kGoldPrimary,
                 decoration: InputDecoration(
-                  hintText: 'Search...',
+                  hintText: '${L.search.tr}...',
                   hintStyle: TextStyle(color: _kGoldPrimary.withValues(alpha: 0.5), fontSize: 16),
                   filled: true,
                   fillColor: Colors.transparent,
