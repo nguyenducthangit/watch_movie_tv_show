@@ -4,6 +4,7 @@ import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
+import 'package:watch_movie_tv_show/app/dialog/delete_download.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
@@ -25,7 +26,15 @@ class DownloadButton extends StatelessWidget {
           context,
           icon: Icons.download_done_rounded,
           color: AppColors.success,
-          onPressed: () => _showDeleteDialog(context),
+          onPressed: () => DeleteDownload.show(
+            title: 'Delete Download?',
+            middleText: 'Remove this video from your downloads?',
+            textConfirm: L.delete.tr,
+            textCancel: L.cancel.tr,
+            onRemove: () {
+              DownloadService.to.deleteDownload(video.id);
+            },
+          ),
         );
       }
 
@@ -193,19 +202,94 @@ class DownloadButton extends StatelessWidget {
     );
   }
 
-  /// Show Delete Confirmation
-  void _showDeleteDialog(BuildContext context) {
-    Get.defaultDialog(
-      title: 'Delete Download?',
-      middleText: 'Remove this video from your downloads?',
-      textConfirm: 'Delete',
-      textCancel: 'Cancel',
-      confirmTextColor: Colors.white,
-      buttonColor: AppColors.error,
-      onConfirm: () {
-        DownloadService.to.deleteDownload(video.id);
-        Get.back();
-      },
+  /// Usage: DownloadButton.showDownloadDialog(videoItem);
+  static Future<void> showDownloadDialog(VideoItem video) async {
+    // Check if already downloaded
+    if (DownloadService.to.isDownloaded(video.id)) {
+      DeleteDownload.show(
+        title: L.deleteDownloadTitle.tr,
+        middleText: L.deleteDownloadDescription.tr,
+        textConfirm: L.delete.tr,
+        textCancel: L.cancel.tr,
+        onRemove: () {
+          DownloadService.to.deleteDownload(video.id);
+        },
+      );
+      return;
+    }
+
+    // Check if downloading
+    final task = DownloadService.to.getTask(video.id);
+    if (task != null && task.status != DownloadStatus.failed) {
+      return;
+    }
+
+    // Check for download qualities - if missing, try to load from DetailController
+    if (video.downloadQualities == null || video.downloadQualities!.isEmpty) {
+      try {
+        final detailController = Get.find<DetailController>();
+
+        // // Show loading
+        // Get.dialog(
+        //   const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        //   barrierDismissible: false,
+        // );
+
+        // Wait for detail loading if currently loading
+        if (detailController.isLoadingDetail.value) {
+          int attempts = 0;
+          while (detailController.isLoadingDetail.value && attempts < 100) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            attempts++;
+          }
+        }
+
+        Get.back(); // Close loading
+
+        // Check again after loading - use controller's updated video
+        if (detailController.video.downloadQualities == null ||
+            detailController.video.downloadQualities!.isEmpty) {
+   
+        }
+
+        // Use controller's updated video with qualities
+        _showQualityBottomSheetStatic(
+          detailController.video,
+          detailController.video.downloadQualities!,
+        );
+      } catch (e) {
+        Get.back(); // Close loading if error
+       
+      }
+      return;
+    }
+
+    // Show quality selection
+    _showQualityBottomSheetStatic(video, video.downloadQualities!);
+  }
+
+  static void _showQualityBottomSheetStatic(VideoItem video, List<VideoQuality> qualities) {
+    Get.bottomSheet(
+      QualitySheet(
+        qualities: qualities,
+        onSelected: (quality) {
+          Get.back(); // Close sheet
+
+          // Map quality label to HLS variant index
+          int variantIndex = 0;
+          if (quality.label == L.sd.tr) {
+            variantIndex = 1;
+          } else if (quality.label == '360${L.p.tr}') {
+            variantIndex = 2;
+          }
+
+          // Start download
+          DownloadService.to.startDownload(video, quality, variantIndex: variantIndex);
+
+          
+        },
+      ),
+      isScrollControlled: true,
     );
   }
 }

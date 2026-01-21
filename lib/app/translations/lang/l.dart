@@ -92,6 +92,8 @@ class L {
   static const checkOutThisMovie = 'checkOutThisMovie';
   static const clearAllDownloads = 'clearAllDownloads';
   static const clearAllDescription = 'clearAllDescription';
+  static const deleteDownloadTitle = 'deleteDownloadTitle';
+  static const deleteDownloadDescription = 'deleteDownloadDescription';
   // watchlist
   static const watchlist = 'watchlist';
   static const yourWatchlistisEmpty = 'yourWatchlistisEmpty';
@@ -124,7 +126,6 @@ class L {
 
   // Empty data
   static const noDataAvailable = 'noDataAvailable';
-
   //common
   static const cancel = 'cancel';
   static const save = 'save';
@@ -144,9 +145,13 @@ class L {
   static const String somethingWentWrong = 'Somethingwentwrong';
   static const clearSearch = 'clearSearch';
   static const tryADifferentSearch = 'tryADifferentSearch';
+  static const checkoutThisMovie = 'checkoutThisMovie';
+  static const checkoutThisVideo = 'checkoutThisVideo';
+  
 
   // Copyright Notice
-  static const copyrightNoticeTitle = 'copyrightNoticeTitle';
-  static const copyrightNoticeMessage = 'copyrightNoticeMessage';
+  static const contentMetadataStandards = 'contentMetadataStandards';
+  static const contentMetadataStandardsMessage = 'contentMetadataStandardsMessage';
   static const ok = 'ok';
+
 }

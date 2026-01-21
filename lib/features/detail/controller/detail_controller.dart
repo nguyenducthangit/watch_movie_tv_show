@@ -183,8 +183,8 @@ class DetailController extends GetxController {
   /// Share video
   void shareVideo() {
     final movieUrl = video.slug != null
-        ? 'Check out this movie: ${video.title}'
-        : 'Check out this video: ${video.title}';
+        ? 'Check out this movie: ${video.displayTitle}'
+        : 'Check out this video: ${video.displayTitle}';
     Share.share(movieUrl);
   }
 

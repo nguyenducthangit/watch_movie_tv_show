@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 class PlayButton extends StatelessWidget {

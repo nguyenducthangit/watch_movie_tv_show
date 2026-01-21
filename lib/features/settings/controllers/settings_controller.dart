@@ -60,14 +60,14 @@ class SettingsController extends BaseController {
   Future<void> handleShare() async {
     if (isSharing.value) return;
     isSharing.value = true;
-    // EasyAds.instance.appLifecycleReactor?.setIsExcludeScreen(true);
-    Share.share(
-      'https://play.google.com/store/apps/details?id=${AppConfig.packageInfo.packageName}',
-      subject: L.appName.tr,
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'https://play.google.com/store/apps/details?id=${AppConfig.packageInfo.packageName}',
+        subject: L.appName.tr,
+      ),
     );
     await Future.delayed(const Duration(milliseconds: 500));
     isSharing.value = false;
-    // EasyAds.instance.appLifecycleReactor?.setIsExcludeScreen(false);
   }
 
   Future<void> handlePrivacyPolicy() async {

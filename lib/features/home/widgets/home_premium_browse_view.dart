@@ -118,7 +118,7 @@ class HomePremiumBrowseView extends GetView<HomeController> {
               final genreMap = Map<String, List<VideoItem>>.from(controller.videosByGenre);
 
               // Prioritize requested genres
-              final priorityGenres = ['Tâm Lý'];
+              final priorityGenres = [L.psychological.tr];
               final allKeys = genreMap.keys.toList();
 
               // Sort to put priority genres first

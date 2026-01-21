@@ -61,7 +61,7 @@ class DownloadService extends GetxService {
     _loadExistingTasks();
 
     // Calculate storage
-    _calculateStorage();
+    calculateStorage();
 
     logger.i('DownloadService initialized');
   }
@@ -118,6 +118,9 @@ class DownloadService extends GetxService {
       // Controller might not be registered yet, fallback to refresh
       _refreshLists();
     }
+
+    // Recalculate storage on status change (e.g. paused, completed, failed)
+    calculateStorage();
   }
 
   /// Handle progress update
@@ -151,7 +154,7 @@ class DownloadService extends GetxService {
     activeDownloads.removeWhere((t) => t.videoId == task.videoId);
     completedDownloads.add(task);
     _storage.saveDownloadTask(task);
-    _calculateStorage();
+    calculateStorage();
   }
 
   /// Refresh observable lists
@@ -161,17 +164,66 @@ class DownloadService extends GetxService {
   }
 
   /// Calculate storage used
-  Future<void> _calculateStorage() async {
+  Future<void> calculateStorage() async {
     int total = 0;
-    for (final task in completedDownloads) {
-      if (task.localPath != null) {
-        final file = File(task.localPath!);
-        if (await file.exists()) {
-          total += await file.length();
+
+    // Helper to add task size
+    Future<void> addTaskSize(DownloadTask task) async {
+      try {
+        if (task.isHLS) {
+          // For HLS, optimize by checking directory size
+          if (_downloadDirectory != null && task.videoId.isNotEmpty) {
+            final videoDir = Directory('$_downloadDirectory/${task.videoId}');
+            if (await videoDir.exists()) {
+              total += await _getDirectorySize(videoDir);
+            }
+          }
+        } else {
+          // For MP4
+          if (task.localPath != null) {
+            final file = File(task.localPath!);
+            if (await file.exists()) {
+              total += await file.length();
+            }
+          } else if (task.status == DownloadStatus.downloading && task.taskId != null) {
+            // For active MP4, we might not have access to temp file easily depending on lib,
+            // but if we have a path in task (some libs provide it), use it.
+            // keeping it simple for now as background_downloader manages temp files internally.
+          }
         }
+      } catch (e) {
+        logger.e('Error calculating size for ${task.videoId}: $e');
       }
     }
+
+    // Calculate for completed
+    for (final task in completedDownloads) {
+      await addTaskSize(task);
+    }
+
+    // Calculate for active (HLS segments are written immediately)
+    for (final task in activeDownloads) {
+      await addTaskSize(task);
+    }
+
     totalStorageBytes.value = total;
+  }
+
+  /// Get directory size recursively
+  Future<int> _getDirectorySize(Directory dir) async {
+    int size = 0;
+    try {
+      if (await dir.exists()) {
+        await for (final file in dir.list(recursive: true, followLinks: false)) {
+          if (file is File) {
+            size += await file.length();
+          }
+        }
+      }
+    } catch (e) {
+      logger.e('Error getting directory size: $e');
+    }
+    return size;
   }
 
   // ============ Public Methods ============
@@ -324,6 +376,9 @@ class DownloadService extends GetxService {
         'Download has been cancelled',
         snackPosition: SnackPosition.BOTTOM,
       );
+
+      // Recalculate storage
+      calculateStorage();
     } catch (e) {
       logger.e('Error cancelling download: $e');
       Get.snackbar(
@@ -357,7 +412,7 @@ class DownloadService extends GetxService {
     completedDownloads.removeWhere((t) => t.videoId == videoId);
 
     // Recalculate storage
-    _calculateStorage();
+    calculateStorage();
 
     logger.i('Download deleted: $videoId');
   }

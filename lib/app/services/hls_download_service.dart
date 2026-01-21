@@ -5,6 +5,7 @@ import 'package:get/get.dart' hide Response;
 import 'package:path_provider/path_provider.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/hls_models.dart';
+import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/hls_parser.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
@@ -135,6 +136,9 @@ class HLSDownloadService extends GetxService {
         // Trigger selective UI update for this specific task
         try {
           Get.find<DownloadsController>().update(['download_task_$videoId']);
+
+          // Update storage usage
+          Get.find<DownloadService>().calculateStorage();
         } catch (e) {
           // Controller might not be registered yet or disposed
         }

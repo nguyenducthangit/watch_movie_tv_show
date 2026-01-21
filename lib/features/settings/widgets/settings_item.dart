@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
+import 'package:watch_movie_tv_show/app/utils/assets.gen.dart';
 
 class SettingsItem extends StatelessWidget {
   const SettingsItem({
@@ -44,7 +45,8 @@ class SettingsItem extends StatelessWidget {
             Text(subtitle!, style: MTextTheme.captionRegular.copyWith(color: AppColors.primary)),
             const SizedBox(width: 6),
           ],
-          // Assets.icons.icChevronRight.svg(width: 20, height: 20),
+          
+          Assets.icons.icChevronRight.svg(width: 20, height: 20, color: AppColors.primary),
         ],
       ),
     );

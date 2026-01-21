@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:watch_movie_tv_show/app/config/app_config.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
-import 'package:watch_movie_tv_show/app/popups/copyright_notice_popup.dart';
+import 'package:watch_movie_tv_show/app/popups/data_source_policy_.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/shared_pref_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 import 'package:watch_movie_tv_show/features/language/domain/repositories/language_repository.dart';
 import 'package:watch_movie_tv_show/features/language/presentation/enums/language_enums.dart';
@@ -40,11 +43,15 @@ class HomeController extends GetxController {
   final RxBool isRefreshing = false.obs;
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool isSharing = false.obs;
 
   // Data
   final RxList<VideoItem> videos = <VideoItem>[].obs;
   final RxList<VideoItem> filteredVideos = <VideoItem>[].obs;
   final RxList<String> tags = <String>[].obs;
+  final RxString searchQuery = ''.obs;
+  final RxString selectedTag = ''.obs;
+  final RxBool isSearchExpanded = false.obs;
 
   // Premium Features
   final RxList<VideoItem> featuredVideos = <VideoItem>[].obs;
@@ -53,10 +60,18 @@ class HomeController extends GetxController {
   final RxList<VideoItem> newReleases = <VideoItem>[].obs;
   final RxMap<String, List<VideoItem>> videosByGenre = <String, List<VideoItem>>{}.obs;
 
-  // Search & Filter
-  final RxString searchQuery = ''.obs;
-  final RxString selectedTag = ''.obs;
-  final RxBool isSearchExpanded = false.obs;
+  Future<void> handleShare() async {
+    if (isSharing.value) return;
+    isSharing.value = true;
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'https://play.google.com/store/apps/details?id=${AppConfig.packageInfo.packageName}',
+        subject: L.appName.tr,
+      ),
+    );
+    await Future.delayed(const Duration(milliseconds: 500));
+    isSharing.value = false;
+  }
 
   /// Toggle search expansion
   void toggleSearch() => isSearchExpanded.toggle();
@@ -130,7 +145,7 @@ class HomeController extends GetxController {
     if (!SharedPrefService.hasCopyrightNoticeBeenShown()) {
       // Show popup after a short delay to let UI settle
       Future.delayed(const Duration(milliseconds: 500), () {
-        CopyrightNoticePopup.show();
+        DataSourcePolicyPopup.show();
         SharedPrefService.markCopyrightNoticeAsShown();
       });
     }

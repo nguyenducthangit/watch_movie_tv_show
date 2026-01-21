@@ -55,7 +55,7 @@ class TranslateService extends GetxService {
     if (text == null || text.isEmpty) return text;
 
     // No translation needed if target is Vietnamese
-    if (_currentTargetLanguage == 'vi') return text;
+    if (_currentTargetLanguage == 'en') return text;
 
     // Check cache first
     if (_translationCache.containsKey(text)) {
@@ -167,22 +167,6 @@ class TranslateService extends GetxService {
       case 'en_us':
       case 'en_gb':
         return 'en';
-      case 'vi':
-      case 'vi_vn':
-        return 'vi';
-      case 'zh':
-      case 'zh_cn':
-      case 'zh_tw':
-        return 'zh';
-      case 'ja':
-      case 'ja_jp':
-        return 'ja';
-      case 'ko':
-      case 'ko_kr':
-        return 'ko';
-      case 'th':
-      case 'th_th':
-        return 'th';
       default:
         // Default to English if unsupported
         logger.w('Unsupported language code: $code, defaulting to English');
@@ -195,16 +179,6 @@ class TranslateService extends GetxService {
     switch (code) {
       case 'en':
         return TranslateLanguage.english;
-      case 'zh':
-        return TranslateLanguage.chinese;
-      case 'ja':
-        return TranslateLanguage.japanese;
-      case 'ko':
-        return TranslateLanguage.korean;
-      case 'th':
-        return TranslateLanguage.thai;
-      case 'vi':
-        return TranslateLanguage.vietnamese;
       default:
         return TranslateLanguage.english;
     }
@@ -212,7 +186,7 @@ class TranslateService extends GetxService {
 
   /// Download language model if not available
   Future<bool> downloadModelIfNeeded() async {
-    if (_translator == null || _currentTargetLanguage == 'vi') {
+    if (_translator == null || _currentTargetLanguage == 'en') {
       return true;
     }
 

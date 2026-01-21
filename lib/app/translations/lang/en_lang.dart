@@ -81,6 +81,8 @@ const Map<String, String> enLang = {
   L.noInternet: 'No internet connection',
   L.checkConnection: 'Please check your connection and try again',
   L.checkOutThisMovie: 'Check out this movie',
+  L.deleteDownloadTitle:'Delete Download?',
+  L.deleteDownloadDescription:'Remove this video from your downloads?',
   //watchlist
   L.watchlist: 'Watch List',
   L.yourWatchlistisEmpty: 'Your Watch List is Empty',
@@ -131,10 +133,11 @@ const Map<String, String> enLang = {
   L.x: 'x',
   L.recommended: 'Recommended',
   // Copyright Notice
-  L.copyrightNoticeTitle: 'Content Language Notice',
-  L.copyrightNoticeMessage:
-      'Due to copyright restrictions, video titles, descriptions, and information will remain in their original language.',
+  
   L.ok: 'OK',
+  L.contentMetadataStandards: 'Content Metadata Standards',
+  L.contentMetadataStandardsMessage: 'To ensure accuracy and comply with international distribution standards, movie details and metadata are presented in their original English format.',
+
 };
 
 const String enCode = 'en';

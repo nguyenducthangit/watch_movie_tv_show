@@ -4,8 +4,11 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
+import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
+import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/error_state_widget.dart';
+import 'package:watch_movie_tv_show/features/downloads/widgets/download_button.dart';
 import 'package:watch_movie_tv_show/features/player/binding/player_binding.dart';
 import 'package:watch_movie_tv_show/features/player/controller/player_controller.dart';
 import 'package:watch_movie_tv_show/features/player/widgets/player_gesture_layer.dart';
@@ -350,14 +353,28 @@ class PlayerPage extends GetView<PlayerController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // Download button
-          _ActionButton(
-            icon: Icons.download_outlined,
-            label: L.download.tr,
-            onTap: () {
-              Get.snackbar(L.download.tr, 'Download feature coming soon');
-            },
-          ),
+          // Download button - reactive to download status
+          Obx(() {
+            final downloadService = DownloadService.to;
+            final isDownloaded = downloadService.isDownloaded(controller.video.id);
+            final task = downloadService.getTask(controller.video.id);
+            final isDownloading = task != null && task.status != DownloadStatus.failed;
+
+            return _ActionButton(
+              icon: isDownloaded
+                  ? Icons.download_done_rounded
+                  : (isDownloading ? Icons.downloading_rounded : Icons.download_outlined),
+              label: isDownloaded
+                  ? L.downloaded.tr
+                  : (isDownloading ? L.downloading.tr : L.download.tr),
+              color: isDownloaded
+                  ? AppColors.primary
+                  : (isDownloading ? Colors.green : AppColors.textPrimary),
+              onTap: () {
+                DownloadButton.showDownloadDialog(controller.video);
+              },
+            );
+          }),
           const SizedBox(width: 32),
           // Share button
           _ActionButton(
@@ -474,11 +491,12 @@ class _CenterControls extends GetView<PlayerController> {
 
 /// Action button (Download, Share)
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.icon, required this.label, required this.onTap});
+  const _ActionButton({required this.icon, required this.label, required this.onTap, this.color});
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -487,7 +505,7 @@ class _ActionButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppColors.textPrimary, size: 24),
+          Icon(icon, color: color, size: 24),
           const SizedBox(height: 4),
           Text(label, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12)),
         ],
