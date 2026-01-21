@@ -18,7 +18,7 @@ packages:
     source: hosted
     version: "6.4.1"
   app_settings:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: app_settings
       sha256: "64d50e666fd96ae90301bf71205f05019286f940ad6f5fed3d1be19c6af7546a"

@@ -58,14 +58,14 @@ class SharedPrefService {
   }
 
   static void incrementFeatureUsageCount() {
-    int currentCount = getFeatureUsageCount();
+    final int currentCount = getFeatureUsageCount();
     _sharedPreferences.setInt('feature_usage_count', currentCount + 1);
   }
 
   static bool shouldShowRatingDialog() {
     if (getRated()) return false; // Đã rate rồi thì không hiện nữa
 
-    int usageCount = getFeatureUsageCount();
+    final int usageCount = getFeatureUsageCount();
     // Hiện rating ở lần lẻ: 1, 3, 5, 7,...
     return usageCount > 0 && usageCount % 2 == 1;
   }
@@ -91,4 +91,17 @@ class SharedPrefService {
   }
 
   static SharedPreferences get instance => _sharedPreferences;
+
+  // ===== Copyright notice tracking =====
+  static const _kCopyrightNoticeShownKey = 'copyright_notice_shown';
+
+  /// Check if copyright notice has been shown
+  static bool hasCopyrightNoticeBeenShown() {
+    return _sharedPreferences.getBool(_kCopyrightNoticeShownKey) ?? false;
+  }
+
+  /// Mark copyright notice as shown
+  static Future<void> markCopyrightNoticeAsShown() async {
+    await _sharedPreferences.setBool(_kCopyrightNoticeShownKey, true);
+  }
 }

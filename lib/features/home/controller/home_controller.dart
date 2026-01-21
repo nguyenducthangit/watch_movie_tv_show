@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
+import 'package:watch_movie_tv_show/app/popups/copyright_notice_popup.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/services/shared_pref_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 import 'package:watch_movie_tv_show/features/language/domain/repositories/language_repository.dart';
@@ -111,12 +113,26 @@ class HomeController extends GetxController {
       await _translateMoviesIfNeeded();
 
       logger.i('Loaded ${videos.length} videos');
+
+      // Show copyright notice popup on first launch after movies load
+      _showCopyrightNoticeIfNeeded();
     } catch (e) {
       logger.e('Failed to load videos: $e');
       hasError.value = true;
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Show copyright notice popup if not shown before
+  void _showCopyrightNoticeIfNeeded() {
+    if (!SharedPrefService.hasCopyrightNoticeBeenShown()) {
+      // Show popup after a short delay to let UI settle
+      Future.delayed(const Duration(milliseconds: 500), () {
+        CopyrightNoticePopup.show();
+        SharedPrefService.markCopyrightNoticeAsShown();
+      });
     }
   }
 

@@ -77,6 +77,7 @@ const Map<String, String> enLang = {
   L.unselectAll: 'Unselect All',
   L.deleteSelected: 'Delete Selected',
   L.edit: 'Edit',
+  L.noInternetTitle: 'No Internet',
   L.noInternet: 'No internet connection',
   L.checkConnection: 'Please check your connection and try again',
   L.checkOutThisMovie: 'Check out this movie',
@@ -129,6 +130,11 @@ const Map<String, String> enLang = {
   L.about: 'About',
   L.x: 'x',
   L.recommended: 'Recommended',
+  // Copyright Notice
+  L.copyrightNoticeTitle: 'Content Language Notice',
+  L.copyrightNoticeMessage:
+      'Due to copyright restrictions, video titles, descriptions, and information will remain in their original language.',
+  L.ok: 'OK',
 };
 
 const String enCode = 'en';

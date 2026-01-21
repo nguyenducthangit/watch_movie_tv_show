@@ -64,6 +64,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/icon_app.png
   AssetGenImage get iconApp => const AssetGenImage('assets/images/icon_app.png');
 
+  /// File path: assets/images/img_disconect_wifi.png
+  AssetGenImage get imgDisconectWifi => const AssetGenImage('assets/images/img_disconect_wifi.png');
+
   /// File path: assets/images/onboarding_1.png
   AssetGenImage get onboarding1 => const AssetGenImage('assets/images/onboarding_1.png');
 
@@ -74,7 +77,8 @@ class $AssetsImagesGen {
   AssetGenImage get onboarding3 => const AssetGenImage('assets/images/onboarding_3.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [bgRate, iconApp, onboarding1, onboarding2, onboarding3];
+  List<AssetGenImage> get values =>
+      [bgRate, iconApp, imgDisconectWifi, onboarding1, onboarding2, onboarding3];
 }
 
 class $AssetsIconsIcFlagsGen {

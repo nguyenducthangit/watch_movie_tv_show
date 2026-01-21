@@ -86,6 +86,7 @@ class L {
   static const unselectAll = 'unselectAll';
   static const deleteSelected = 'deleteSelected';
   static const edit = 'edit';
+  static const noInternetTitle = 'noInternetTitle';
   static const noInternet = 'noInternet';
   static const checkConnection = 'checkConnection';
   static const checkOutThisMovie = 'checkOutThisMovie';
@@ -143,4 +144,9 @@ class L {
   static const String somethingWentWrong = 'Somethingwentwrong';
   static const clearSearch = 'clearSearch';
   static const tryADifferentSearch = 'tryADifferentSearch';
+
+  // Copyright Notice
+  static const copyrightNoticeTitle = 'copyrightNoticeTitle';
+  static const copyrightNoticeMessage = 'copyrightNoticeMessage';
+  static const ok = 'ok';
 }

@@ -1,89 +1,91 @@
 import 'dart:async';
 
-// import 'package:anime_sandbox/common/popups/no_internet.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:watch_movie_tv_show/app/popups/no_internet.dart';
 
-class ConnectivityService extends SuperController implements GetxService {
-  final isConnectInternet = false.obs;
+class ConnectivityService extends GetxService {
+  final isConnectInternet = true.obs;
   final isConnectWifi = false.obs;
-  final canShow = false.obs;
-  StreamSubscription? streamConnectSub;
-  DialogRoute? router;
+  StreamSubscription<List<ConnectivityResult>>? _streamConnectSub;
+  bool _isDialogShowing = false;
 
   @override
   void onInit() {
-    streamConnectSub = Connectivity().onConnectivityChanged.listen((event) {
-      checkInternetConnect(event);
-      checkWifiConnect(event);
-    });
     super.onInit();
+    _initConnectivity();
+    _startListening();
   }
 
-  void checkInternetConnect(List<ConnectivityResult> event) {
-    if (event.contains(ConnectivityResult.wifi) || event.contains(ConnectivityResult.mobile)) {
-      hideNoInternetDialog();
-      isConnectInternet.value = true;
-    } else {
+  /// Kiểm tra kết nối ban đầu
+  Future<void> _initConnectivity() async {
+    try {
+      final result = await Connectivity().checkConnectivity();
+      _updateConnectivityStatus(result);
+    } catch (e) {
+      debugPrint('ConnectivityService init error: $e');
+    }
+  }
+
+  /// Lắng nghe thay đổi kết nối
+  void _startListening() {
+    _streamConnectSub = Connectivity().onConnectivityChanged.listen(
+      (List<ConnectivityResult> result) {
+        _updateConnectivityStatus(result);
+      },
+      onError: (error) {
+        debugPrint('ConnectivityService listen error: $error');
+      },
+    );
+  }
+
+  /// Cập nhật trạng thái kết nối và hiển thị popup nếu cần
+  void _updateConnectivityStatus(List<ConnectivityResult> result) {
+    final hasConnection =
+        result.contains(ConnectivityResult.wifi) || result.contains(ConnectivityResult.mobile);
+
+    // Cập nhật wifi status
+    isConnectWifi.value = result.contains(ConnectivityResult.wifi);
+
+    // Nếu mất kết nối thì hiện popup
+    if (!hasConnection && !_isDialogShowing) {
       isConnectInternet.value = false;
-      showNoInternetDialog(() {});
+      _showNoInternetDialog();
+    }
+    // Nếu có kết nối trở lại thì ẩn popup
+    else if (hasConnection && _isDialogShowing) {
+      isConnectInternet.value = true;
+      _hideNoInternetDialog();
+    }
+    // Nếu có kết nối và chưa hiện popup
+    else if (hasConnection) {
+      isConnectInternet.value = true;
     }
   }
 
-  void checkWifiConnect(List<ConnectivityResult> event) {
-    if (event.contains(ConnectivityResult.wifi)) {
-      isConnectWifi.value = true;
-    } else {
-      isConnectWifi.value = false;
-    }
+  /// Hiển thị popup no internet
+  void _showNoInternetDialog() {
+    if (_isDialogShowing || Get.context == null) return;
+
+    _isDialogShowing = true;
+    Get.dialog(const NoInternet(), barrierDismissible: false, name: 'no_internet_dialog');
   }
 
-  Future<void> showNoInternetDialog(VoidCallback onComplete) async {
-    if (router != null) {
-      hideNoInternetDialog();
-    }
-    if (!canShow.value) {
-      return;
-    }
-    if (Get.context != null) {
-      // router = DialogRoute(
-      //   context: Get.context!,
-      //   builder: (context) => const NoInternet(),
-      // );
-      await Navigator.push(Get.context!, router!).whenComplete(onComplete);
-    }
-  }
+  /// Ẩn popup no internet
+  void _hideNoInternetDialog() {
+    if (!_isDialogShowing) return;
 
-  Future<void> showNoInternetDialogFO(VoidCallback onComplete) async {
-    // Get.dialog(const NoInternet());
-    isConnectInternet.listen((value) {
-      if (value) {
-        Get.back();
-        onComplete();
-      }
-    });
-  }
-
-  Future<void> hideNoInternetDialog() async {
-    if (Get.context != null && router != null) {
-      Navigator.removeRoute(Get.context!, router!);
-      router = null;
+    _isDialogShowing = false;
+    // Đóng dialog nếu đang mở
+    if (Get.isDialogOpen ?? false) {
+      Get.back();
     }
   }
 
   @override
-  void onDetached() {}
-
-  @override
-  void onHidden() {}
-
-  @override
-  void onInactive() {}
-
-  @override
-  void onPaused() {}
-
-  @override
-  void onResumed() {}
+  void onClose() {
+    _streamConnectSub?.cancel();
+    super.onClose();
+  }
 }

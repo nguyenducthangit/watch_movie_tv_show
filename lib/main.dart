@@ -4,9 +4,10 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_theme.dart';
-import 'package:watch_movie_tv_show/app/constants/app_strings.dart';
+import 'package:watch_movie_tv_show/app/services/connectivity_service.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/network_service.dart';
+import 'package:watch_movie_tv_show/app/services/shared_pref_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
@@ -34,10 +35,12 @@ void main() async {
   );
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  // Initialize Storage
+  // Initialize Storage services FIRST
   await StorageService.instance.init();
+  await SharedPrefService.init(); // Critical: Initialize before services that use it
 
   // Register services
+  Get.put(ConnectivityService(), permanent: true);
   Get.put(NetworkService(), permanent: true);
   Get.put(DownloadService(), permanent: true);
   await Get.putAsync(() => WatchProgressService().init());

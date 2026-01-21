@@ -61,6 +61,7 @@ dependencies:
       url: git@github.com:trungs99/exo_shared.git
       ref: main
   wakelock_plus: ^1.4.0
+  app_settings: ^7.0.0
 
 dev_dependencies:
   flutter_test:
