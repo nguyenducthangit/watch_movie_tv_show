@@ -197,7 +197,7 @@ class _HeroItem extends StatelessWidget {
 
                 // Title
                 Text(
-                  video.title,
+                  video.displayTitle,
                   style: MTextTheme.h2Bold.copyWith(
                     color: Colors.white,
                     shadows: [
@@ -212,7 +212,7 @@ class _HeroItem extends StatelessWidget {
                 // Description
                 if (video.description != null)
                   Text(
-                    video.description!,
+                    video.displayDescription ?? video.description!,
                     style: MTextTheme.body2Regular.copyWith(
                       color: Colors.white.withValues(alpha: 0.8),
                     ),

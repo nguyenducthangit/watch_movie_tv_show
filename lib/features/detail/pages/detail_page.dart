@@ -98,7 +98,7 @@ class DetailPage extends GetView<DetailController> {
                   Obx(() {
                     final movie = controller.movieDetail.value;
                     return DetailInfoHeader(
-                      title: movie?.name ?? controller.video.title,
+                      title: movie?.name ?? controller.video.displayTitle,
                       originName: movie?.originName,
                       year: movie?.year ?? controller.video.year,
                       quality: movie?.quality ?? controller.video.quality,
@@ -163,7 +163,8 @@ class DetailPage extends GetView<DetailController> {
                   // Description Section - Reactive
                   Obx(() {
                     final description =
-                        controller.movieDetail.value?.content ?? controller.video.description;
+                        controller.movieDetail.value?.content ??
+                        controller.video.displayDescription;
                     if (description != null && description.isNotEmpty) {
                       return Column(
                         children: [

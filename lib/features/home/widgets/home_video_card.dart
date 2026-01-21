@@ -273,7 +273,7 @@ class _HomeVideoCardState extends State<HomeVideoCard> with SingleTickerProvider
           children: [
             // Title with gradient effect
             Text(
-              widget.video.title,
+              widget.video.displayTitle,
               style: MTextTheme.body2Medium.copyWith(color: AppColors.textPrimary, height: 1.3),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

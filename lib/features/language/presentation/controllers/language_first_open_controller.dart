@@ -5,7 +5,7 @@ import '../enums/language_enums.dart';
 import 'language_controller.dart';
 
 class LanguageFirstOpenController extends LanguageController {
-  LanguageFirstOpenController(super.languageRepository);
+  LanguageFirstOpenController(super.languageRepository, super.translateService);
   @override
   Future<void> onSubmit() async {
     super.onSubmit();

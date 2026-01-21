@@ -155,6 +155,55 @@ class MovieModel {
     if (!hasEpisodes) return 0;
     return episodes!.fold(0, (total, server) => total + server.episodes.length);
   }
+
+  /// Copy with
+  MovieModel copyWith({
+    String? slug,
+    String? name,
+    String? originName,
+    String? content,
+    String? thumbUrl,
+    String? posterUrl,
+    int? year,
+    String? quality,
+    String? lang,
+    String? episodeCurrent,
+    String? episodeTotal,
+    String? time,
+    String? type,
+    String? status,
+    int? view,
+    String? trailerUrl,
+    List<String>? actor,
+    List<String>? director,
+    List<String>? categories,
+    List<String>? country,
+    List<EpisodeServerData>? episodes,
+  }) {
+    return MovieModel(
+      slug: slug ?? this.slug,
+      name: name ?? this.name,
+      originName: originName ?? this.originName,
+      content: content ?? this.content,
+      thumbUrl: thumbUrl ?? this.thumbUrl,
+      posterUrl: posterUrl ?? this.posterUrl,
+      year: year ?? this.year,
+      quality: quality ?? this.quality,
+      lang: lang ?? this.lang,
+      episodeCurrent: episodeCurrent ?? this.episodeCurrent,
+      episodeTotal: episodeTotal ?? this.episodeTotal,
+      time: time ?? this.time,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      view: view ?? this.view,
+      trailerUrl: trailerUrl ?? this.trailerUrl,
+      actor: actor ?? this.actor,
+      director: director ?? this.director,
+      categories: categories ?? this.categories,
+      country: country ?? this.country,
+      episodes: episodes ?? this.episodes,
+    );
+  }
 }
 
 /// Episode Server Data

@@ -237,7 +237,7 @@ class DetailController extends GetxController {
       }
 
       // Convert to VideoItem with stream URL from specific episode
-      final videoWithStream = _repository.movieWithEpisodeToVideoItem(
+      final videoWithStream = await _repository.movieWithEpisodeToVideoItem(
         detail,
         episodeToPlay: episodeToPlay,
       );

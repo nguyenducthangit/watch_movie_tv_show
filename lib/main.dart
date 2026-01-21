@@ -11,6 +11,7 @@ import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/services/subtitle_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
+import 'package:watch_movie_tv_show/features/translation/controller/translation_bindings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,9 @@ void main() async {
   Get.put(SubtitleService(), permanent: true);
   await Get.putAsync(() => WatchProgressService().init());
   await Get.putAsync(() => WatchlistService().init());
+
+  // Initialize translation services
+  TranslationBindings().dependencies();
 
   runApp(const VideoApp());
 }

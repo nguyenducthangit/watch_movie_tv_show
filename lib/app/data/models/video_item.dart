@@ -24,6 +24,8 @@ class VideoItem {
     this.director,
     this.country,
     this.trailerUrl,
+    this.translatedTitle,
+    this.translatedDescription,
   });
 
   /// Create from JSON
@@ -67,6 +69,10 @@ class VideoItem {
   final List<String>? country;
   final String? trailerUrl;
 
+  // Translation fields
+  final String? translatedTitle;
+  final String? translatedDescription;
+
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
@@ -99,6 +105,12 @@ class VideoItem {
     return downloadQualities!.reduce((a, b) => (a.sizeMB ?? 0) < (b.sizeMB ?? 0) ? a : b);
   }
 
+  /// Get display title (translated if available, otherwise original)
+  String get displayTitle => translatedTitle ?? title;
+
+  /// Get display description (translated if available, otherwise original)
+  String? get displayDescription => translatedDescription ?? description;
+
   /// Copy with
   VideoItem copyWith({
     String? id,
@@ -121,6 +133,8 @@ class VideoItem {
     List<String>? director,
     List<String>? country,
     String? trailerUrl,
+    String? translatedTitle,
+    String? translatedDescription,
   }) {
     return VideoItem(
       id: id ?? this.id,
@@ -143,6 +157,8 @@ class VideoItem {
       director: director ?? this.director,
       country: country ?? this.country,
       trailerUrl: trailerUrl ?? this.trailerUrl,
+      translatedTitle: translatedTitle ?? this.translatedTitle,
+      translatedDescription: translatedDescription ?? this.translatedDescription,
     );
   }
 

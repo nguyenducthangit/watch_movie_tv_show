@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 
-import 'language_controller.dart';
 import '../extensions/language_extensions.dart';
+import 'language_controller.dart';
 
 class LanguageSettingController extends LanguageController {
-  LanguageSettingController(super.languageRepository);
+  LanguageSettingController(super.languageRepository, super.translateService);
 
   @override
   Future<void> initView() async {

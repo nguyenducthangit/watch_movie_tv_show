@@ -97,7 +97,7 @@ class ContinueWatchingCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          video.title,
+                          video.displayTitle,
                           style: MTextTheme.captionMedium.copyWith(color: Colors.white),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

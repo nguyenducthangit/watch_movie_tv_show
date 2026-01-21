@@ -29,6 +29,7 @@ dependencies:
   chewie: ^1.8.1
   subtitle: ^0.1.4
   translator: ^1.0.0
+  google_mlkit_translation: ^0.13.0
 
   # ---------- Images ----------
   cached_network_image: ^3.3.1

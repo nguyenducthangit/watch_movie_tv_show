@@ -6,6 +6,9 @@ import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart'
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
+import 'package:watch_movie_tv_show/features/language/domain/repositories/language_repository.dart';
+import 'package:watch_movie_tv_show/features/language/presentation/enums/language_enums.dart';
+import 'package:watch_movie_tv_show/features/translation/controller/translation_controller.dart';
 
 /// Home Controller
 /// Manages video catalog display, search, and premium browse experience
@@ -14,6 +17,21 @@ class HomeController extends GetxController {
 
   // Services
   WatchProgressService get _progressService => Get.find<WatchProgressService>();
+  TranslationController? get _translationController {
+    try {
+      return Get.find<TranslationController>();
+    } catch (e) {
+      return null; // Translation controller not initialized
+    }
+  }
+
+  ILanguageRepository? get _languageRepository {
+    try {
+      return Get.find<ILanguageRepository>();
+    } catch (e) {
+      return null;
+    }
+  }
 
   // State
   final RxBool isLoading = true.obs;
@@ -51,9 +69,21 @@ class HomeController extends GetxController {
 
   @override
   void onReady() {
+    logger.i('🔥🔥🔥 HomeController.onReady() called - videos: ${videos.length}');
     super.onReady();
     // Refresh continue watching when returning to home
     ever(_progressService.progressMap, (_) => _updateContinueWatching());
+
+    // Check for language changes when page becomes active (returning from language settings)
+    _checkAndRefreshTranslations();
+  }
+
+  /// Check if language has changed and refresh translations if needed
+  Future<void> _checkAndRefreshTranslations() async {
+    logger.i('🔍 _checkAndRefreshTranslations called, videos: ${videos.length}');
+    if (videos.isNotEmpty) {
+      await _translateMoviesIfNeeded();
+    }
   }
 
   /// Load videos from repository
@@ -74,9 +104,11 @@ class HomeController extends GetxController {
       }
       tags.value = allTags.toList();
 
-      // Setup premium sections
       _setupPremiumSections();
       _applyFilters();
+
+      // Translate movies if translation is available
+      await _translateMoviesIfNeeded();
 
       logger.i('Loaded ${videos.length} videos');
     } catch (e) {
@@ -312,7 +344,10 @@ class HomeController extends GetxController {
           logger.i('Playing episode: ${firstEpisode.name} from server: ${firstServer.serverName}');
 
           // Convert to VideoItem with stream URL from first episode
-          videoWithStream = _repo.movieWithEpisodeToVideoItem(detail, episodeToPlay: firstEpisode);
+          videoWithStream = await _repo.movieWithEpisodeToVideoItem(
+            detail,
+            episodeToPlay: firstEpisode,
+          );
         } else {
           Get.back(); // Close loading
           Get.snackbar('Error', 'No episodes available');
@@ -320,7 +355,7 @@ class HomeController extends GetxController {
         }
       } else {
         // For movies (single file), convert to VideoItem
-        videoWithStream = _repo.movieWithEpisodeToVideoItem(detail);
+        videoWithStream = await _repo.movieWithEpisodeToVideoItem(detail);
       }
 
       logger.i('VideoItem created with streamUrl: ${videoWithStream.streamUrl}');
@@ -356,4 +391,85 @@ class HomeController extends GetxController {
 
   /// Check if has any continue watching
   bool get hasContinueWatching => continueWatching.isNotEmpty;
+
+  // Track last translated language to avoid redundant translations
+  LanguageCode? _lastTranslatedLang;
+
+  /// Translate movies based on current language
+  Future<void> _translateMoviesIfNeeded() async {
+    final translationCtrl = _translationController;
+    final langRepo = _languageRepository;
+
+    if (translationCtrl == null || langRepo == null || videos.isEmpty) return;
+
+    try {
+      // Get current language
+      final currentLang = langRepo.getCurLangCode();
+
+      // Skip if already translated to this language
+      if (_lastTranslatedLang == currentLang) {
+        logger.i('Movies already translated to ${currentLang.name}, skipping');
+        return;
+      }
+
+      logger.i('Translating ${videos.length} movies to ${currentLang.name}...');
+
+      // Translate all videos (cache will prevent redundant API calls)
+      final translatedList = await translationCtrl.translateMovieList(
+        movies: videos.toList(),
+        targetLang: currentLang,
+        batchSize: 15,
+      );
+
+      // Update videos with translations
+      videos.value = translatedList;
+
+      // Re-apply filters to update filtered list
+      _applyFilters();
+
+      // Re-setup premium sections with translated movies
+      _setupPremiumSections();
+
+      // Remember this language to avoid re-translation
+      _lastTranslatedLang = currentLang;
+
+      logger.i('Translation completed for ${videos.length} movies');
+    } catch (e) {
+      logger.e('Failed to translate movies: $e');
+      // Don't show error to user, just continue with original text
+    }
+  }
+
+  /// Refresh translations when language changes (called from LanguageController)
+  Future<void> refreshTranslations(LanguageCode targetLang) async {
+    final translationCtrl = _translationController;
+    if (translationCtrl == null) return;
+
+    try {
+      logger.i('Refreshing translations to ${targetLang.name}...');
+
+      // Translate all videos
+      final translatedList = await translationCtrl.translateMovieList(
+        movies: videos.toList(),
+        targetLang: targetLang,
+        batchSize: 15,
+      );
+
+      // Update videos with new translations
+      videos.value = translatedList;
+
+      // Re-apply filters
+      _applyFilters();
+
+      // Re-setup premium sections
+      _setupPremiumSections();
+
+      // Update tracking
+      _lastTranslatedLang = targetLang;
+
+      logger.i('Translations refreshed');
+    } catch (e) {
+      logger.e('Failed to refresh translations: $e');
+    }
+  }
 }

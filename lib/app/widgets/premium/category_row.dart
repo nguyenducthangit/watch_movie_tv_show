@@ -225,7 +225,7 @@ class _CategoryVideoCard extends StatelessWidget {
 
             // Title
             Text(
-              video.title,
+              video.displayTitle,
               style: MTextTheme.captionMedium.copyWith(color: AppColors.textPrimary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

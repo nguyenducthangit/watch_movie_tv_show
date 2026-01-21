@@ -1,18 +1,22 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/constants/ophim_api.dart';
 import 'package:watch_movie_tv_show/app/data/models/movie_model.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/services/dio_client.dart';
+import 'package:watch_movie_tv_show/app/services/translation/translate_service.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Ophim Repository
 /// Handles API calls to Ophim API for movie catalog and details
 class OphimRepository {
-  OphimRepository() {
+  OphimRepository({TranslateService? translateService}) {
     _dio = DioClient.instance.dio;
+    _translateService = translateService ?? Get.find<TranslateService>();
   }
 
   late final Dio _dio;
+  late final TranslateService _translateService;
 
   /// Fetch home movie list with pagination
   /// If countries are defined in OphimApi, fetches from those countries.
@@ -42,7 +46,12 @@ class OphimRepository {
       } else {
         // Fetch from default list
         for (var i = 1; i <= quantityPagesFilm; i++) {
-          futures.add(_fetchMoviePage(i).then((models) => models.map(_movieToVideoItem).toList()));
+          futures.add(
+            _fetchMoviePage(i).then((models) async {
+              final videoItems = await Future.wait(models.map((movie) => _movieToVideoItem(movie)));
+              return videoItems;
+            }),
+          );
         }
       }
 
@@ -90,7 +99,11 @@ class OphimRepository {
             [];
 
         logger.i('Fetched ${items.length} movies for country $countrySlug page $page');
-        return items.map(_movieToVideoItem).toList();
+
+        // Convert movies to video items with translation
+        final videoItems = await Future.wait(items.map((movie) => _movieToVideoItem(movie)));
+
+        return videoItems;
       } else {
         logger.e('Failed to load country $countrySlug page $page: ${response.statusCode}');
         return [];
@@ -159,7 +172,30 @@ class OphimRepository {
         }
 
         logger.i('Fetched movie detail for: ${item['name']}');
-        return MovieModel.fromJson(item);
+
+        final movie = MovieModel.fromJson(item);
+
+        // Translate logic if enabled
+        if (_translateService.isTranslationEnabled) {
+          try {
+            final textsToTranslate = <String>[
+              movie.name,
+              if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
+            ];
+
+            final translations = await _translateService.translateBatch(textsToTranslate);
+
+            return movie.copyWith(
+              name: translations[movie.name] ?? movie.name,
+              content: movie.content != null ? translations[movie.content!] : null,
+            );
+          } catch (e) {
+            logger.e('Error translating detail for ${movie.name}: $e');
+            return movie;
+          }
+        }
+
+        return movie;
       } else {
         throw Exception('Failed to load movie detail: ${response.statusCode}');
       }
@@ -170,7 +206,27 @@ class OphimRepository {
   }
 
   /// Convert MovieModel to VideoItem for UI compatibility
-  VideoItem _movieToVideoItem(MovieModel movie) {
+  Future<VideoItem> _movieToVideoItem(MovieModel movie) async {
+    // Translate title and description if translation is enabled
+    String? translatedTitle;
+    String? translatedDescription;
+
+    if (_translateService.isTranslationEnabled) {
+      try {
+        // Use batch translation for efficiency
+        final textsToTranslate = <String>[
+          movie.name,
+          if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
+        ];
+
+        final translations = await _translateService.translateBatch(textsToTranslate);
+        translatedTitle = translations[movie.name];
+        translatedDescription = movie.content != null ? translations[movie.content!] : null;
+      } catch (e) {
+        logger.e('Error translating movie ${movie.name}: $e');
+      }
+    }
+
     return VideoItem(
       id: movie.slug,
       title: movie.name,
@@ -191,15 +247,17 @@ class OphimRepository {
       director: movie.director,
       country: movie.country,
       trailerUrl: movie.trailerUrl,
+      translatedTitle: translatedTitle,
+      translatedDescription: translatedDescription,
     );
   }
 
   /// Convert MovieModel with episode to VideoItem with stream URL
-  VideoItem movieWithEpisodeToVideoItem(
+  Future<VideoItem> movieWithEpisodeToVideoItem(
     MovieModel movie, {
     int episodeIndex = 0,
     EpisodeItem? episodeToPlay,
-  }) {
+  }) async {
     String? streamUrl;
 
     // Get stream URL from specific episode or by index
@@ -216,6 +274,25 @@ class OphimRepository {
               : firstServer.episodes.first;
           streamUrl = episode.linkM3u8;
         }
+      }
+    }
+
+    // Translate title and description if translation is enabled
+    String? translatedTitle;
+    String? translatedDescription;
+
+    if (_translateService.isTranslationEnabled) {
+      try {
+        final textsToTranslate = <String>[
+          movie.name,
+          if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
+        ];
+
+        final translations = await _translateService.translateBatch(textsToTranslate);
+        translatedTitle = translations[movie.name];
+        translatedDescription = movie.content != null ? translations[movie.content!] : null;
+      } catch (e) {
+        logger.e('Error translating movie ${movie.name}: $e');
       }
     }
 
@@ -239,6 +316,8 @@ class OphimRepository {
       director: movie.director,
       country: movie.country,
       trailerUrl: movie.trailerUrl,
+      translatedTitle: translatedTitle,
+      translatedDescription: translatedDescription,
     );
   }
 }
