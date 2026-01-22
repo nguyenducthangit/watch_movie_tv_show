@@ -13,7 +13,7 @@ class PlayButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: const Icon(Icons.play_arrow_rounded),
-      label: Text(resumeText != null ? 'Resume' : L.play.tr),
+      label: Text(resumeText != null ? L.resume.tr : L.play.tr),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 class DeleteWatchList {
   static void show({
@@ -14,13 +15,13 @@ class DeleteWatchList {
       AlertDialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Remove from Watchlist',
+        title:  Text(
+          L.removeFromWatchlist.tr,
           style: MTextTheme.subTitle1Medium,
           textAlign: TextAlign.center,
         ),
         content: Text(
-          'Remove "${video.title}" from your watchlist?',
+          '${L.remove.tr} "${video.title}" ${L.fromYourWatchList.tr}',
           style: MTextTheme.body1SemiBold.copyWith(color: Colors.grey[700]),
           textAlign: TextAlign.center,
         ),
@@ -36,7 +37,7 @@ class DeleteWatchList {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Cancel'),
+                  child: Text(L.cancel.tr),
                 ),
               ),
               const SizedBox(width: 12),
@@ -52,7 +53,7 @@ class DeleteWatchList {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Remove'),
+                  child: Text(L.remove.tr),
                 ),
               ),
             ],

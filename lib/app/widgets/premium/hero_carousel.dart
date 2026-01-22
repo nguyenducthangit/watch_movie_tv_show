@@ -355,7 +355,7 @@ class _WatchlistButtonState extends State<_WatchlistButton> {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text('Watchlist', style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
+                Text(L.watchList.tr, style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
               ],
             ],
           ),

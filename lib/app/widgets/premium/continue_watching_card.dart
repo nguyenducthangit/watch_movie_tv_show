@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 
 /// Continue Watching Card Widget
@@ -104,7 +106,7 @@ class ContinueWatchingCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${(progress * 100).round()}% watched',
+                          '${(progress * 100).round()}% ${L.watched.tr}',
                           style: MTextTheme.smallTextRegular.copyWith(
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
@@ -177,7 +179,7 @@ class ContinueWatchingSection extends StatelessWidget {
               const Icon(Icons.history_rounded, color: AppColors.textSecondary, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Continue Watching',
+               L.continueWatching.tr,
                 style: MTextTheme.h4SemiBold.copyWith(color: AppColors.textPrimary),
               ),
             ],

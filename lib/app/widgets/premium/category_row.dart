@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/fade_in_widget.dart';
 
@@ -49,7 +51,7 @@ class CategoryRow extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        'See All',
+                        L.seeMore.tr,
                         style: MTextTheme.body2Medium.copyWith(color: AppColors.primary),
                       ),
                       const SizedBox(width: 4),
@@ -238,8 +240,8 @@ class _CategoryVideoCard extends StatelessWidget {
 
   Color _getQualityColor(String quality) {
     final q = quality.toUpperCase();
-    if (q.contains('FHD') || q.contains('4K')) return const Color(0xFF10B981);
-    if (q.contains('HD')) return const Color(0xFF3B82F6);
+    if (q.contains(L.fhd.tr.toUpperCase()) || q.contains('4K')) return const Color(0xFF10B981);
+    if (q.contains(L.hd.tr.toUpperCase())) return const Color(0xFF3B82F6);
     if (q.contains('CAM')) return const Color(0xFFEF4444);
     return AppColors.primary;
   }

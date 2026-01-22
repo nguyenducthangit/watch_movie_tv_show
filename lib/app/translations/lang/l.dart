@@ -38,6 +38,7 @@ class L {
   static const history = 'history';
   static const search = 'search';
   static const play = 'play';
+  static const resume = 'resume';
   static const watchList = 'watchList';
   static const trendingNow = 'trendingNow';
   static const watched = 'watched';
@@ -147,11 +148,12 @@ class L {
   static const tryADifferentSearch = 'tryADifferentSearch';
   static const checkoutThisMovie = 'checkoutThisMovie';
   static const checkoutThisVideo = 'checkoutThisVideo';
-  
+  static const remove = 'remove';
+  static const fromYourWatchList = 'fromYourWatchList';
 
   // Copyright Notice
   static const contentMetadataStandards = 'contentMetadataStandards';
   static const contentMetadataStandardsMessage = 'contentMetadataStandardsMessage';
   static const ok = 'ok';
-
+  static const view = 'view';
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 /// Detail Info Header Widget
 /// Displays movie metadata: title, year, quality, language, episodes, categories
@@ -103,7 +105,7 @@ class DetailInfoHeader extends StatelessWidget {
               const Icon(Icons.visibility_rounded, size: 14, color: AppColors.textTertiary),
               const SizedBox(width: 4),
               Text(
-                '${_formatNumber(view!)} views',
+                '${_formatNumber(view!)} ${L.view.tr}',
                 style: MTextTheme.captionRegular.copyWith(color: AppColors.textTertiary),
               ),
             ],

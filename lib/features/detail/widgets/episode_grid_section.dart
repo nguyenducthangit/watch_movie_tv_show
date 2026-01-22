@@ -26,7 +26,7 @@ class EpisodeGridSection extends GetView<DetailController> {
         children: [
           // Section title
           Text(
-           L.episodeList.tr,
+            L.episodeList.tr,
             style: MTextTheme.body1SemiBold.copyWith(color: AppColors.textPrimary),
           ),
           const SizedBox(height: 12),

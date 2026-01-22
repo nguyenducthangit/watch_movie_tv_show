@@ -8,6 +8,7 @@ import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart'
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Detail Controller
@@ -110,12 +111,12 @@ class DetailController extends GetxController {
           // These will map to variant indices during download (0=highest, 1=medium, 2=lowest)
           qualities.addAll([
             VideoQuality(
-              label: 'HD',
+              label: L.hd.tr,
               url: m3u8Url,
               sizeMB: null, // Unknown for HLS
             ),
-            VideoQuality(label: 'SD', url: m3u8Url, sizeMB: null),
-            VideoQuality(label: '360p', url: m3u8Url, sizeMB: null),
+            VideoQuality(label: L.sd.tr, url: m3u8Url, sizeMB: null),
+            VideoQuality(label: '360${L.p.tr}', url: m3u8Url, sizeMB: null),
           ]);
         }
       }
@@ -156,35 +157,20 @@ class DetailController extends GetxController {
     });
   }
 
-  /// Load related videos (videos with same tags)
   void _loadRelatedVideos() {
-    // Get all videos from storage/service
-    // For now, we'll leave this empty - it will be populated by the video service
-    // In a real app, this would fetch videos with matching tags
     relatedVideos.clear();
   }
 
   /// Toggle watchlist
   Future<void> toggleWatchlist() async {
     await _watchlistService.toggleWatchlist(video.id);
-    // State is updated automatically via 'ever' listener above
-
-    final result = _watchlistService.isInWatchlist(video.id);
-    Get.snackbar(
-      result ? 'Added to List' : 'Removed from List',
-      result
-          ? '${video.title} added to your watchlist'
-          : '${video.title} removed from your watchlist',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 2),
-    );
   }
 
   /// Share video
   void shareVideo() {
     final movieUrl = video.slug != null
-        ? 'Check out this movie: ${video.displayTitle}'
-        : 'Check out this video: ${video.displayTitle}';
+        ? '${L.checkOutThisMovie.tr}: ${video.displayTitle}'
+        : '${L.checkoutThisVideo.tr}: ${video.displayTitle}';
     Share.share(movieUrl);
   }
 
@@ -274,20 +260,6 @@ class DetailController extends GetxController {
   /// Cancel download
   void cancelDownload() {
     DownloadService.to.cancelDownload(video.id);
-  }
-
-  /// Delete download
-  void deleteDownload() {
-    Get.defaultDialog(
-      title: 'Delete Download',
-      middleText: 'Are you sure you want to delete this video?',
-      textConfirm: 'Delete',
-      textCancel: 'Cancel',
-      onConfirm: () {
-        DownloadService.to.deleteDownload(video.id);
-        Get.back();
-      },
-    );
   }
 
   /// Get download button text

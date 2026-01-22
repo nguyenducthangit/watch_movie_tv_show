@@ -30,6 +30,7 @@ const Map<String, String> enLang = {
   L.history: 'History',
   L.search: 'Search',
   L.play: 'Play',
+  L.resume:'Resume',
   L.watchList: 'Watch List',
   L.trendingNow: 'Trending Now',
   L.watched: 'Watched',
@@ -132,8 +133,10 @@ const Map<String, String> enLang = {
   L.about: 'About',
   L.x: 'x',
   L.recommended: 'Recommended',
+  L.fromYourWatchList:'from your watchlist?',
+  L.remove:'Remove',
+  L.view:'View',
   // Copyright Notice
-  
   L.ok: 'OK',
   L.contentMetadataStandards: 'Content Metadata Standards',
   L.contentMetadataStandardsMessage: 'To ensure accuracy and comply with international distribution standards, movie details and metadata are presented in their original English format.',

@@ -20,7 +20,7 @@ class NoInternet extends StatelessWidget {
         centerTitle: true,
         automaticallyImplyLeading: false,
         title: Text(
-          'No Internet',
+          L.noInternetTitle.tr,
           style: Get.textTheme.headlineMedium?.copyWith(
             color: AppColors.white,
             fontWeight: FontWeight.w700,
@@ -59,7 +59,6 @@ class NoInternet extends StatelessWidget {
                     } else {
                       await AppSettings.openAppSettings();
                     }
-                    // Popup sẽ tự động đóng khi ConnectivityService detect có internet
                   },
 
                   child: Text(

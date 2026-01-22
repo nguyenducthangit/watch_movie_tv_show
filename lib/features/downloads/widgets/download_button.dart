@@ -27,8 +27,8 @@ class DownloadButton extends StatelessWidget {
           icon: Icons.download_done_rounded,
           color: AppColors.success,
           onPressed: () => DeleteDownload.show(
-            title: 'Delete Download?',
-            middleText: 'Remove this video from your downloads?',
+            title: L.deleteDownloadTitle.tr,
+            middleText: L.deleteDownloadDescription.tr,
             textConfirm: L.delete.tr,
             textCancel: L.cancel.tr,
             onRemove: () {

@@ -51,7 +51,7 @@ class QualitySheet extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: qualities.length,
-            separatorBuilder: (_, __) => const Divider(color: AppColors.divider, height: 1),
+            separatorBuilder: (_, _) => const Divider(color: AppColors.divider, height: 1),
             itemBuilder: (context, index) {
               final quality = qualities[index];
               return _QualityItem(quality: quality, onTap: () => onSelected(quality));

@@ -110,7 +110,7 @@ class PlayerMenu extends StatelessWidget {
                 ...PlayerController.availableSpeeds.map((speed) {
                   return Obx(
                     () => ListTile(
-                      title: Text('${speed}x', textAlign: TextAlign.center),
+                      title: Text('$speed${L.x.tr}', textAlign: TextAlign.center),
                       trailing: controller.playbackSpeed.value == speed
                           ? const Icon(Icons.check, color: AppColors.primary)
                           : null,
