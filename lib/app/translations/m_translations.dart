@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'lang/de_lang.dart';
 import 'lang/en_lang.dart';
 import 'lang/es_lang.dart';
-import 'lang/hi_lang.dart';
-import 'lang/de_lang.dart';
 import 'lang/fr_lang.dart';
+import 'lang/hi_lang.dart';
 import 'lang/id_lang.dart';
 import 'lang/pt_lang.dart';
 

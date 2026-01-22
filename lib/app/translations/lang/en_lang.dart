@@ -4,7 +4,8 @@ const Map<String, String> enLang = {
   L.appName: 'Watch Movie TV Show',
   L.thisActionMayContainAds: 'This Action May Contain Ads ',
   L.language: 'Language',
-  //language
+
+  /// Language
   L.langEN: 'English',
   L.langES: 'Spanish',
   L.langDE: 'German',
@@ -12,7 +13,8 @@ const Map<String, String> enLang = {
   L.langHI: 'Hindi',
   L.langFR: 'French',
   L.langID: 'Indonesian',
-  //onboarding
+
+  /// Onboarding
   L.onboardingTitle1: 'Stories That Move the Soul',
   L.onboardingDescription1:
       'Discover powerful films and series crafted to inspire, uplift, and leave a lasting impression.',
@@ -24,13 +26,24 @@ const Map<String, String> enLang = {
       'Join a passionate community that supports stories worth telling and helps guide what comes next.',
   L.next: 'Next',
   L.getStarted: 'Get Started',
+
+  //player
+  L.playbackSpeed: 'Playback Speed',
+  L.quality: 'Quality',
+  L.normal: 'Normal',
+  L.videoQuality: 'Video Quality',
+  L.auto: 'Auto',
+  L.about: 'About',
+  L.x: 'x',
+  L.recommended: 'Recommended',
+
   //home
   L.home: 'Home',
   L.downloads: 'Downloads',
   L.history: 'History',
   L.search: 'Search',
   L.play: 'Play',
-  L.resume:'Resume',
+  L.resume: 'Resume',
   L.watchList: 'Watch List',
   L.trendingNow: 'Trending Now',
   L.watched: 'Watched',
@@ -39,7 +52,8 @@ const Map<String, String> enLang = {
   L.hd: 'HD',
   L.sd: 'SD',
   L.fhd: 'FHD',
-  //categories
+
+  // categories
   L.drama: 'Drama',
   L.comedy: 'Comedy',
   L.action: 'Action',
@@ -55,7 +69,8 @@ const Map<String, String> enLang = {
   L.psychological: 'Psychological',
   L.romance: 'Romance',
   L.shortDrama: 'Short Drama',
-  //download
+
+  // download
   L.download: 'Download',
   L.downloading: 'Downloading',
   L.downloaded: 'Downloaded',
@@ -82,12 +97,16 @@ const Map<String, String> enLang = {
   L.noInternet: 'No internet connection',
   L.checkConnection: 'Please check your connection and try again',
   L.checkOutThisMovie: 'Check out this movie',
-  L.deleteDownloadTitle:'Delete Download?',
-  L.deleteDownloadDescription:'Remove this video from your downloads?',
-  //watchlist
+  L.clearAllDownloads: 'Clear All Downloads',
+  L.clearAllDescription: 'Remove all downloaded videos?',
+  L.deleteDownloadTitle: 'Delete Download?',
+  L.deleteDownloadDescription: 'Remove this video from your downloads?',
+
+  // watchlist
   L.watchlist: 'Watch List',
   L.yourWatchlistisEmpty: 'Your Watch List is Empty',
   L.addVideoToWatchThemLater: 'Add Video to Watch Them Later',
+
   //detail
   L.watchNow: 'Watch Now',
   L.contents: 'Contents',
@@ -97,13 +116,15 @@ const Map<String, String> enLang = {
   L.episodeList: 'Episode List',
   L.full: 'Full',
   L.castAndCrew: 'Cast and Crew',
-  //settings
+
+  /// Settings
   L.settings: 'Settings',
   L.settingsLanguage: 'Settings Language',
   L.settingsRateUs: 'Settings Rate Us',
   L.settingsShare: 'Settings Share',
   L.settingsPrivacyPolicy: 'Settings Privacy Policy',
-  //rate
+
+  /// Rate
   L.rateTitle: 'Rate Title',
   L.rateDescription: 'Rate Description',
   L.submit: 'Submit',
@@ -111,8 +132,10 @@ const Map<String, String> enLang = {
   L.rateAlreadyRated: 'Rate Already Rated',
   L.rateThankYou: 'Rate Thank You',
   L.rateThankYouMessage: 'Rate Thank You Message',
-  //empty data
+
+  // Empty data
   L.noDataAvailable: 'No Data Available',
+
   //common
   L.cancel: 'Cancel',
   L.save: 'Save',
@@ -120,27 +143,32 @@ const Map<String, String> enLang = {
   L.delete: 'Delete',
   L.yes: 'Yes',
   L.no: 'No',
-  //file size
+
+  // File size
   L.mb: 'MB',
   L.gb: 'GB',
   L.p: 'p',
-  //player
-  L.playbackSpeed: 'Playback Speed',
-  L.quality: 'Quality',
-  L.normal: 'Normal',
-  L.videoQuality: 'Video Quality',
-  L.auto: 'Auto',
-  L.about: 'About',
-  L.x: 'x',
-  L.recommended: 'Recommended',
-  L.fromYourWatchList:'from your watchlist?',
-  L.remove:'Remove',
-  L.view:'View',
-  // Copyright Notice
-  L.ok: 'OK',
-  L.contentMetadataStandards: 'Content Metadata Standards',
-  L.contentMetadataStandardsMessage: 'To ensure accuracy and comply with international distribution standards, movie details and metadata are presented in their original English format.',
 
+  //commoon (extra in L.dart)
+  L.videos: 'Videos',
+  L.noVideosFound: 'No Videos Found',
+  L.checkBackLater: 'Check back later for new content',
+  L.tryAgain: 'Try Again',
+  L.somethingWentWrong: 'Something went wrong',
+  L.clearSearch: 'Clear Search',
+  L.tryADifferentSearch: 'Try a different search',
+  L.checkoutThisMovie: 'Check out this movie',
+  L.checkoutThisVideo: 'Check out this video',
+  L.remove: 'Remove',
+  L.fromYourWatchList: 'from your watchlist?',
+
+  // Copyright Notice
+  L.contentMetadataStandards: 'Content Metadata Standards',
+  L.contentMetadataStandardsMessage:
+      'To ensure accuracy and comply with international distribution standards, movie details and metadata are presented in their original English format.',
+  L.ok: 'OK',
+  L.view: 'View',
+  L.saved: 'Saved',
 };
 
 const String enCode = 'en';

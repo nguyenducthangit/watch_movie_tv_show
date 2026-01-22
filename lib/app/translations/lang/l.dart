@@ -156,4 +156,5 @@ class L {
   static const contentMetadataStandardsMessage = 'contentMetadataStandardsMessage';
   static const ok = 'ok';
   static const view = 'view';
+  static const saved = 'saved';
 }

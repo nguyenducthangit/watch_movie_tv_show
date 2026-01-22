@@ -1,10 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
+import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 
 class HomeVideoCard extends StatefulWidget {
@@ -211,7 +214,7 @@ class _HomeVideoCardState extends State<HomeVideoCard> with SingleTickerProvider
                   const Icon(Icons.download_done_rounded, size: 14, color: AppColors.black),
                   const SizedBox(width: 4),
                   Text(
-                    'Saved',
+                    L.saved.tr,
                     style: MTextTheme.body2Medium.copyWith(
                       color: AppColors.black,
                       letterSpacing: 0.3,
@@ -296,7 +299,10 @@ class _HomeVideoCardState extends State<HomeVideoCard> with SingleTickerProvider
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      widget.video.tags!.take(2).join(' • '),
+                      widget.video.tags!
+                          .take(2)
+                          .map((tag) => TagMapper.getTranslatedTag(tag))
+                          .join(' • '),
                       style: MTextTheme.smallTextRegular.copyWith(
                         color: AppColors.textTertiary,
                         letterSpacing: 0.3,

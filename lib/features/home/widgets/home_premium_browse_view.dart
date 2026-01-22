@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/category_row.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/continue_watching_card.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/hero_carousel.dart';
@@ -50,7 +51,7 @@ class HomePremiumBrowseView extends GetView<HomeController> {
                         (tag) => Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: HomeFilterchip(
-                            label: tag,
+                            label: TagMapper.getTranslatedTag(tag),
                             isSelected: controller.selectedTag.value == tag,
                             onTap: () => controller.setTag(tag),
                           ),

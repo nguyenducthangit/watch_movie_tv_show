@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 import 'package:watch_movie_tv_show/app/widgets/empty_state_widget.dart';
 import 'package:watch_movie_tv_show/features/home/controller/home_controller.dart';
 import 'package:watch_movie_tv_show/features/home/widgets/home_filterchip.dart';
@@ -29,7 +30,7 @@ class HomeSearchFilterView extends GetView<HomeController> {
                     (tag) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: HomeFilterchip(
-                        label: tag,
+                        label: TagMapper.getTranslatedTag(tag),
                         isSelected: controller.selectedTag.value == tag,
                         onTap: () => controller.setTag(tag),
                       ),

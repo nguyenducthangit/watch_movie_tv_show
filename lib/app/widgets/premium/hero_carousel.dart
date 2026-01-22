@@ -9,6 +9,7 @@ import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/animated_button.dart';
 
@@ -188,7 +189,7 @@ class _HeroItem extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      video.tags!.first.toUpperCase(),
+                      TagMapper.getTranslatedTag(video.tags!.first).toUpperCase(),
                       style: MTextTheme.smallTextMedium.copyWith(
                         color: Colors.white,
                         letterSpacing: 0.5,

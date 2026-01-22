@@ -50,7 +50,7 @@ class EpisodeGridSection extends GetView<DetailController> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: servers.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           return Obx(() {
             final isSelected = controller.selectedServerIndex.value == index;
@@ -66,7 +66,7 @@ class EpisodeGridSection extends GetView<DetailController> {
                 ),
                 child: Center(
                   child: Text(
-                    servers[index].serverName,
+                    'Server ${index + 1}',
                     style: MTextTheme.body2SemiBold.copyWith(
                       color: isSelected ? Colors.black : AppColors.textSecondary,
                     ),

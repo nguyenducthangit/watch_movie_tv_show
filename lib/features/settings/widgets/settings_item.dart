@@ -41,11 +41,11 @@ class SettingsItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (subtitle != null) ...[
-            Text(subtitle!, style: MTextTheme.captionRegular.copyWith(color: AppColors.primary)),
-            const SizedBox(width: 6),
-          ],
-          
+
+          // if (subtitle != null) ...[
+          //   Text(subtitle!, style: MTextTheme.captionRegular.copyWith(color: AppColors.primary)),
+          //   const SizedBox(width: 6),
+          // ],
           Assets.icons.icChevronRight.svg(width: 20, height: 20, color: AppColors.primary),
         ],
       ),
