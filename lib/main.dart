@@ -9,8 +9,10 @@ import 'package:watch_movie_tv_show/app/config/app_config.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/services/connectivity_service.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/services/preload_service.dart';
 import 'package:watch_movie_tv_show/app/services/shared_pref_service.dart';
 import 'package:watch_movie_tv_show/app/services/storage_service.dart';
+import 'package:watch_movie_tv_show/app/services/translation/translate_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/services/watchlist_service.dart';
 import 'package:watch_movie_tv_show/features/app.dart';
@@ -28,10 +30,18 @@ void main() async {
 
       Get.put(ConnectivityService(), permanent: true);
       Get.put(DownloadService(), permanent: true);
+      Get.put(PreloadService(), permanent: true);
       await Get.putAsync(() => WatchProgressService().init());
       await Get.putAsync(() => WatchlistService().init());
 
       TranslationBindings().dependencies();
+
+      // Pre-download translation model if needed (non-blocking)
+      final translateService = Get.find<TranslateService>();
+      translateService.downloadModelIfNeeded().catchError((e) {
+        log('Error pre-downloading translation model: $e');
+        return false;
+      });
 
       final savedLang = SharedPrefService.getLang();
       Locale? initialLocale;

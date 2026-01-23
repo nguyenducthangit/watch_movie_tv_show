@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:watch_movie_tv_show/app/config/app_config.dart';
+import 'package:watch_movie_tv_show/app/services/retry_interceptor.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
 /// Dio HTTP Client Service
@@ -10,10 +11,12 @@ class DioClient {
         connectTimeout: AppConfig.connectTimeout,
         receiveTimeout: AppConfig.receiveTimeout,
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        extra: {'retryCount': 0}, // Initialize retry counter
       ),
     );
 
-    // Add interceptors
+    // Add interceptors (order matters: Retry before Log)
+    _dio.interceptors.add(RetryInterceptor());
     _dio.interceptors.add(
       LogInterceptor(
         request: true,

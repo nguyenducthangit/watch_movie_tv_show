@@ -12,8 +12,19 @@ class HomeSearchFilterView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification is ScrollEndNotification) {
+          final metrics = notification.metrics;
+          // Load more when user scrolls to 80% of the list
+          if (metrics.pixels >= metrics.maxScrollExtent * 0.8) {
+            controller.loadMoreMovies();
+          }
+        }
+        return false;
+      },
+      child: CustomScrollView(
+        slivers: [
         // Top padding for sticky header
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
 
@@ -81,7 +92,21 @@ class HomeSearchFilterView extends GetView<HomeController> {
             ),
           );
         }),
+
+        // Loading more indicator
+        Obx(() {
+          if (controller.isLoadingMore.value) {
+            return const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        }),
       ],
+      ),
     );
   }
 }

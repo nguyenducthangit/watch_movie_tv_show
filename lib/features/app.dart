@@ -36,7 +36,7 @@ class App extends StatelessWidget {
       translations: MTranslations(),
       fallbackLocale: MTranslations.fallbackLocale,
       supportedLocales: MTranslations.supportedLocales,
-      locale: initialLocale ?? Get.locale,
+      locale: const Locale('en'),
       onGenerateTitle: (context) => L.appName.tr,
     );
   }

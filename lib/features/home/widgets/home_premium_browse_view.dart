@@ -20,8 +20,19 @@ class HomePremiumBrowseView extends GetView<HomeController> {
       color: AppColors.primary,
       backgroundColor: AppColors.surface,
       edgeOffset: 80,
-      child: CustomScrollView(
-        slivers: [
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification is ScrollEndNotification) {
+            final metrics = notification.metrics;
+            // Load more when user scrolls to 80% of the list
+            if (metrics.pixels >= metrics.maxScrollExtent * 0.8) {
+              controller.loadMoreMovies();
+            }
+          }
+          return false;
+        },
+        child: CustomScrollView(
+          slivers: [
           // Hero Carousel
           SliverToBoxAdapter(
             child: Obx(() {
@@ -117,36 +128,28 @@ class HomePremiumBrowseView extends GetView<HomeController> {
           SliverToBoxAdapter(
             child: Obx(() {
               final genreMap = Map<String, List<VideoItem>>.from(controller.videosByGenre);
-
-              // Prioritize requested genres
-              final priorityGenres = [L.psychological.tr];
               final allKeys = genreMap.keys.toList();
 
-              // Sort to put priority genres first
-              allKeys.sort((a, b) {
-                final aPriority = priorityGenres.indexOf(a);
-                final bPriority = priorityGenres.indexOf(b);
-                if (aPriority != -1 && bPriority != -1) return aPriority.compareTo(bPriority);
-                if (aPriority != -1) return -1;
-                if (bPriority != -1) return 1;
-                return 0;
-              });
+              if (allKeys.isEmpty) return const SizedBox.shrink();
 
-              final genres = allKeys.length <= 4
-                  ? allKeys
-                  : allKeys.sublist(
-                      ((allKeys.length - 4) / 2).floor(),
-                      ((allKeys.length - 4) / 2).floor() + 4,
-                    );
+              // Shuffle genres for random order (avoid same genres appearing together)
+              final shuffledGenres = List<String>.from(allKeys)..shuffle();
 
-              if (genres.isEmpty) return const SizedBox.shrink();
-                return Column(
-                children: genres.map((genre) {
+              // Show up to 6 genres (or all if less than 6)
+              final genresToShow = shuffledGenres.length <= 6
+                  ? shuffledGenres
+                  : shuffledGenres.take(6).toList();
+
+              return Column(
+                children: genresToShow.map((genre) {
+                  final genreVideos = genreMap[genre] ?? [];
+                  if (genreVideos.isEmpty) return const SizedBox.shrink();
+                  
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24),
                     child: CategoryRow(
                       title: TagMapper.getTranslatedTag(genre),
-                      videos: genreMap[genre] ?? [],
+                      videos: genreVideos,
                       onVideoTap: controller.openVideoDetail,
                     ),
                   );
@@ -157,7 +160,21 @@ class HomePremiumBrowseView extends GetView<HomeController> {
 
           // Bottom padding
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
+          // Loading more indicator
+          Obx(() {
+            if (controller.isLoadingMore.value) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            }
+            return const SliverToBoxAdapter(child: SizedBox.shrink());
+          }),
         ],
+        ),
       ),
     );
   }

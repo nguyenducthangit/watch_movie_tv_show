@@ -7,7 +7,6 @@ import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 
 class DeleteWatchList {
   static void show({
-    required BuildContext context,
     required VideoItem video,
     required VoidCallback onRemove,
   }) {

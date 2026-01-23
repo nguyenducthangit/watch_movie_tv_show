@@ -18,6 +18,120 @@ class OphimRepository {
   late final Dio _dio;
   late final TranslateService _translateService;
 
+  /// Fetch initial movies (5 per country) for fast display
+  /// Returns first 5 movies from each country
+  Future<List<VideoItem>> fetchInitialMovies() async {
+    try {
+      final countrySlugs = OphimApi.countrySlugs;
+      final hasCountryFilter = countrySlugs.isNotEmpty;
+
+      logger.i('Fetching initial movies (5 per country)...');
+
+      final futures = <Future<List<VideoItem>>>[];
+
+      if (hasCountryFilter) {
+        // Fetch first page from each country (usually ~20 movies, we'll take first 5)
+        for (final slug in countrySlugs) {
+          futures.add(fetchMoviesByCountry(slug, page: 1, limit: 5));
+        }
+      } else {
+        // Fetch first page from default list
+        futures.add(
+          _fetchMoviePage(1).then((models) async {
+            final limitedModels = models.take(5).toList();
+            final videoItems = await Future.wait(limitedModels.map((movie) => _movieToVideoItem(movie)));
+            return videoItems;
+          }),
+        );
+      }
+
+      final results = await Future.wait(futures);
+      final allMovies = results.expand((list) => list).toList();
+
+      // Remove duplicates
+      final uniqueMovies = <String, VideoItem>{};
+      for (final movie in allMovies) {
+        uniqueMovies[movie.id] = movie;
+      }
+      final uniqueList = uniqueMovies.values.toList();
+
+      logger.i('Fetched ${uniqueList.length} initial movies');
+      return uniqueList;
+    } catch (e) {
+      logger.e('Error fetching initial movies: $e');
+      rethrow;
+    }
+  }
+
+  /// Fetch remaining movies (load more)
+  /// Skips first 5 movies from page 1 (already loaded in fetchInitialMovies)
+  Future<List<VideoItem>> fetchMoreMovies({
+    int quantityPagesFilm = OphimApi.quantityPagesFilm,
+  }) async {
+    try {
+      final countrySlugs = OphimApi.countrySlugs;
+      final hasCountryFilter = countrySlugs.isNotEmpty;
+
+      logger.i('Fetching more movies from countries...');
+
+      final futures = <Future<List<VideoItem>>>[];
+
+      if (hasCountryFilter) {
+        // Fetch from each country
+        for (final slug in countrySlugs) {
+          // Page 1: Skip first 5 (already loaded), take the rest
+          futures.add(
+            fetchMoviesByCountry(slug, page: 1).then((movies) {
+              // Skip first 5 movies
+              return movies.length > 5 ? movies.sublist(5) : <VideoItem>[];
+            }),
+          );
+          
+          // Other pages: load all
+          for (var i = 2; i <= quantityPagesFilm; i++) {
+            futures.add(fetchMoviesByCountry(slug, page: i));
+          }
+        }
+      } else {
+        // Fetch from default list
+        // Page 1: Skip first 5
+        futures.add(
+          _fetchMoviePage(1).then((models) async {
+            final limitedModels = models.length > 5 ? models.sublist(5) : <MovieModel>[];
+            final videoItems = await Future.wait(limitedModels.map((movie) => _movieToVideoItem(movie)));
+            return videoItems;
+          }),
+        );
+        
+        // Other pages: load all
+        for (var i = 2; i <= quantityPagesFilm; i++) {
+          futures.add(
+            _fetchMoviePage(i).then((models) async {
+              final videoItems = await Future.wait(models.map((movie) => _movieToVideoItem(movie)));
+              return videoItems;
+            }),
+          );
+        }
+      }
+
+      final results = await Future.wait(futures);
+      final allMovies = results.expand((list) => list).toList();
+
+      // Remove duplicates
+      final uniqueMovies = <String, VideoItem>{};
+      for (final movie in allMovies) {
+        uniqueMovies[movie.id] = movie;
+      }
+      final uniqueList = uniqueMovies.values.toList();
+
+      logger.i('Fetched ${uniqueList.length} more movies');
+      return uniqueList;
+    } catch (e) {
+      logger.e('Error fetching more movies: $e');
+      rethrow;
+    }
+  }
+
   /// Fetch home movie list with pagination
   /// If countries are defined in OphimApi, fetches from those countries.
   /// Otherwise fetches from the default latest list.
@@ -75,7 +189,7 @@ class OphimRepository {
   }
 
   /// Fetch movies by country
-  Future<List<VideoItem>> fetchMoviesByCountry(String countrySlug, {int page = 1}) async {
+  Future<List<VideoItem>> fetchMoviesByCountry(String countrySlug, {int page = 1, int? limit}) async {
     try {
       final response = await _dio.get(
         '${OphimApi.baseUrl}${OphimApi.countryEndpoint(countrySlug)}',
@@ -100,8 +214,13 @@ class OphimRepository {
 
         logger.i('Fetched ${items.length} movies for country $countrySlug page $page');
 
+        // Apply limit if specified
+        final limitedItems = limit != null && limit > 0 
+            ? items.take(limit).toList() 
+            : items;
+
         // Convert movies to video items with translation
-        final videoItems = await Future.wait(items.map((movie) => _movieToVideoItem(movie)));
+        final videoItems = await Future.wait(limitedItems.map((movie) => _movieToVideoItem(movie)));
 
         return videoItems;
       } else {
@@ -206,38 +325,31 @@ class OphimRepository {
       }
     } catch (e) {
       logger.e('Error fetching movie detail for slug $slug: $e');
-      rethrow;
+
+      // Provide user-friendly error messages
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionError ||
+            e.type == DioExceptionType.connectionTimeout) {
+          logger.e('Network error fetching $slug: Connection failed after retries');
+          throw Exception('Unable to connect. Please check your internet connection.');
+        } else if (e.type == DioExceptionType.receiveTimeout) {
+          throw Exception('Server took too long to respond. Please try again.');
+        } else if (e.response?.statusCode == 404) {
+          throw Exception('Movie not found');
+        } else if (e.response?.statusCode != null && e.response!.statusCode! >= 500) {
+          throw Exception('Server error. Please try again later.');
+        }
+      }
+
+      // Generic error message
+      throw Exception('Failed to load movie details. Please try again.');
     }
   }
 
   /// Convert MovieModel to VideoItem for UI compatibility
+  /// Returns VideoItem with original Vietnamese text (no translation here)
+  /// Translation will be handled in Splash or Home Controller
   Future<VideoItem> _movieToVideoItem(MovieModel movie) async {
-    // Translate title and description if translation is enabled
-    String? translatedTitle;
-    String? translatedDescription;
-    List<String>? translatedTags;
-
-    if (_translateService.isTranslationEnabled) {
-      try {
-        // Use batch translation for efficiency
-        final tags = movie.categories ?? <String>[];
-        final textsToTranslate = <String>[
-          movie.name,
-          if (movie.content != null && movie.content!.isNotEmpty) movie.content!,
-          ...tags,
-        ];
-
-        final translations = await _translateService.translateBatch(textsToTranslate);
-        translatedTitle = translations[movie.name];
-        translatedDescription = movie.content != null ? translations[movie.content!] : null;
-        translatedTags = tags.isNotEmpty ? tags.map((t) => translations[t] ?? t).toList() : null;
-        logger.i('Tags translation input: $tags');
-        logger.i('Tags translation output: $translatedTags');
-      } catch (e) {
-        logger.e('Error translating movie ${movie.name}: $e');
-      }
-    }
-
     return VideoItem(
       id: movie.slug,
       title: movie.name,
@@ -258,9 +370,10 @@ class OphimRepository {
       director: movie.director,
       country: movie.country,
       trailerUrl: movie.trailerUrl,
-      translatedTitle: translatedTitle,
-      translatedDescription: translatedDescription,
-      translatedTags: translatedTags,
+      // Translation fields will be set by Splash or Home Controller
+      translatedTitle: null,
+      translatedDescription: null,
+      translatedTags: null,
     );
   }
 

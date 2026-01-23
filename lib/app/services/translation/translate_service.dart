@@ -55,7 +55,7 @@ class TranslateService extends GetxService {
     if (text == null || text.isEmpty) return text;
 
     // No translation needed if target is Vietnamese
-    if (_currentTargetLanguage == 'en') return text;
+    if (_currentTargetLanguage == 'vi') return text;
 
     // Check cache first
     if (_translationCache.containsKey(text)) {
@@ -83,6 +83,7 @@ class TranslateService extends GetxService {
 
   /// Translate a batch of texts efficiently
   /// Returns map of original → translated text
+  /// Optimized to deduplicate texts before translation
   Future<Map<String, String>> translateBatch(List<String> texts) async {
     final results = <String, String>{};
 
@@ -102,16 +103,15 @@ class TranslateService extends GetxService {
       return results;
     }
 
-    // Process each text
-    for (final text in texts) {
-      if (text.isEmpty) {
-        results[text] = text;
-        continue;
-      }
+    // Deduplicate texts to avoid translating the same text multiple times
+    final uniqueTexts = texts.toSet().where((t) => t.isNotEmpty).toList();
+    final translationMap = <String, String>{};
 
-      // Check cache
+    // Translate unique texts first
+    for (final text in uniqueTexts) {
+      // Check cache first
       if (_translationCache.containsKey(text)) {
-        results[text] = _translationCache[text]!;
+        translationMap[text] = _translationCache[text]!;
         continue;
       }
 
@@ -119,10 +119,19 @@ class TranslateService extends GetxService {
       try {
         final translated = await _translator!.translateText(text);
         _translationCache[text] = translated;
-        results[text] = translated;
+        translationMap[text] = translated;
       } catch (e) {
         logger.e('Error translating "$text": $e');
-        results[text] = text; // Fallback
+        translationMap[text] = text; // Fallback
+      }
+    }
+
+    // Map results back to original list (including duplicates)
+    for (final text in texts) {
+      if (text.isEmpty) {
+        results[text] = text;
+      } else {
+        results[text] = translationMap[text] ?? text;
       }
     }
 
@@ -167,18 +176,18 @@ class TranslateService extends GetxService {
       case 'en_us':
       case 'en_gb':
         return 'en';
-      // case 'de':
-      //   return 'de';
-      // case 'es':
-      //   return 'es';
-      // case 'fr':
-      //   return 'fr';
-      // case 'pt':
-      //   return 'pt';
-      // case 'id':
-      //   return 'id';
-      // case 'hi':
-      //   return 'hi';
+      case 'de':
+        return 'de';
+      case 'es':
+        return 'es';
+      case 'fr':
+        return 'fr';
+      case 'pt':
+        return 'pt';
+      case 'id':
+        return 'id';
+      case 'hi':
+        return 'hi';
 
       default:
         // Default to English if unsupported

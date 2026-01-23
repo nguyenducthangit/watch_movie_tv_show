@@ -42,11 +42,15 @@ class DetailController extends GetxController {
   }
 
   /// Load full movie detail from API
+  /// Prioritizes loading detail immediately when user opens detail page
   Future<void> _loadMovieDetail() async {
     try {
       if (video.slug == null || video.slug!.isEmpty) return;
 
       isLoadingDetail.value = true;
+      
+      // Fetch detail with high priority (user is viewing this movie)
+      logger.i('Loading movie detail for: ${video.slug} (high priority)');
       final detail = await _repository.fetchMovieDetail(video.slug!);
 
       // Store full MovieModel for UI access
@@ -244,7 +248,14 @@ class DetailController extends GetxController {
     } catch (e, stack) {
       logger.e('Failed to play video: $e');
       logger.e('Stack trace: $stack');
-      Get.snackbar('Error', 'Failed to load video stream: $e');
+
+      final errorMessage = _getReadableErrorMessage(e);
+      Get.snackbar(
+        L.noInternetTitle.tr,
+        errorMessage,
+        duration: const Duration(seconds: 5),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoadingDetail.value = false;
     }
@@ -284,5 +295,25 @@ class DetailController extends GetxController {
       return progress!.remainingFormatted;
     }
     return null;
+  }
+
+  /// Convert exception to user-friendly error message
+  String _getReadableErrorMessage(dynamic error) {
+    final errorStr = error.toString();
+
+    if (errorStr.contains('internet connection') || errorStr.contains('Unable to connect')) {
+      return L.checkConnection.tr;
+    }
+    if (errorStr.contains('not found') || errorStr.contains('404')) {
+      return 'Movie not available';
+    }
+    if (errorStr.contains('Server error') || errorStr.contains('500')) {
+      return 'Server is currently unavailable. Please try again later.';
+    }
+    if (errorStr.contains('timeout') || errorStr.contains('too long')) {
+      return 'Request timed out. Please check your connection and try again.';
+    }
+
+    return 'Unable to load video. Please try again later.';
   }
 }

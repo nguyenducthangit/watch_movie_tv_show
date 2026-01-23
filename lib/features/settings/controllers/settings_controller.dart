@@ -1,9 +1,10 @@
-import 'package:exo_shared/exo_shared.dart' show BaseController, RateDialog;
+import 'package:exo_shared/exo_shared.dart' show BaseController;
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:watch_movie_tv_show/app/config/app_config.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
+import 'package:watch_movie_tv_show/app/dialog/rate_dialog.dart';
 import 'package:watch_movie_tv_show/app/services/shared_pref_service.dart';
 
 import '../../../app/translations/lang/lang.dart';

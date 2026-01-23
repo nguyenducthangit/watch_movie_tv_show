@@ -24,7 +24,7 @@ class LanguageFirstOpenController extends LanguageController {
   @override
   Future<void> onChanged(LanguageCode langCode) async {
     super.onChanged(langCode);
-    // await Future.delayed(durationDelay);
+    await Future.delayed(const Duration(seconds: 10));
     canShowSubmitButton.value = true;
   }
 

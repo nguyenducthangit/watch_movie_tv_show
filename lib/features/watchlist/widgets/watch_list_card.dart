@@ -26,7 +26,7 @@ class WatchlistCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           onLongPress: () {
-            DeleteWatchList.show(context: context, video: video, onRemove: onRemove);
+            DeleteWatchList.show(video: video, onRemove: onRemove);
           },
           borderRadius: BorderRadius.circular(12),
           child: Stack(

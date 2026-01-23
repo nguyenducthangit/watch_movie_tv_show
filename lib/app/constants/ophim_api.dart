@@ -13,6 +13,14 @@ class OphimApi {
   static const String listEndpoint = '/danh-sach'; // Supports pagination
   static String movieDetailEndpoint(String slug) => '/phim/$slug';
   static String countryEndpoint(String slug) => '/quoc-gia/$slug';
-  static List<String> countrySlugs = ['duc','phap','tay-ban-nha','an-do','bo-dao-nha','indonesia','anh',];
+  static List<String> countrySlugs = [
+    'duc',
+    'phap',
+    'tay-ban-nha',
+    'an-do',
+    'bo-dao-nha',
+    'indonesia',
+    'anh',
+  ];
   static const int quantityPagesFilm = 1;
 }

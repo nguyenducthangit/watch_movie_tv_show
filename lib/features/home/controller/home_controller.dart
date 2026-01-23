@@ -7,6 +7,7 @@ import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/repositories/ophim_repository.dart';
 import 'package:watch_movie_tv_show/app/popups/data_source_policy_.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
+import 'package:watch_movie_tv_show/app/services/preload_service.dart';
 import 'package:watch_movie_tv_show/app/services/shared_pref_service.dart';
 import 'package:watch_movie_tv_show/app/services/watch_progress_service.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
@@ -44,6 +45,8 @@ class HomeController extends GetxController {
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
   final RxBool isSharing = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMoreMovies = true.obs;
 
   // Data
   final RxList<VideoItem> videos = <VideoItem>[].obs;
@@ -103,16 +106,80 @@ class HomeController extends GetxController {
     }
   }
 
-  /// Load videos from repository
+  /// Load videos from repository or use preloaded data
   Future<void> loadVideos() async {
     try {
       isLoading.value = true;
       hasError.value = false;
 
-      final movieList = await _repo.fetchHomeMovies();
-      videos.value = movieList;
+      // Check for preloaded data first
+      PreloadService? preloadService;
+      try {
+        preloadService = Get.find<PreloadService>();
+      } catch (e) {
+        logger.w('PreloadService not available: $e');
+      }
 
-      // Extract unique tags from all videos
+      List<VideoItem> movieList;
+
+      if (preloadService != null && preloadService.hasPreloadedData()) {
+        final preloaded = preloadService.getPreloadedMovies();
+        if (preloaded != null) {
+          logger.i('Using preloaded data: ${preloaded.length} movies');
+          movieList = preloaded;
+
+          // Extract unique tags from all videos
+          final allTags = <String>{};
+          for (final video in movieList) {
+            if (video.tags != null) {
+              allTags.addAll(video.tags!);
+            }
+          }
+          tags.value = allTags.toList();
+
+          if (preloadService.isPreloadComplete) {
+            logger.i('Preload complete with translation, showing videos');
+            // Preload complete means translation is already done
+            // Just verify translations exist, if not translate now
+            final hasTranslations = movieList.isNotEmpty && 
+                movieList.first.translatedTitle != null && 
+                movieList.first.translatedTitle!.isNotEmpty;
+            
+            if (!hasTranslations) {
+              logger.w('Preload complete but no translations found, translating now...');
+              // Translate before showing
+              movieList = await _translateMoviesList(movieList);
+            }
+          } else {
+            logger.i('Preload in progress, waiting for translation to complete...');
+            // Preload not complete - wait for translation to finish
+            // Don't show UI until translation is done
+            movieList = await _translateMoviesList(movieList);
+            logger.i('Translation completed, showing videos');
+          }
+
+          // Now show the translated movies
+          videos.value = movieList;
+          _setupPremiumSections();
+          _applyFilters();
+          isLoading.value = false;
+
+          // Load more movies in background (since preload only loaded initial 5 per country)
+          _loadMoreMoviesInBackground();
+
+          // Show copyright notice popup on first launch after movies load
+          _showCopyrightNoticeIfNeeded();
+          return;
+        }
+      }
+
+      // Progressive loading: Load initial 5 movies per country, translate and show immediately
+      logger.i('Loading initial movies (5 per country) and translating...');
+      
+      // Load initial movies (5 per country) - fast
+      movieList = await _repo.fetchInitialMovies();
+      
+      // Extract unique tags from initial videos
       final allTags = <String>{};
       for (final video in movieList) {
         if (video.tags != null) {
@@ -121,13 +188,38 @@ class HomeController extends GetxController {
       }
       tags.value = allTags.toList();
 
+      // Translate initial movies immediately
+      final translationCtrl = _translationController;
+      final langRepo = _languageRepository;
+      
+      if (translationCtrl != null && langRepo != null && movieList.isNotEmpty) {
+        try {
+          final currentLang = langRepo.getCurLangCode();
+          logger.i('Translating ${movieList.length} initial movies to ${currentLang.name}...');
+          
+          // Translate using smart batch (faster)
+          final translatedList = await translationCtrl.translateMoviesSmartBatch(
+            movies: movieList,
+            targetLang: currentLang,
+          );
+          
+          movieList = translatedList;
+          _lastTranslatedLang = currentLang;
+          logger.i('Translation completed for ${movieList.length} initial movies');
+        } catch (e) {
+          logger.e('Failed to translate initial movies: $e');
+        }
+      }
+
+      // Show initial movies immediately
+      videos.value = movieList;
       _setupPremiumSections();
       _applyFilters();
+      isLoading.value = false;
+      logger.i('Loaded ${videos.length} initial videos, continuing to load more in background...');
 
-      // Translate movies if translation is available
-      await _translateMoviesIfNeeded();
-
-      logger.i('Loaded ${videos.length} videos');
+      // Load remaining movies in background
+      _loadMoreMoviesInBackground();
 
       // Show copyright notice popup on first launch after movies load
       _showCopyrightNoticeIfNeeded();
@@ -135,7 +227,6 @@ class HomeController extends GetxController {
       logger.e('Failed to load videos: $e');
       hasError.value = true;
       errorMessage.value = e.toString();
-    } finally {
       isLoading.value = false;
     }
   }
@@ -250,15 +341,39 @@ class HomeController extends GetxController {
     // New Releases: Could be sorted by date, for now use last items
     newReleases.value = allVideos.reversed.take(10).toList();
 
-    // Videos by genre
+    // Videos by genre - shuffle and avoid duplicates between genres
     final genreMap = <String, List<VideoItem>>{};
+    final usedVideoIds = <String>{};
+    
+    // First pass: collect all genres
     for (final video in allVideos) {
       if (video.tags != null) {
         for (final tag in video.tags!) {
-          genreMap.putIfAbsent(tag, () => []).add(video);
+          genreMap.putIfAbsent(tag, () => []);
         }
       }
     }
+    
+    // Shuffle genre keys for random order
+    final genreKeys = genreMap.keys.toList()..shuffle();
+    
+    // Second pass: assign videos to genres, avoiding duplicates
+    // Each video appears in maximum 1 genre to avoid repetition
+    for (final genre in genreKeys) {
+      final genreVideos = <VideoItem>[];
+      for (final video in allVideos) {
+        if (video.tags != null && 
+            video.tags!.contains(genre) && 
+            !usedVideoIds.contains(video.id)) {
+          genreVideos.add(video);
+          usedVideoIds.add(video.id);
+        }
+      }
+      // Shuffle videos within each genre for variety
+      genreVideos.shuffle();
+      genreMap[genre] = genreVideos;
+    }
+    
     videosByGenre.value = genreMap;
 
     // Continue watching
@@ -343,8 +458,26 @@ class HomeController extends GetxController {
   }
 
   /// Navigate to video detail
+  /// Prioritize loading movie detail before navigation
   void openVideoDetail(VideoItem video) {
+    // Pre-load movie detail in background for faster navigation (fire and forget)
+    if (video.slug != null && video.slug!.isNotEmpty) {
+      // Start loading detail in background (non-blocking)
+      // This will help DetailController load faster
+      _preloadMovieDetail(video.slug!);
+    }
+    
+    // Navigate immediately (detail will load again in DetailController)
     Get.toNamed(MRoutes.detail, arguments: video);
+  }
+
+  /// Preload movie detail in background
+  void _preloadMovieDetail(String slug) {
+    _repo.fetchMovieDetail(slug).then((_) {
+      logger.i('Preloaded detail for $slug');
+    }).catchError((e) {
+      logger.e('Failed to preload detail for $slug: $e');
+    });
   }
 
   /// Play video directly - fetch detail to get stream URL
@@ -412,6 +545,110 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Load more movies in background (after initial load)
+  Future<void> _loadMoreMoviesInBackground() async {
+    try {
+      logger.i('Loading more movies in background...');
+      
+      // Load remaining movies
+      final moreMovies = await _repo.fetchMoreMovies();
+      
+      if (moreMovies.isEmpty) {
+        hasMoreMovies.value = false;
+        logger.i('No more movies to load');
+        return;
+      }
+
+      // Remove duplicates with existing videos
+      final existingIds = videos.map((v) => v.id).toSet();
+      final newMovies = moreMovies.where((m) => !existingIds.contains(m.id)).toList();
+
+      if (newMovies.isEmpty) {
+        hasMoreMovies.value = false;
+        logger.i('No new movies to add');
+        return;
+      }
+
+      // Translate new movies
+      final translatedNewMovies = await _translateMoviesList(newMovies);
+
+      // Add to existing videos
+      videos.addAll(translatedNewMovies);
+
+      // Update tags
+      final allTags = <String>{};
+      for (final video in videos) {
+        if (video.tags != null) {
+          allTags.addAll(video.tags!);
+        }
+      }
+      tags.value = allTags.toList();
+
+      // Re-setup premium sections
+      _setupPremiumSections();
+      _applyFilters();
+
+      logger.i('Added ${translatedNewMovies.length} more movies, total: ${videos.length}');
+    } catch (e) {
+      logger.e('Failed to load more movies: $e');
+      hasMoreMovies.value = false;
+    }
+  }
+
+  /// Load more movies (lazy loading when user scrolls)
+  Future<void> loadMoreMovies() async {
+    if (isLoadingMore.value || !hasMoreMovies.value) return;
+
+    try {
+      isLoadingMore.value = true;
+      logger.i('Loading more movies (lazy load)...');
+
+      // Load remaining movies
+      final moreMovies = await _repo.fetchMoreMovies();
+
+      if (moreMovies.isEmpty) {
+        hasMoreMovies.value = false;
+        isLoadingMore.value = false;
+        return;
+      }
+
+      // Remove duplicates
+      final existingIds = videos.map((v) => v.id).toSet();
+      final newMovies = moreMovies.where((m) => !existingIds.contains(m.id)).toList();
+
+      if (newMovies.isEmpty) {
+        hasMoreMovies.value = false;
+        isLoadingMore.value = false;
+        return;
+      }
+
+      // Translate new movies
+      final translatedNewMovies = await _translateMoviesList(newMovies);
+
+      // Add to existing videos
+      videos.addAll(translatedNewMovies);
+
+      // Update tags
+      final allTags = <String>{};
+      for (final video in videos) {
+        if (video.tags != null) {
+          allTags.addAll(video.tags!);
+        }
+      }
+      tags.value = allTags.toList();
+
+      // Re-setup premium sections
+      _setupPremiumSections();
+      _applyFilters();
+
+      logger.i('Lazy loaded ${translatedNewMovies.length} more movies, total: ${videos.length}');
+    } catch (e) {
+      logger.e('Failed to load more movies: $e');
+    } finally {
+      isLoadingMore.value = false;
+    }
+  }
+
   /// Retry loading
   void retry() {
     loadVideos();
@@ -426,21 +663,63 @@ class HomeController extends GetxController {
   // Track last translated language to avoid redundant translations
   LanguageCode? _lastTranslatedLang;
 
+  /// Translate a list of movies and return translated list
+  Future<List<VideoItem>> _translateMoviesList(List<VideoItem> movies) async {
+    final translationCtrl = _translationController;
+    final langRepo = _languageRepository;
+
+    if (translationCtrl == null || langRepo == null || movies.isEmpty) {
+      logger.w('Translation not available, returning original movies');
+      return movies;
+    }
+
+    try {
+      final currentLang = langRepo.getCurLangCode();
+      logger.i('Translating ${movies.length} movies to ${currentLang.name}...');
+      
+      // Translate using smart batch (faster)
+      final translatedList = await translationCtrl.translateMoviesSmartBatch(
+        movies: movies,
+        targetLang: currentLang,
+      );
+      
+      _lastTranslatedLang = currentLang;
+      logger.i('Translation completed for ${translatedList.length} movies');
+      return translatedList;
+    } catch (e) {
+      logger.e('Failed to translate movies: $e');
+      return movies; // Return original on error
+    }
+  }
+
   /// Translate movies based on current language
   Future<void> _translateMoviesIfNeeded() async {
     final translationCtrl = _translationController;
     final langRepo = _languageRepository;
 
-    if (translationCtrl == null || langRepo == null || videos.isEmpty) return;
+    if (translationCtrl == null || langRepo == null || videos.isEmpty) {
+      logger.w('Translation not available: ctrl=${translationCtrl != null}, repo=${langRepo != null}, videos=${videos.length}');
+      return;
+    }
 
     try {
       // Get current language
       final currentLang = langRepo.getCurLangCode();
 
-      // Skip if already translated to this language
-      if (_lastTranslatedLang == currentLang) {
+      // Check if movies already have translations
+      final hasTranslations = videos.isNotEmpty && 
+          videos.first.translatedTitle != null && 
+          videos.first.translatedTitle!.isNotEmpty;
+
+      // Skip if already translated to this language AND has translations
+      if (_lastTranslatedLang == currentLang && hasTranslations) {
         logger.i('Movies already translated to ${currentLang.name}, skipping');
         return;
+      }
+
+      // If no translations exist, force translation even if language matches
+      if (!hasTranslations) {
+        logger.i('Movies have no translations, translating to ${currentLang.name}...');
       }
 
       logger.i('Translating ${videos.length} movies to ${currentLang.name}...');

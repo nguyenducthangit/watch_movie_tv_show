@@ -24,8 +24,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_chevron_right.svg
   SvgGenImage get icChevronRight => const SvgGenImage('assets/icons/ic_chevron_right.svg');
 
+  /// File path: assets/icons/ic_close.svg
+  SvgGenImage get icClose => const SvgGenImage('assets/icons/ic_close.svg');
+
   /// Directory path: assets/icons/ic_flags
   $AssetsIconsIcFlagsGen get icFlags => const $AssetsIconsIcFlagsGen();
+
+  /// File path: assets/icons/ic_rate_enable.svg
+  SvgGenImage get icRateEnable => const SvgGenImage('assets/icons/ic_rate_enable.svg');
 
   /// File path: assets/icons/ic_settings_language.svg
   SvgGenImage get icSettingsLanguage => const SvgGenImage('assets/icons/ic_settings_language.svg');
@@ -47,6 +53,8 @@ class $AssetsIconsGen {
         arrowDown,
         icCheck,
         icChevronRight,
+        icClose,
+        icRateEnable,
         icSettingsLanguage,
         icSettingsPrivacy,
         icSettingsRate,

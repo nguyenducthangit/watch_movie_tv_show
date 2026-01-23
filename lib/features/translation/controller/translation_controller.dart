@@ -137,6 +137,88 @@ class TranslationController extends BaseController {
     return updatedList;
   }
 
+  /// Smart batch translation: Collect all unique texts and translate in one batch
+  /// This is more efficient than translating each movie individually
+  /// Used for pre-loading in splash screen
+  Future<List<VideoItem>> translateMoviesSmartBatch({
+    required List<VideoItem> movies,
+    required LanguageCode targetLang,
+  }) async {
+    if (movies.isEmpty) return movies;
+
+    isTranslating.value = true;
+    translationError.value = '';
+
+    try {
+      // Ensure service is using correct language
+      if (_translateService.targetLanguage != _getLanguageCode(targetLang)) {
+        await _translateService.changeLanguage(_getLanguageCode(targetLang));
+      }
+
+      // Collect all unique texts from all movies
+      final allTexts = <String>{};
+      final movieTextMap = <VideoItem, List<String>>{};
+
+      for (final movie in movies) {
+        final texts = <String>[
+          movie.title,
+          if (movie.description != null && movie.description!.isNotEmpty) movie.description!,
+          if (movie.tags != null) ...movie.tags!,
+        ];
+        movieTextMap[movie] = texts;
+        allTexts.addAll(texts);
+      }
+
+      // Remove empty strings
+      allTexts.removeWhere((text) => text.isEmpty);
+
+      logger.i('Translating ${allTexts.length} unique texts for ${movies.length} movies');
+
+      // Translate all unique texts in one batch
+      final translations = await _translateService.translateBatch(allTexts.toList());
+
+      // Map translations back to movies
+      final translatedMovies = <VideoItem>[];
+      for (final movie in movies) {
+        final texts = movieTextMap[movie]!;
+        String? translatedTitle;
+        String? translatedDescription;
+        List<String>? translatedTags;
+
+        if (texts.isNotEmpty) {
+          translatedTitle = translations[texts[0]] ?? movie.title;
+          if (texts.length > 1 && movie.description != null) {
+            translatedDescription = translations[texts[1]] ?? movie.description;
+          }
+          if (movie.tags != null && texts.length > (movie.description != null ? 2 : 1)) {
+            final tagStartIndex = movie.description != null ? 2 : 1;
+            translatedTags = movie.tags!
+                .map((tag) => translations[tag] ?? tag)
+                .toList();
+          }
+        }
+
+        translatedMovies.add(
+          movie.copyWith(
+            translatedTitle: translatedTitle,
+            translatedDescription: translatedDescription,
+            translatedTags: translatedTags,
+          ),
+        );
+      }
+
+      isTranslating.value = false;
+      logger.i('Smart batch translation completed for ${movies.length} movies');
+      return translatedMovies;
+    } catch (e) {
+      logger.e('Failed to translate movies with smart batch: $e');
+      translationError.value = 'Smart batch translation failed';
+      isTranslating.value = false;
+      // Return original movies on error
+      return movies;
+    }
+  }
+
   /// Clear translation cache
   Future<void> clearCache() async {
     _translateService.clearCache();
