@@ -124,10 +124,10 @@ const Map<String, String> enLang = {
 
   /// Settings
   L.settings: 'Settings',
-  L.settingsLanguage: 'Settings Language',
-  L.settingsRateUs: 'Settings Rate Us',
-  L.settingsShare: 'Settings Share',
-  L.settingsPrivacyPolicy: 'Settings Privacy Policy',
+  L.settingsLanguage: 'Language',
+  L.settingsRateUs: 'Rate Us',
+  L.settingsShare: 'Share',
+  L.settingsPrivacyPolicy: 'Privacy Policy',
 
   /// Rate
   L.rateTitle: 'Rate Title',

@@ -163,7 +163,6 @@ class _ExpandableSearchBarState extends State<ExpandableSearchBar>
             IconButton(
               onPressed: widget.onCollapse,
               icon: const Icon(Icons.close, color: _kGoldPrimary, size: 22),
-              splashRadius: 10,
             ),
             const SizedBox(width: 4),
           ],

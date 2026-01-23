@@ -118,7 +118,7 @@ const Map<String, String> esLang = {
 
   /// Settings
   L.settings: 'Configuraciones',
-  L.settingsLanguage: 'Idioma de Configuraciones',
+  L.settingsLanguage: 'Idioma',
   L.settingsRateUs: 'Califícanos',
   L.settingsShare: 'Compartir',
   L.settingsPrivacyPolicy: 'Política de Privacidad',

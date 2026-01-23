@@ -1,11 +1,18 @@
 import 'package:get/get.dart';
+import 'package:watch_movie_tv_show/features/home/controller/home_controller.dart';
 
 /// Main Navigation Controller
 class MainNavController extends GetxController {
   final RxInt currentIndex = 0.obs;
-
-  /// Change tab index
   void changeTab(int index) {
+    if (index == 0 && currentIndex.value == 0) {
+      try {
+        final homeController = Get.find<HomeController>();
+        homeController.resetToHome();
+      } catch (e) {
+        // HomeController not found, ignore
+      }
+    }
     currentIndex.value = index;
   }
 

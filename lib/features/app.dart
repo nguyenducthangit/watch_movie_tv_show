@@ -16,17 +16,13 @@ class App extends StatelessWidget {
     return GetMaterialApp(
       title: L.appName.tr,
       debugShowCheckedModeBanner: false,
-      // Theme
       theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      // Navigation
       initialRoute: MRoutes.initial,
       onGenerateRoute: MRoutes.onGenerateRoute,
-      // Default transitions
       defaultTransition: Transition.fade,
       transitionDuration: const Duration(milliseconds: 250),
-      // Scroll behavior
       scrollBehavior: const ScrollBehavior().copyWith(overscroll: false),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

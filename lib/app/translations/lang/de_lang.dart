@@ -118,7 +118,7 @@ const Map<String, String> deLang = {
 
   /// Settings
   L.settings: 'Einstellungen',
-  L.settingsLanguage: 'Sprache einstellen',
+  L.settingsLanguage: 'Sprache',
   L.settingsRateUs: 'Bewerten Sie uns',
   L.settingsShare: 'Teilen',
   L.settingsPrivacyPolicy: 'Datenschutzrichtlinie',

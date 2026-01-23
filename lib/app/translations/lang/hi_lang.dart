@@ -118,7 +118,7 @@ const Map<String, String> hiLang = {
 
   /// Settings
   L.settings: 'सेटिंग्स',
-  L.settingsLanguage: 'सेटिंग्स भाषा',
+  L.settingsLanguage: 'भाषा',
   L.settingsRateUs: 'हमें रेट करें',
   L.settingsShare: 'शेयर',
   L.settingsPrivacyPolicy: 'गोपनीयता नीति',

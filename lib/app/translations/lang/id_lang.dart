@@ -118,7 +118,7 @@ const Map<String, String> idLang = {
 
   /// Settings
   L.settings: 'Pengaturan',
-  L.settingsLanguage: 'Bahasa Pengaturan',
+  L.settingsLanguage: 'Bahasa',
   L.settingsRateUs: 'Nilai Kami',
   L.settingsShare: 'Bagikan',
   L.settingsPrivacyPolicy: 'Kebijakan Privasi',
