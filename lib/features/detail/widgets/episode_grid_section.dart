@@ -5,6 +5,7 @@ import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/movie_model.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
+import 'package:watch_movie_tv_show/app/utils/quality_mapper.dart';
 
 /// Episode Grid Section Widget
 /// Displays episodes in a grid layout with server selection for series
@@ -146,7 +147,7 @@ class _EpisodeCard extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            episode.name,
+            QualityMapper.translate(episode.name),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

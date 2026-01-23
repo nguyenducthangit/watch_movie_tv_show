@@ -63,6 +63,11 @@ class L {
   static const psychological = 'psychological'; // tâm lý
   static const romance = 'romance'; // tình cảm
   static const shortDrama = 'shortDrama'; // short drama
+  static const sport = 'sport'; // thể thao
+  static const music = 'music'; // âm nhạc
+  static const animation = 'animation'; // hoạt hình
+  static const fantasy = 'fantasy'; // giả tưởng
+  static const thriller = 'thriller'; // hồi hộp
 
   // download
   static const download = 'download';

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
+import 'package:watch_movie_tv_show/app/utils/quality_mapper.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 
 /// Detail Info Header Widget
 /// Displays movie metadata: title, year, quality, language, episodes, categories
@@ -61,14 +63,18 @@ class DetailInfoHeader extends StatelessWidget {
             if (year != null)
               _MetadataBadge(label: year.toString(), icon: Icons.calendar_today_rounded),
 
-            // Quality badge (HD, FHD)
+            // Quality badge (HD, FHD) - Translated
             if (quality != null && quality!.isNotEmpty)
-              _MetadataBadge(label: quality!, icon: Icons.hd_rounded, isPremium: true),
+              _MetadataBadge(
+                label: QualityMapper.translate(quality),
+                icon: Icons.hd_rounded,
+                isPremium: true,
+              ),
 
-            // Episode progress
+            // Episode progress - Translate episodeCurrent (e.g., "Full" -> "पूर्ण" in Hindi)
             if (episodeCurrent != null && episodeTotal != null)
               _MetadataBadge(
-                label: '$episodeCurrent/$episodeTotal',
+                label: '${TagMapper.getTranslatedTag(episodeCurrent!)}/$episodeTotal',
                 icon: Icons.video_library_rounded,
               ),
           ],
@@ -89,7 +95,7 @@ class DetailInfoHeader extends StatelessWidget {
                   border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
                 ),
                 child: Text(
-                  category,
+                  TagMapper.getTranslatedTag(category),
                   style: MTextTheme.captionRegular.copyWith(color: AppColors.textSecondary),
                 ),
               );

@@ -69,6 +69,11 @@ const Map<String, String> enLang = {
   L.psychological: 'Psychological',
   L.romance: 'Romance',
   L.shortDrama: 'Short Drama',
+  L.sport: 'Sport',
+  L.music: 'Music',
+  L.animation: 'Animation',
+  L.fantasy: 'Fantasy',
+  L.thriller: 'Thriller',
 
   // download
   L.download: 'Download',

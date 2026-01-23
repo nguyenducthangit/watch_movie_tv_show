@@ -4,6 +4,7 @@ import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/glass_card.dart';
+import 'package:watch_movie_tv_show/app/utils/quality_mapper.dart';
 
 /// Quality Selector Widget
 /// Modal for selecting video playback quality
@@ -79,7 +80,8 @@ class QualitySelector extends StatelessWidget {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        quality,
+                        // translate common quality tokens before displaying
+                        QualityMapper.translate(quality),
                         style: MTextTheme.body1Medium.copyWith(
                           color: isSelected ? AppColors.primary : AppColors.textPrimary,
                         ),

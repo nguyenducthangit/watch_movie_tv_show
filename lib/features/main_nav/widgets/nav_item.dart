@@ -19,9 +19,8 @@ class NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque, // Bắt sự kiện chạm cả vùng trống
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        // Dùng Container trong suốt để giữ kích thước cố định, tránh layout bị nhảy
         width: 70,
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Column(
@@ -30,14 +29,11 @@ class NavItem extends StatelessWidget {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 250),
-              curve: isSelected
-                  ? Curves.easeOutBack
-                  : Curves.easeOut, // Fix crash: easeOutBack gây overshoot âm cho shadow
+              curve: isSelected ? Curves.easeOutBack : Curves.easeOut,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary.withValues(alpha: 0.15) : Colors.transparent,
                 shape: BoxShape.circle,
-                // Hiệu ứng phát sáng nhẹ (Glow) khi chọn
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -50,7 +46,6 @@ class NavItem extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                // Khi chọn thì icon to hơn 1 chút
                 size: isSelected ? 26 : 24,
                 color: isSelected ? AppColors.primary : Colors.grey.shade600,
               ),
@@ -58,16 +53,15 @@ class NavItem extends StatelessWidget {
 
             const SizedBox(height: 4),
 
-            // 2. Text nằm dưới, không đẩy ngang
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
-                fontSize: 11, // Font nhỏ tinh tế
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? AppColors.primary : Colors.grey.shade600,
                 letterSpacing: 0.3,
               ),
-              child: Text(label),
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),

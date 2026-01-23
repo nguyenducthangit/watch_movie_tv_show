@@ -21,12 +21,12 @@ class DownloadAppBar extends StatelessWidget {
               TextButton(
                 onPressed: controller.unselectAll,
                 child: Text(
-                  L.unselectAll,
+                  L.unselectAll.tr,
                   style: MTextTheme.body2Medium.copyWith(color: AppColors.primary),
                 ),
               )
             else
-              Text(L.downloads, style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary)),
+              Text(L.downloads.tr, style: MTextTheme.h2Bold.copyWith(color: AppColors.textPrimary)),
             const Spacer(),
 
             // Right side - Edit or Cancel
@@ -35,7 +35,7 @@ class DownloadAppBar extends StatelessWidget {
                 TextButton(
                   onPressed: controller.toggleEditMode,
                   child: Text(
-                    L.cancel,
+                    L.cancel.tr,
                     style: MTextTheme.body2Medium.copyWith(color: AppColors.textSecondary),
                   ),
                 )
@@ -43,7 +43,7 @@ class DownloadAppBar extends StatelessWidget {
                 TextButton(
                   onPressed: controller.toggleEditMode,
                   child: Text(
-                    L.edit,
+                    L.edit.tr,
                     style: MTextTheme.body2Medium.copyWith(color: AppColors.primary),
                   ),
                 ),

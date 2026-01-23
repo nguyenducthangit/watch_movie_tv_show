@@ -371,12 +371,6 @@ class DownloadService extends GetxService {
       // Trigger UI update
       _refreshLists();
 
-      Get.snackbar(
-        'Download Cancelled',
-        'Download has been cancelled',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-
       // Recalculate storage
       calculateStorage();
     } catch (e) {

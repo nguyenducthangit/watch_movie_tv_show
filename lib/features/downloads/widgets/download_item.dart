@@ -5,6 +5,7 @@ import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
+import 'package:watch_movie_tv_show/features/downloads/controller/downloads_controller.dart';
 
 class DownloadItem extends StatelessWidget {
   const DownloadItem({
@@ -85,12 +86,17 @@ class DownloadItem extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        task.videoTitle,
-                        style: MTextTheme.body2Medium.copyWith(color: AppColors.textPrimary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      // Use Get.find to access controller for translation
+                      Obx(() {
+                        final controller = Get.find<DownloadsController>();
+                        final title = controller.translatedTitles[task.videoId] ?? task.videoTitle;
+                        return Text(
+                          title,
+                          style: MTextTheme.body2Medium.copyWith(color: AppColors.textPrimary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      }),
                       const SizedBox(height: 4),
                       Row(
                         children: [

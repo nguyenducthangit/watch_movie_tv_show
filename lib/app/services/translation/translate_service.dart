@@ -167,6 +167,19 @@ class TranslateService extends GetxService {
       case 'en_us':
       case 'en_gb':
         return 'en';
+      // case 'de':
+      //   return 'de';
+      // case 'es':
+      //   return 'es';
+      // case 'fr':
+      //   return 'fr';
+      // case 'pt':
+      //   return 'pt';
+      // case 'id':
+      //   return 'id';
+      // case 'hi':
+      //   return 'hi';
+
       default:
         // Default to English if unsupported
         logger.w('Unsupported language code: $code, defaulting to English');

@@ -140,12 +140,12 @@ class HomePremiumBrowseView extends GetView<HomeController> {
                     );
 
               if (genres.isEmpty) return const SizedBox.shrink();
-              return Column(
+                return Column(
                 children: genres.map((genre) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24),
                     child: CategoryRow(
-                      title: genre,
+                      title: TagMapper.getTranslatedTag(genre),
                       videos: genreMap[genre] ?? [],
                       onVideoTap: controller.openVideoDetail,
                     ),

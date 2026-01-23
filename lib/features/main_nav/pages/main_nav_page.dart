@@ -53,19 +53,19 @@ class MainNavPage extends GetView<MainNavController> {
                 children: [
                   NavItem(
                     icon: Icons.home_rounded,
-                    label: L.home,
+                    label: L.home.tr,
                     isSelected: controller.currentIndex.value == 0,
                     onTap: () => controller.changeTab(0),
                   ),
                   NavItem(
                     icon: Icons.download_rounded,
-                    label: L.downloads,
+                    label: L.downloads.tr,
                     isSelected: controller.currentIndex.value == 1,
                     onTap: () => controller.changeTab(1),
                   ),
                   NavItem(
                     icon: Icons.bookmark_rounded,
-                    label: L.watchlist,
+                    label: L.watchlist.tr,
                     isSelected: controller.currentIndex.value == 2,
                     onTap: () => controller.changeTab(2),
                   ),

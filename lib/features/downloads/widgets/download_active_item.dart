@@ -39,12 +39,15 @@ class DownloadActiveItem extends GetWidget<DownloadsController> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      task.videoTitle,
-                      style: MTextTheme.body2Medium.copyWith(color: AppColors.textPrimary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Obx(() {
+                      final title = controller.translatedTitles[task.videoId] ?? task.videoTitle;
+                      return Text(
+                        title,
+                        style: MTextTheme.body2Medium.copyWith(color: AppColors.textPrimary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    }),
                     const SizedBox(height: 8),
                     Row(
                       children: [

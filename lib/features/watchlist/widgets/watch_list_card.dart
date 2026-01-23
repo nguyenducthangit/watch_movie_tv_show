@@ -3,6 +3,7 @@ import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/config/theme/m_text_theme.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/dialog/delete_watch_list.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 
 class WatchlistCard extends StatelessWidget {
@@ -58,22 +59,23 @@ class WatchlistCard extends StatelessWidget {
                   children: [
                     if (video.tags != null && video.tags!.isNotEmpty)
                       Text(
-                        video.tags!.first,
+                        // Import TagMapper if needed, assuming it's available or need import
+                        TagMapper.getTranslatedTag(video.tags!.first),
                         style: MTextTheme.captionMedium.copyWith(
                           color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     const SizedBox(height: 4),
                     Text(
-                      video.title,
+                      video.displayTitle,
                       style: MTextTheme.body1Medium.copyWith(color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (video.description != null) ...[
+                    if (video.displayDescription != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        video.description!,
+                        video.displayDescription!,
                         style: MTextTheme.captionRegular.copyWith(
                           color: Colors.white.withValues(alpha: 0.8),
                         ),

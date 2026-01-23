@@ -7,10 +7,32 @@ import 'package:watch_movie_tv_show/app/dialog/delete_download.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/utils/extensions.dart';
+import 'package:watch_movie_tv_show/features/language/domain/repositories/language_repository.dart';
+import 'package:watch_movie_tv_show/features/translation/controller/translation_controller.dart';
 
 /// Downloads Controller
 class DownloadsController extends GetxController {
   final DownloadService _downloadService = DownloadService.to;
+
+  // Translation
+  TranslationController? get _translationController {
+    try {
+      return Get.find<TranslationController>();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  ILanguageRepository? get _languageRepository {
+    try {
+      return Get.find<ILanguageRepository>();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Store translated titles: videoId -> translatedTitle
+  final RxMap<String, String> translatedTitles = <String, String>{}.obs;
 
   // Edit mode state
   final RxBool isEditMode = false.obs;
@@ -104,7 +126,6 @@ class DownloadsController extends GetxController {
     Get.toNamed(MRoutes.detail, arguments: video);
   }
 
- 
   /// Cancel download
   void cancelDownload(String videoId) {
     _downloadService.cancelDownload(videoId);
@@ -140,4 +161,61 @@ class DownloadsController extends GetxController {
 
   /// Check if has any downloads
   bool get hasDownloads => activeDownloads.isNotEmpty || completedDownloads.isNotEmpty;
+
+  @override
+  void onReady() {
+    super.onReady();
+    _translateDownloads();
+
+    // Listen for new downloads or language changes
+    ever(activeDownloads, (_) => _translateDownloads());
+    ever(completedDownloads, (_) => _translateDownloads());
+  }
+
+  /// Translate active and completed downloads
+  Future<void> _translateDownloads() async {
+    final translationCtrl = _translationController;
+    final langRepo = _languageRepository;
+
+    if (translationCtrl == null || langRepo == null) return;
+
+    try {
+      final currentLang = langRepo.getCurLangCode();
+      final allTasks = [...activeDownloads, ...completedDownloads];
+
+      // Filter tasks that need translation (or re-translation if lang changed)
+      // Since we don't store "last translated lang" here yet, we'll just try to translate all.
+      // TranslationController handles caching, so it's efficient.
+
+      final moviesToTranslate = allTasks
+          .map(
+            (task) => VideoItem(
+              id: task.videoId,
+              title: task.videoTitle,
+              thumbnailUrl: task.thumbnailUrl,
+            ),
+          )
+          .toList();
+
+      if (moviesToTranslate.isEmpty) return;
+
+      final translatedMovies = await translationCtrl.translateMovieList(
+        movies: moviesToTranslate,
+        targetLang: currentLang,
+        batchSize: 20,
+      );
+
+      // Update map
+      for (final movie in translatedMovies) {
+        translatedTitles[movie.id] = movie.displayTitle;
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
+  /// Get display title for a task
+  String getDisplayTitle(DownloadTask task) {
+    return translatedTitles[task.videoId] ?? task.videoTitle;
+  }
 }

@@ -6,6 +6,7 @@ import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
 import 'package:watch_movie_tv_show/app/widgets/premium/fade_in_widget.dart';
+import 'package:watch_movie_tv_show/app/utils/quality_mapper.dart';
 
 /// Category Row Widget
 /// Horizontal scrollable row of videos with title header
@@ -189,7 +190,8 @@ class _CategoryVideoCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            video.quality!,
+                            // translate known quality tokens (HD, FHD, 720p, Full)
+                            QualityMapper.translate(video.quality),
                             style: MTextTheme.smallTextMedium.copyWith(
                               color: Colors.white,
                               fontSize: 9,

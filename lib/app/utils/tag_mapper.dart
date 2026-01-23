@@ -11,14 +11,13 @@ class TagMapper {
     'Tâm Lý': L.psychological,
     'Hình Sự': L.crime,
     'Chiến Tranh': L.war,
-    'Thể Thao':
-        L.science, // Assuming no sport key, mapping to science is wrong. Let's check keys again.
+    'Thể Thao': L.sport,
     'Võ Thuật': L.action,
     'Viễn Tưởng': L.scienceFiction,
     'Phiêu Lưu': L.adventure,
     'Khoa Học': L.science,
     'Kinh Dị': L.horror,
-    'Âm Nhạc': L.drama, // Fallback
+    'Âm Nhạc': L.music,
     'Thần Thoại': L.adventure,
     'Tài Liệu': L.documentary,
     'Gia Đình': L.family,
@@ -27,6 +26,9 @@ class TagMapper {
     'Học Đường': L.shortDrama, // Roughly
     'Kinh Điển': L.drama,
     'Phim 18+': L.romance,
+    'Giả Tưởng': L.fantasy,
+    'Hoạt Hình': L.animation,
+    'Hồi Hộp': L.thriller,
 
     // Slugs or lowecase -> L keys
     'hanh-dong': L.action,
@@ -44,6 +46,42 @@ class TagMapper {
     'gia-dinh': L.family,
     'chinh-kich': L.drama,
     'bi-an': L.mystery,
+    'the-thao': L.sport,
+    'am-nhac': L.music,
+    'gia-tuong': L.fantasy,
+    'hoat-hinh': L.animation,
+    'hoi-hop': L.thriller,
+
+    // English raw tags -> L keys
+    'Action': L.action,
+    'Romance': L.romance,
+    'Comedy': L.comedy,
+    'Humor': L.comedy,
+    'Drama': L.drama,
+    'Psychological': L.psychological,
+    'Crime': L.crime,
+    'War': L.war,
+    'Sport': L.sport,
+    'Martial Arts': L.action,
+    'Sci-Fi': L.scienceFiction,
+    'Science Fiction': L.scienceFiction,
+    'Adventure': L.adventure,
+    'Science': L.science,
+    'Horror': L.horror,
+    'Music': L.music,
+    'Mythology': L.adventure,
+    'Documentary': L.documentary,
+    'Family': L.family,
+    'Mystery': L.mystery,
+    'School': L.shortDrama,
+    'Classic': L.drama,
+    'Adult': L.romance,
+    'Animation': L.animation,
+    'Fantasy': L.fantasy,
+    'Thriller': L.thriller,
+    'Full': L.full,
+    'full': L.full,
+    'FULL': L.full,
   };
 
   /// Get translated tag label

@@ -236,8 +236,8 @@ class _HeroItem extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
 
-                    // Watchlist button
-                    _WatchlistButton(video: video),
+                    // Watchlist button (fills remaining space to avoid overflow)
+                    Flexible(child: _WatchlistButton(video: video)),
                   ],
                 ),
               ],
@@ -356,7 +356,15 @@ class _WatchlistButtonState extends State<_WatchlistButton> {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(L.watchList.tr, style: MTextTheme.body1SemiBold.copyWith(color: Colors.white)),
+                Flexible(
+                  child: Text(
+                    L.watchList.tr,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: MTextTheme.body1SemiBold.copyWith(color: Colors.white),
+                  ),
+                ),
               ],
             ],
           ),

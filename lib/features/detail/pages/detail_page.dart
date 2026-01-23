@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
 import 'package:watch_movie_tv_show/app/widgets/cached_image_widget.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
+import 'package:watch_movie_tv_show/app/utils/quality_mapper.dart';
 import 'package:watch_movie_tv_show/features/detail/binding/detail_binding.dart';
 import 'package:watch_movie_tv_show/features/detail/controller/detail_controller.dart';
 import 'package:watch_movie_tv_show/features/detail/widgets/cast_crew_section.dart';
@@ -97,18 +99,22 @@ class DetailPage extends GetView<DetailController> {
                   // Info Header (Title, Metadata, Categories) - Reactive
                   Obx(() {
                     final movie = controller.movieDetail.value;
+                    final rawCategories = movie?.translatedCategories ?? movie?.categories ?? controller.video.displayTags;
+                    final translatedCategories = rawCategories?.map((c) => TagMapper.getTranslatedTag(c)).toList();
+
+                    // Translate quality label (e.g. HD, 720p, Full)
+                    final rawQuality = movie?.quality ?? controller.video.quality;
+                    final translatedQuality = QualityMapper.translate(rawQuality);
+
                     return DetailInfoHeader(
                       title: movie?.name ?? controller.video.displayTitle,
                       originName: movie?.originName,
                       year: movie?.year ?? controller.video.year,
-                      quality: movie?.quality ?? controller.video.quality,
+                      quality: translatedQuality,
 
                       episodeCurrent: movie?.episodeCurrent ?? controller.video.episodeCurrent,
                       episodeTotal: movie?.episodeTotal ?? controller.video.episodeTotal,
-                      categories:
-                          movie?.translatedCategories ??
-                          movie?.categories ??
-                          controller.video.displayTags,
+                      categories: translatedCategories,
                       view: movie?.view,
                     );
                   }),

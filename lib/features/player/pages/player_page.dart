@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watch_movie_tv_show/app/config/m_routes.dart';
 import 'package:watch_movie_tv_show/app/config/theme/app_colors.dart';
+import 'package:watch_movie_tv_show/app/utils/tag_mapper.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/services/download_service.dart';
 import 'package:watch_movie_tv_show/app/translations/lang/l.dart';
@@ -435,7 +436,8 @@ class PlayerPage extends GetView<PlayerController> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    tag,
+                    // translate tag label using TagMapper
+                    TagMapper.getTranslatedTag(tag),
                     style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                 );
