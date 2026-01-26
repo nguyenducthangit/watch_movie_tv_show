@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:background_downloader/background_downloader.dart' as bd;
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:watch_movie_tv_show/app/config/app_config.dart';
 import 'package:watch_movie_tv_show/app/data/models/download_task.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_item.dart';
 import 'package:watch_movie_tv_show/app/data/models/video_quality.dart';
@@ -242,7 +241,7 @@ class DownloadService extends GetxService {
     }
 
     // Check concurrent downloads limit
-    if (activeDownloads.length >= AppConfig.maxConcurrentDownloads) {
+    if (activeDownloads.length >= 2) {
       logger.w('Max concurrent downloads reached');
       Get.snackbar(
         'Download Limit Reached',
@@ -300,7 +299,7 @@ class DownloadService extends GetxService {
           filename: filename,
           directory: 'videos',
           baseDirectory: bd.BaseDirectory.applicationDocuments,
-          retries: AppConfig.downloadRetryCount,
+          retries: 3,
           allowPause: true,
         );
 

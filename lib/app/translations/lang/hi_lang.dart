@@ -1,7 +1,7 @@
 import 'l.dart';
 
 const Map<String, String> hiLang = {
-  L.appName: 'फिल्म टीवी शो देखें',
+  L.appName: 'InspireFlix',
   L.thisActionMayContainAds: 'यह कार्रवाई विज्ञापन शामिल कर सकती है',
   L.language: 'भाषा',
 

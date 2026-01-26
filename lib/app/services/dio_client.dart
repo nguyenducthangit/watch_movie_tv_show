@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:watch_movie_tv_show/app/config/app_config.dart';
 import 'package:watch_movie_tv_show/app/services/retry_interceptor.dart';
 import 'package:watch_movie_tv_show/app/utils/helpers.dart';
 
@@ -8,8 +7,8 @@ class DioClient {
   DioClient._() {
     _dio = Dio(
       BaseOptions(
-        connectTimeout: AppConfig.connectTimeout,
-        receiveTimeout: AppConfig.receiveTimeout,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
         extra: {'retryCount': 0}, // Initialize retry counter
       ),

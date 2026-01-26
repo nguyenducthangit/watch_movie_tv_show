@@ -1,7 +1,7 @@
 import 'l.dart';
 
 const Map<String, String> ptLang = {
-  L.appName: 'Assistir Filmes e Séries de TV',
+  L.appName: 'InspireFlix',
   L.thisActionMayContainAds: 'Esta ação pode conter anúncios',
   L.language: 'Idioma',
 

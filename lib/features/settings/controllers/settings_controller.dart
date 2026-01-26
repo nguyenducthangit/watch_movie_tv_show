@@ -72,7 +72,7 @@ class SettingsController extends BaseController {
   }
 
   Future<void> handlePrivacyPolicy() async {
-    const url = 'https://sites.google.com/zen-s.com/aho-voicechanger/home';
+    const url = 'https://sites.google.com/view/inspireflixmoviestv/home';
     // EasyAds.instance.appLifecycleReactor?.setIsExcludeScreen(true);
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }

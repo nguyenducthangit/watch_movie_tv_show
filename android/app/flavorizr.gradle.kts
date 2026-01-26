@@ -9,13 +9,13 @@ android.apply {
         create("dev") {
             dimension = "flavor-type"
             applicationId = "com.watch.movie.tv.show.dev"
-            resValue(type = "string", name = "app_name", value = "(Dev) Watch Movie TV Show")
+            resValue(type = "string", name = "app_name", value = "(Dev) InspireFlix")
 //            resValue(type = "string", name = "ads_app_id", value = "ca-app-pub-3940256099942544~3347511713")
         }
         create("prod") {
             dimension = "flavor-type"
-            applicationId = "com.watch.movie.tv.show"
-            resValue(type = "string", name = "app_name", value = "Watch Movie TV Show")
+            applicationId = "com.watch.movie.inspireflix"
+            resValue(type = "string", name = "app_name", value = "InspireFlix")
 //            resValue(type = "string", name = "ads_app_id", value = "ca-app-pub-3940256099942544~3347511713")
         }
     }

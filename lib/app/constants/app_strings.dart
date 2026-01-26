@@ -3,7 +3,7 @@ class AppStrings {
   AppStrings._();
 
   // App
-  static const String appName = 'ANGEL';
+  static const String appName = 'InspireFlix';
 
   // Navigation
   static const String home = 'Home';

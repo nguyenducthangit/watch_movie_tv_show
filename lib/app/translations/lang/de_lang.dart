@@ -1,7 +1,7 @@
 import 'l.dart';
 
 const Map<String, String> deLang = {
-  L.appName: 'Filme und TV-Serien anschauen',
+  L.appName: 'InspireFlix',
   L.thisActionMayContainAds: 'Diese Aktion könnte Werbung enthalten ',
   L.language: 'Sprache',
 
